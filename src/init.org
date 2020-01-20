@@ -2680,6 +2680,16 @@
 *** Verilog
 *** Mql
 *** Cmake
+**** cmake-mode
+
+     Enables cmake mode for editing cmake files.
+
+     #+BEGIN_SRC emacs-lisp
+
+     (require 'cmake-mode nil t)
+
+     #+END_SRC
+
 *** Highlight-doxygen
 
     Mode for highlight doxygen sections and its keywords.

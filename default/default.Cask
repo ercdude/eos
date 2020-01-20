@@ -60,3 +60,4 @@
 (depends-on "dired-sidebar")
 (depends-on "highlight-doxygen")
 (depends-on "web-mode")
+(depends-on "cmake-mode")
