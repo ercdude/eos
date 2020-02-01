@@ -52,7 +52,6 @@
             :git "https://github.com/ch11ng/xelb")
 
 ;; misc
-(depends-on "moody")
 (depends-on "undo-tree"
             :git "http://www.dr-qubit.org/git/undo-tree.git")
 (depends-on "rfc-mode"
