@@ -508,8 +508,11 @@ point is on a symbol, return that symbol name.  Else return nil."
 
 (customize-set-variable 'eval-expression-print-level nil)
 
-;; set custom-file
-(customize-set-variable 'custom-file (concat user-emacs-directory "custom.el"))
+;; file used for storing customization information.
+;; The default is nil, which means to use your init file
+;; as specified by ‘user-init-file’.  If the value is not nil,
+;; it should be an absolute file name.
+(setq custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
 
 ;; load custom file
 (eos/load-file custom-file)
@@ -537,8 +540,7 @@ point is on a symbol, return that symbol name.  Else return nil."
 
 ;; enabled modes list
 (dolist (mode
-         '(savehist-mode
-           show-paren-mode
+         '(show-paren-mode
            column-number-mode
            size-indication-mode
            electric-pair-mode
@@ -598,6 +600,7 @@ point is on a symbol, return that symbol name.  Else return nil."
                             `(([?\s-r] . exwm-reset)
                               ([?\s-w] . exwm-workspace-switch)
                               ([?\s-q] . exwm-input-toggle-keyboard)
+                              ([?\s-z] . multi-term-dedicated-toggle)
 
                               ;; ([?\s-k] . exwm-workspace-delete)
                               ;; ([?\s-a] . exwm-workspace-swap)
@@ -707,7 +710,17 @@ point is on a symbol, return that symbol name.  Else return nil."
     ;; (exwm-randr-enable)
     ))
 
-(require 'helm-exwm nil t)
+(defvar eos/helm-source-exwm-buffers
+  nil
+  "Helm exwm buffers source.")
+
+(when (require 'helm-exwm nil t)
+  (progn
+    ;; exwm buffers list
+    (setq eos/helm-source-exwm-buffers
+          (if (fboundp 'helm-exwm-build-source)
+              (helm-exwm-build-source)
+            nil))))
 
 (when (require 'helm nil t)
   (progn
@@ -779,50 +792,52 @@ point is on a symbol, return that symbol name.  Else return nil."
     (define-key helm-map (kbd "C-j") 'helm-maybe-exit-minibuffer)
     (define-key helm-map (kbd "C-z") 'helm-select-action)))
 
+;; for some silency (byte-compile)
+(defvar helm-mini-default-sources nil "")
+
 (when (require 'helm-source nil t)
   (progn
     ;; files buffers list
-    (customize-set-variable 'eos/helm-source-file-buffers
-                            (helm-build-in-buffer-source "File Buffers"
-                              :data 'helm-buffer-list
-                              :candidate-transformer (lambda (buffers)
-                                                       (cl-loop for buf in buffers
-                                                                when (with-current-buffer
-                                                                         buf buffer-file-name)
-                                                                collect buf))
-                              :action 'helm-type-buffer-actions))
+    (defvar eos/helm-source-file-buffers
+      (if (fboundp 'helm-build-in-buffer-source)
+          (helm-build-in-buffer-source "File Buffers"
+            :data 'helm-buffer-list
+            :candidate-transformer (lambda (buffers)
+                                     (cl-loop for buf in buffers
+                                              when (with-current-buffer
+                                                       buf buffer-file-name)
+                                              collect buf))
+            :action 'helm-type-buffer-actions))
+      "Helm file buffers source.")
 
     ;; non files buffers list
-    (customize-set-variable 'eos/helm-source-nonfile-buffers
-                            (helm-build-in-buffer-source "Non-file Buffers"
-                              :data 'helm-buffer-list
-                              :candidate-transformer (lambda (buffers)
-                                                       (cl-loop for buf in buffers
-                                                                unless (with-current-buffer
-                                                                           buf buffer-file-name)
-                                                                collect buf))
-                              :filtered-candidate-transformer 'helm-skip-boring-buffers
-                              :action 'helm-type-buffer-actions))
+    (defvar eos/helm-source-nonfile-buffers
+      (if (fboundp 'helm-build-in-buffer-source)
+          (helm-build-in-buffer-source "Non-file Buffers"
+            :data 'helm-buffer-list
+            :candidate-transformer (lambda (buffers)
+                                     (cl-loop for buf in buffers
+                                              unless (with-current-buffer
+                                                         buf buffer-file-name)
+                                              collect buf))
+            :filtered-candidate-transformer 'helm-skip-boring-buffers
+            :action 'helm-type-buffer-actions))
+      "Helm nonfile buffers source.")
 
-    ;; exwm buffers list
-    (customize-set-variable 'eos/helm-source-exwm-buffers (helm-exwm-build-source))
-
-    ;; customize helm-mini default sources
-    (customize-set-variable 'helm-mini-default-sources
-                            '(eos/helm-source-file-buffers
-                              eos/helm-source-exwm-buffers
-                              eos/helm-source-nonfile-buffers
-                              helm-source-recentf
-                              helm-source-buffers-list
-                              helm-source-buffer-not-found))))
+    ;; setq helm-mini default sources
+    (setq helm-mini-default-sources
+          '(eos/helm-source-file-buffers
+            eos/helm-source-exwm-buffers
+            eos/helm-source-nonfile-buffers
+            helm-source-recentf
+            helm-source-buffers-list
+            helm-source-buffer-not-found))))
 
 (when (require 'auth-source nil t)
   (progn
     ;; list of authentication sources
-    (customize-set-variable 'auth-sources
-                            '("~/.auth/auth.gpg"
-                              "~/.auth/auth"
-                              "~/.auth/netrc"))))
+    (customize-set-variable
+     'auth-sources '("~/.auth/auth.gpg" "~/.auth/auth" "~/.auth/netrc"))))
 
 (require 'password-store nil t)
 
@@ -852,7 +867,7 @@ point is on a symbol, return that symbol name.  Else return nil."
 
 (when (require 'iedit nil t)
   (progn
-    ;; If no-nil, the key is inserted into global-map,
+    ;; if no-nil, the key is inserted into global-map,
     ;; isearch-mode-map, esc-map and help-map.
     (customize-set-variable 'iedit-toggle-key-default nil)))
 
@@ -1130,14 +1145,28 @@ point is on a symbol, return that symbol name.  Else return nil."
 ;; bind
 ;; (define-key ctl-x-map (kbd "b") 'ibuffer)))
 
+(when (require 'savehist nil t)
+  (progn
+    ;; file name where minibuffer history is saved to and loaded from.
+    (customize-set-variable
+     'savehist-file (concat user-emacs-directory "cache/history"))
+
+    ;; if non-nil, save all recorded minibuffer histories.
+    (customize-set-variable 'savehist-save-minibuffer-history t)
+
+    ;; enable savehist mode
+    (eos/funcall 'savehist-mode 1)))
+
 (when (require 'shell nil t)
-      (progn
-        ;; hook
-        (add-hook 'shell-mode-hook
-                  (lambda()
-                    ;; do not display continuation lines.
-                    (toggle-truncate-lines)
-                    (display-line-numbers-mode 0)))))
+  (progn
+    ;; hook
+    (add-hook 'shell-mode-hook
+              (lambda()
+                ;; do not display continuation lines.
+                (toggle-truncate-lines)
+
+                ;; disable line numbers
+                (display-line-numbers-mode 0)))))
 
 (require 'eshell nil t)
 
@@ -1161,13 +1190,36 @@ point is on a symbol, return that symbol name.  Else return nil."
     (customize-set-variable 'term-completion-autolist t)
 
     ;; if true, buffer name equals process name
-    (customize-set-variable 'term-ansi-buffer-base-name nil)
+    (customize-set-variable 'term-ansi-buffer-base-name t)
+
+    ;; functions
+    (defun eos/term-send-kill-line ()
+      "Kill line in multi-term mode with the possibility to paste it like in a normal shell."
+      (interactive)
+      (when (fboundp 'term-send-raw-string)
+        (progn
+          (kill-line)
+          (term-send-raw-string "\C-k"))))
+
+    ;; bind (with hook)
+    (add-hook 'term-mode-hook
+              (lambda ()
+                (when (and (boundp 'term-raw-map)
+                           (boundp 'term-mode-map))
+                  (progn
+                    ;; term-raw-map
+                    (define-key term-raw-map (kbd "M-SPC") 'term-line-mode)
+
+                    ;; term-mode-map
+                    (define-key term-mode-map (kbd "M-SPC") 'term-char-mode)))))
 
     ;; hook
     (add-hook 'term-mode-hook
               (lambda()
                 ;; do not display continuation lines.
                 (toggle-truncate-lines)
+
+                ;; disable line numbers mode
                 (display-line-numbers-mode 0)))))
 
 (when (require 'multi-term nil t)
@@ -1175,11 +1227,17 @@ point is on a symbol, return that symbol name.  Else return nil."
     ;; customize
     (customize-set-variable 'multi-term-program "/usr/local/bin/fish")
 
-    ;; the buffer name of term buffer.
-    (customize-set-variable 'multi-term-buffer-name "term")
+    ;; focus terminal window after you open dedicated window
+    (customize-set-variable 'multi-term-dedicated-select-after-open-p t)
 
-    ;; bind
-    (define-key ctl-x-map (kbd "<C-return>") 'multi-term)))
+    ;; the buffer name of term buffer.
+    (customize-set-variable 'multi-term-buffer-name "Term")
+
+    ;; bind (C-x) prefix
+    (define-key ctl-x-map (kbd "<C-return>") 'multi-term)
+
+    ;; bind global
+    (global-set-key (kbd "C-z") 'multi-term-dedicated-toggle)))
 
 (defun eos/launch/st ()
   "Launch urxvt"
@@ -1250,20 +1308,17 @@ See the `eww-search-prefix' variable for the search engine used."
 (when (require 'ispell nil t)
   (progn
     ;; customize
-    ;; aspell setup
-    (customize-set-variable 'ispell-program-name "aspell")
-    (customize-set-variable 'ispell-list-command "-a")
+    ;; program invoked by M-x ispell-word and M-x ispell-region commands.
+    (customize-set-variable 'ispell-program-name "aspell")))
 
-    ;; functions (reference)
-    ;; (defun eos/ispell/switch-dictionary ()
-    ;;   "Switch dictionaries."
-    ;;   (interactive)
-    ;;   (let* ((dic ispell-current-dictionary)
-    ;;          (change (if (string= dic "english") "" "english")))
-    ;;     (ispell-change-dictionary change)
-    ;;     (message "Dictionary switched from %s to %s" dic change)))
-
-    ))
+;; function (reference)
+;; (defun eos/ispell/switch-dictionary ()
+;;   "Switch dictionaries."
+;;   (interactive)
+;;   (let* ((dic ispell-current-dictionary)
+;;          (change (if (string= dic "english") "brasileiro" "english")))
+;;     (ispell-change-dictionary change)
+;;     (message "Dictionary switched from %s to %s" dic change)))))
 
 (when (require 'flyspell nil t)
   (progn
@@ -1334,10 +1389,10 @@ See the `eww-search-prefix' variable for the search engine used."
     (customize-set-variable 'comint-use-prompt-regexp t)
 
     ;; regexp to recognize prompts in the inferior process.
-    (customize-set-variable 'comint-prompt-regexp ".*:.*>.*? ")
+    ;; (customize-set-variable 'comint-prompt-regexp ".*:.*>.*? ")
 
     ;; value to use for TERM when the system uses terminfo.
-    (customize-set-variable 'comint-terminfo-terminal (getenv "TERM"))))
+    (customize-set-variable 'comint-terminfo-terminal "eterm-color")))
 
 (defun eos/transset-set (opacity)
   "Set transparency on frame window specify by OPACITY."
@@ -1359,11 +1414,14 @@ See the `eww-search-prefix' variable for the search engine used."
 (when (require 'tramp nil t)
   (progn
     ;; customize
-    ;; gives the same backup policy for tramp
-    (customize-set-variable 'tramp-backup-directory-alist backup-directory-alist)
+    ;; set tramp default method
+    (customize-set-variable 'tramp-default-method "ssh")
 
-    ;; read directory timeout 8 seconds
-    (customize-set-variable 'tramp-completion-reread-directory-timeout 8)
+    ;; if non-nil, chunksize for sending input to local process.
+    ;; (customize-set-variable 'tramp-chunksize 512)
+
+    ;; set tramp verbose level
+    (customize-set-variable 'tramp-verbose 2)
 
     ;; connection timeout 30 seconds
     (customize-set-variable 'tramp-connection-timeout 30)))
@@ -1484,15 +1542,15 @@ See the `eww-search-prefix' variable for the search engine used."
     (customize-set-variable 'dashboard-footer
                             "Litany Against Fear
 
-   I must not fear.
-   Fear is the mind-killer.
-   Fear is the little-death that brings total obliteration.
-   I will face my fear.
-   I will permit it to pass over me and through me.
-   And when it has gone past I will turn the inner eye to see its path.
-   Where the fear has gone there will be nothing.
-   Only I will remain.
-   ")
+  I must not fear.
+  Fear is the mind-killer.
+  Fear is the little-death that brings total obliteration.
+  I will face my fear.
+  I will permit it to pass over me and through me.
+  And when it has gone past I will turn the inner eye to see its path.
+  Where the fear has gone there will be nothing.
+  Only I will remain.
+  ")
 
     ;; set initial buffer choice (emacsclient fix)
     (customize-set-variable 'initial-buffer-choice
@@ -1551,7 +1609,7 @@ See the `eww-search-prefix' variable for the search engine used."
     ;; customize
     ;; the directory where RFC documents are stored
     (customize-set-variable
-     'rfc-mode-directory (expand-file-name "~/.rfc/"))))
+     'rfc-mode-directory (concat (expand-file-name user-emacs-directory) "rfc/"))))
 
 ;; bind documentation related functions on eos-docs-map
 (define-key eos-docs-map (kbd "C-g") 'keyboard-quit)
@@ -1668,7 +1726,6 @@ See the `eww-search-prefix' variable for the search engine used."
 
 ;; set eos-complete-map M-` keybind
 (global-set-key (kbd "TAB") 'eos/complete-or-indent)
-(global-set-key (kbd "ESC `") 'eos-complete-map)
 (global-set-key (kbd "M-`") 'eos-complete-map)
 
 (when (require 'helm-gtags nil t)
@@ -1909,7 +1966,6 @@ See the `eww-search-prefix' variable for the search engine used."
 (define-key emacs-lisp-mode-map (kbd "C-c C-f") 'eval-defun)
 (define-key emacs-lisp-mode-map (kbd "C-c C-r") 'eval-region)
 (define-key emacs-lisp-mode-map (kbd "C-c C-c") 'eval-buffer)
-(define-key emacs-lisp-mode-map (kbd "C-c C-e") 'eval-last-sexp)
 (define-key emacs-lisp-mode-map (kbd "TAB") 'eos/complete-or-indent)
 
 ;; unbind
@@ -2026,7 +2082,7 @@ See the `eww-search-prefix' variable for the search engine used."
 ;; (define-key ctl-x-map (kbd "C-<right>") nil)
 ;; (define-key ctl-x-map (kbd "C-=") nil)
 ;; (define-key ctl-x-map (kbd "C-0") nil)
-(define-key ctl-x-map (kbd "C-z") nil)
+;; (define-key ctl-x-map (kbd "C-z") nil)
 (define-key ctl-x-map (kbd "C-+") nil)
 ;; (define-key ctl-x-map (kbd "C--") nil)
 (define-key ctl-x-map (kbd "C-a") nil)
@@ -2070,14 +2126,14 @@ See the `eww-search-prefix' variable for the search engine used."
 (setq minor-mode-map-alist nil)
 
 ;; unset
-(global-unset-key (kbd "C-z"))
+;; (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-@"))
 (global-unset-key (kbd "C-\\"))
 (global-unset-key (kbd "M-l"))
 (global-unset-key (kbd "M-h"))
 (global-unset-key (kbd "M-\\"))
 ;; (global-unset-key (kbd "M-z"))
-(global-unset-key (kbd "M-SPC"))
+;; (global-unset-key (kbd "M-SPC"))
 (global-unset-key (kbd "M-$"))
 (global-unset-key (kbd "M-("))
 (global-unset-key (kbd "M-)"))
