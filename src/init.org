@@ -1238,8 +1238,8 @@
        (progn
          ;; files buffers list
          (defvar eos/helm-source-file-buffers
-           (if (fboundp 'helm-build-in-buffer-source)
-               (helm-build-in-buffer-source "File Buffers"
+           (if (fboundp 'helm-make-source)
+               (helm-make-source "File Buffers" 'helm-source-in-buffer
                  :data 'helm-buffer-list
                  :candidate-transformer (lambda (buffers)
                                           (cl-loop for buf in buffers
@@ -1251,8 +1251,8 @@
 
          ;; non files buffers list
          (defvar eos/helm-source-nonfile-buffers
-           (if (fboundp 'helm-build-in-buffer-source)
-               (helm-build-in-buffer-source "Non-file Buffers"
+           (if (fboundp 'helm-make-source)
+               (helm-make-source "Non-file Buffers" 'helm-source-in-buffer
                  :data 'helm-buffer-list
                  :candidate-transformer (lambda (buffers)
                                           (cl-loop for buf in buffers
@@ -1279,6 +1279,37 @@
 *** Security
 **** Encryption
 ***** Epa
+
+
+      EasyPG is an all-in-one GnuPG interface for Emacs.
+      It has two aspects: convenient tools which allow to use GnuPG
+      from Emacs (EasyPG Assistant), and a fully
+      functional interface library to GnuPG (EasyPG Library).
+
+      #+BEGIN_SRC emacs-lisp
+
+      (when (require 'epa nil t)
+        (progn
+          ;; customize
+          ;; if non-nil, cache passphrase for symmetric encryption.
+          (customize-set-variable
+           'epa-file-cache-passphrase-for-symmetric-encryption t)
+
+          ;; if t, always asks user to select recipients.
+          (customize-set-variable 'epa-file-select-keys nil)
+
+          ;; the gpg executable.
+          (customize-set-variable 'epg-gpg-program "gpg")
+
+          ;; the pinentry mode.
+          ;; In epa commands, a particularly useful mode is ‘loopback’, which
+          ;; redirects all Pinentry queries to the caller, so Emacs can query
+          ;; passphrase through the minibuffer, instead of external Pinentry
+          ;; program.
+          (customize-set-variable 'epa-pinentry-mode 'loopback)))
+
+      #+END_SRC
+
 **** Authentication
 ***** Auth-source
 
@@ -1290,9 +1321,14 @@
 
       (when (require 'auth-source nil t)
         (progn
+
+          ;; Note: If the auth-sources variable contains ~/.auth.gpg before
+          ;; ~/.auth, the auth-source library will try to read the GnuPG
+          ;; encrypted .gpg file first, before the unencrypted file.
+
           ;; list of authentication sources
           (customize-set-variable
-           'auth-sources '("~/.auth/auth.gpg" "~/.auth/auth" "~/.auth/netrc"))))
+           'auth-sources '("~/.auth/auth.gpg" "~/.auth/netrc"))))
 
       #+END_SRC
 
@@ -1434,10 +1470,7 @@
 
      #+BEGIN_SRC emacs-lisp
 
-     (when (require 'helm-locate nil t)
-       (progn
-         ;; customize locate command
-         (customize-set-variable 'helm-locate-command "locate %s %s")))
+     (require 'helm-locate nil t)
 
      #+END_SRC
 
@@ -2161,7 +2194,7 @@
          ;; set dmenu-itens cache location
          (customize-set-variable
           'dmenu-save-file
-          (concat user-emacs-directory "cache/dmenu-itens"))
+          (concat user-emacs-directory "cache/dmenu-items"))
 
          ;; bind
          (define-key ctl-x-map (kbd "C-x") 'dmenu)))
@@ -2492,7 +2525,7 @@
      (when (require 'helm-man nil t)
        (progn
          ;; bind
-         (define-key help-map (kbd "C-y") 'helm-man-woman)))
+         (define-key help-map (kbd "y") 'helm-man-woman)))
 
      #+END_SRC
 
@@ -2675,8 +2708,7 @@
 
      (when (boundp 'helm-company-map)
        (define-key helm-company-map (kbd "SPC") 'helm-keyboard-quit)
-       (define-key helm-company-map (kbd "C-j") 'helm-maybe-exit-minibuffer)
-       (define-key helm-company-map (kbd "TAB") 'helm-next-line))
+       (define-key helm-company-map (kbd "C-j") 'helm-maybe-exit-minibuffer))
 
      #+END_SRC
 
@@ -2825,7 +2857,6 @@
      #+END_SRC
 
 *** Version Control
-**** Vc
 **** Magit
 
      #+BEGIN_SRC emacs-lisp
@@ -3325,7 +3356,7 @@
      #+END_SRC
 
 *** PHP
-*** Html
+*** HTML
 ** Unbind
 *** Prefix
 **** Esc
@@ -3349,11 +3380,14 @@
      ;; (define-key ctl-x-map (kbd "C-=") nil)
      ;; (define-key ctl-x-map (kbd "C-0") nil)
      ;; (define-key ctl-x-map (kbd "C-z") nil)
-     (define-key ctl-x-map (kbd "C-+") nil)
      ;; (define-key ctl-x-map (kbd "C--") nil)
+     ;; (define-key ctl-x-map (kbd "C-d") nil)
+     ;; (define-key ctl-x-map (kbd "ESC") nil)
+     (define-key ctl-x-map (kbd "]") nil)
+     (define-key ctl-x-map (kbd "[") nil)
+     (define-key ctl-x-map (kbd "C-+") nil)
      (define-key ctl-x-map (kbd "C-a") nil)
      (define-key ctl-x-map (kbd "C-l") nil)
-     ;; (define-key ctl-x-map (kbd "C-d") nil)
      (define-key ctl-x-map (kbd "C-r") nil)
      (define-key ctl-x-map (kbd "C-n") nil)
      (define-key ctl-x-map (kbd "C-p") nil)
@@ -3361,13 +3395,10 @@
      (define-key ctl-x-map (kbd "C-h") nil)
      (define-key ctl-x-map (kbd "C-u") nil)
      (define-key ctl-x-map (kbd "C-\@") nil)
-     ;;  (define-key ctl-x-map (kbd "ESC") nil)
      (define-key ctl-x-map (kbd "M-:") nil)
      (define-key ctl-x-map (kbd "`") nil)
      (define-key ctl-x-map (kbd ")") nil)
      (define-key ctl-x-map (kbd "(") nil)
-     ;; (define-key ctl-x-map (kbd "]") nil)
-     ;; (define-key ctl-x-map (kbd "[") nil)
      (define-key ctl-x-map (kbd "<") nil)
      (define-key ctl-x-map (kbd ">") nil)
      (define-key ctl-x-map (kbd "\@") nil)

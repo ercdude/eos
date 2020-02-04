@@ -799,8 +799,8 @@ point is on a symbol, return that symbol name.  Else return nil."
   (progn
     ;; files buffers list
     (defvar eos/helm-source-file-buffers
-      (if (fboundp 'helm-build-in-buffer-source)
-          (helm-build-in-buffer-source "File Buffers"
+      (if (fboundp 'helm-make-source)
+          (helm-make-source "File Buffers" 'helm-source-in-buffer
             :data 'helm-buffer-list
             :candidate-transformer (lambda (buffers)
                                      (cl-loop for buf in buffers
@@ -812,8 +812,8 @@ point is on a symbol, return that symbol name.  Else return nil."
 
     ;; non files buffers list
     (defvar eos/helm-source-nonfile-buffers
-      (if (fboundp 'helm-build-in-buffer-source)
-          (helm-build-in-buffer-source "Non-file Buffers"
+      (if (fboundp 'helm-make-source)
+          (helm-make-source "Non-file Buffers" 'helm-source-in-buffer
             :data 'helm-buffer-list
             :candidate-transformer (lambda (buffers)
                                      (cl-loop for buf in buffers
@@ -833,11 +833,36 @@ point is on a symbol, return that symbol name.  Else return nil."
             helm-source-buffers-list
             helm-source-buffer-not-found))))
 
+(when (require 'epa nil t)
+  (progn
+    ;; customize
+    ;; if non-nil, cache passphrase for symmetric encryption.
+    (customize-set-variable
+     'epa-file-cache-passphrase-for-symmetric-encryption t)
+
+    ;; if t, always asks user to select recipients.
+    (customize-set-variable 'epa-file-select-keys nil)
+
+    ;; the gpg executable.
+    (customize-set-variable 'epg-gpg-program "gpg")
+
+    ;; the pinentry mode.
+    ;; In epa commands, a particularly useful mode is ‘loopback’, which
+    ;; redirects all Pinentry queries to the caller, so Emacs can query
+    ;; passphrase through the minibuffer, instead of external Pinentry
+    ;; program.
+    (customize-set-variable 'epa-pinentry-mode 'loopback)))
+
 (when (require 'auth-source nil t)
   (progn
+
+    ;; Note: If the auth-sources variable contains ~/.auth.gpg before
+    ;; ~/.auth, the auth-source library will try to read the GnuPG
+    ;; encrypted .gpg file first, before the unencrypted file.
+
     ;; list of authentication sources
     (customize-set-variable
-     'auth-sources '("~/.auth/auth.gpg" "~/.auth/auth" "~/.auth/netrc"))))
+     'auth-sources '("~/.auth/auth.gpg" "~/.auth/netrc"))))
 
 (require 'password-store nil t)
 
@@ -911,10 +936,7 @@ point is on a symbol, return that symbol name.  Else return nil."
     (define-key helm-swoop-map (kbd "C-c s c")
       'helm-multi-swoop-current-mode-from-helm-swoop)))
 
-(when (require 'helm-locate nil t)
-  (progn
-    ;; customize locate command
-    (customize-set-variable 'helm-locate-command "locate %s %s")))
+(require 'helm-locate nil t)
 
 ;; load helm-imenu
 (when (require 'helm-imenu nil t)
@@ -1374,7 +1396,7 @@ See the `eww-search-prefix' variable for the search engine used."
     ;; set dmenu-itens cache location
     (customize-set-variable
      'dmenu-save-file
-     (concat user-emacs-directory "cache/dmenu-itens"))
+     (concat user-emacs-directory "cache/dmenu-items"))
 
     ;; bind
     (define-key ctl-x-map (kbd "C-x") 'dmenu)))
@@ -1573,7 +1595,7 @@ See the `eww-search-prefix' variable for the search engine used."
 (when (require 'helm-man nil t)
   (progn
     ;; bind
-    (define-key help-map (kbd "C-y") 'helm-man-woman)))
+    (define-key help-map (kbd "y") 'helm-man-woman)))
 
 (when (require 'dash-docs nil t)
   (progn
@@ -1695,8 +1717,7 @@ See the `eww-search-prefix' variable for the search engine used."
 
 (when (boundp 'helm-company-map)
   (define-key helm-company-map (kbd "SPC") 'helm-keyboard-quit)
-  (define-key helm-company-map (kbd "C-j") 'helm-maybe-exit-minibuffer)
-  (define-key helm-company-map (kbd "TAB") 'helm-next-line))
+  (define-key helm-company-map (kbd "C-j") 'helm-maybe-exit-minibuffer))
 
 ;; set company backends
 (defun eos/company/set-backends (backends)
@@ -2083,11 +2104,14 @@ See the `eww-search-prefix' variable for the search engine used."
 ;; (define-key ctl-x-map (kbd "C-=") nil)
 ;; (define-key ctl-x-map (kbd "C-0") nil)
 ;; (define-key ctl-x-map (kbd "C-z") nil)
-(define-key ctl-x-map (kbd "C-+") nil)
 ;; (define-key ctl-x-map (kbd "C--") nil)
+;; (define-key ctl-x-map (kbd "C-d") nil)
+;; (define-key ctl-x-map (kbd "ESC") nil)
+(define-key ctl-x-map (kbd "]") nil)
+(define-key ctl-x-map (kbd "[") nil)
+(define-key ctl-x-map (kbd "C-+") nil)
 (define-key ctl-x-map (kbd "C-a") nil)
 (define-key ctl-x-map (kbd "C-l") nil)
-;; (define-key ctl-x-map (kbd "C-d") nil)
 (define-key ctl-x-map (kbd "C-r") nil)
 (define-key ctl-x-map (kbd "C-n") nil)
 (define-key ctl-x-map (kbd "C-p") nil)
@@ -2095,13 +2119,10 @@ See the `eww-search-prefix' variable for the search engine used."
 (define-key ctl-x-map (kbd "C-h") nil)
 (define-key ctl-x-map (kbd "C-u") nil)
 (define-key ctl-x-map (kbd "C-\@") nil)
-;;  (define-key ctl-x-map (kbd "ESC") nil)
 (define-key ctl-x-map (kbd "M-:") nil)
 (define-key ctl-x-map (kbd "`") nil)
 (define-key ctl-x-map (kbd ")") nil)
 (define-key ctl-x-map (kbd "(") nil)
-;; (define-key ctl-x-map (kbd "]") nil)
-;; (define-key ctl-x-map (kbd "[") nil)
 (define-key ctl-x-map (kbd "<") nil)
 (define-key ctl-x-map (kbd ">") nil)
 (define-key ctl-x-map (kbd "\@") nil)
