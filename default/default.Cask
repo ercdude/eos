@@ -55,6 +55,7 @@
 (depends-on "fish-mode")
 (depends-on "web-mode")
 (depends-on "cmake-mode")
+(depends-on "rmsbolt")
 
 ;; launcher
 (depends-on "dmenu")
