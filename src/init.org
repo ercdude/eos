@@ -3268,6 +3268,16 @@
      #+END_SRC
 
 ** Development
+*** RMSBolt
+
+    RMSBolt is a compiler output viewer.
+
+     #+BEGIN_SRC emacs-lisp
+
+     (require 'rmsbolt nil t)
+
+     #+END_SRC
+
 *** C/C++
 **** Common
 

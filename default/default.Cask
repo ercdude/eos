@@ -56,6 +56,10 @@
 (depends-on "cmake-mode")
 ;; (depends-on "helm-compile"
 ;;               :git "https://github.com/esac-io/helm-compile")
+(depends-on "rmsbolt")
+
+;; launcher
+(depends-on "dmenu")
 
 ;; window manager
 ;; depends on exwm
