@@ -31,13 +31,20 @@
 
 ;; documentation
 (depends-on "helm-dash")
-(depends-on "rfc-mode"
-            :git "https://github.com/galdor/rfc-mode")
+(depends-on "rfc-mode")
+
+;; multimedia
+(depends-on "helm-youtube")
+(depends-on "emms")
 
 ;; security
 (depends-on "password-store")
 
+;; networking
+(depends-on "helm-tramp")
+
 ;; apparence
+(depends-on "all-the-icons")
 ;; (depends-on "moebius-theme"
 ;;              :git "https://github.com/esac-io/moebius-theme")
 
@@ -54,8 +61,13 @@
 (depends-on "fish-mode")
 (depends-on "web-mode")
 (depends-on "cmake-mode")
+(depends-on "lua-mode")
 ;; (depends-on "helm-compile"
 ;;               :git "https://github.com/esac-io/helm-compile")
+
+;; debuggers
+(depends-on "rmsbolt"
+  git: https://gitlab.com/jgkamat/rmsbolt)
 
 ;; window manager
 ;; depends on exwm
