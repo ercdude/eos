@@ -1614,10 +1614,20 @@ point is on a symbol, return that symbol name.  Else return nil."
 ;;     (ispell-change-dictionary change)
 ;;     (message "Dictionary switched from %s to %s" dic change)))))
 
-(when (require 'helm-external nil t)
+(when (require 'dmenu nil t)
   (progn
-    ;; bind (C-x) prefix map
-    (define-key ctl-x-map (kbd "x") 'helm-run-external-command)))
+    ;; set dmenu-itens cache location
+    (customize-set-variable
+     'dmenu-save-file
+     (concat user-emacs-directory "cache/dmenu-items"))
+
+    ;; bind
+    (define-key ctl-x-map (kbd "x") 'dmenu)))
+
+;; (when (require 'helm-external nil t)
+;;   (progn
+;;     ;; bind (C-x) prefix map
+;;     (define-key ctl-x-map (kbd "x") 'helm-run-external-command)))
 
 (when (require 'comint nil t)
   (progn

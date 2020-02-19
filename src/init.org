@@ -2712,14 +2712,30 @@
      #+END_SRC
 
 *** Launcher
+**** Dmenu
+
+     #+BEGIN_SRC emacs-lisp
+
+     (when (require 'dmenu nil t)
+       (progn
+         ;; set dmenu-itens cache location
+         (customize-set-variable
+          'dmenu-save-file
+          (concat user-emacs-directory "cache/dmenu-items"))
+
+         ;; bind
+         (define-key ctl-x-map (kbd "x") 'dmenu)))
+
+     #+END_SRC
+
 **** Helm-external
 
      #+BEGIN_SRC emacs-lisp
 
-     (when (require 'helm-external nil t)
-       (progn
-         ;; bind (C-x) prefix map
-         (define-key ctl-x-map (kbd "x") 'helm-run-external-command)))
+     ;; (when (require 'helm-external nil t)
+     ;;   (progn
+     ;;     ;; bind (C-x) prefix map
+     ;;     (define-key ctl-x-map (kbd "x") 'helm-run-external-command)))
 
      #+END_SRC
 
