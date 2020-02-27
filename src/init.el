@@ -368,6 +368,12 @@ point is on a symbol, return that symbol name.  Else return nil."
 ;; kill buffer and window
 (define-key ctl-x-map (kbd "C-k") 'kill-buffer-and-window)
 
+(add-to-list 'display-buffer-alist
+             '(("\\*Choices\\*"
+                (display-buffer-below-selected display-buffer-at-bottom)
+                (inhibit-same-window . t)
+                (window-height . fit-window-to-buffer))))
+
 ;; custom
 ;; non-nil inhibits the startup screen.
 (customize-set-variable 'inhibit-startup-screen t)
@@ -726,7 +732,10 @@ point is on a symbol, return that symbol name.  Else return nil."
     ;; binds
     (define-key ctl-x-map (kbd ".") 'whitespace-mode)))
 
-;; global-subword-mode
+(when (require 'subword nil t)
+  (progn
+    ;; enable
+    (eos/funcall 'global-subword-mode 1)))
 
 (when (require 'face-remap nil t)
   (progn
@@ -746,62 +755,6 @@ point is on a symbol, return that symbol name.  Else return nil."
 
 ;; load custom-file
 (eos/load-file custom-file)
-
-(when (require 'completion nil t)
-  (progn
-    ;; custom
-    ;; how far to search in the buffer when looking for completions. Hide
-    ;; in number of characters.  If nil, search the whole buffer.
-    (customize-set-variable 'completion-search-distance 0)
-
-    ;; if non-nil, the next completion prompt does a cdabbrev search.
-    (customize-set-variable 'completion-cdabbrev-prompt-flag t)
-
-    ;; non-nil means show help message in *Completions* buffer.
-    (customize-set-variable 'completion-show-help t)
-
-    ;; non-nil means separator characters mark previous word as used
-    (customize-set-variable 'completion-on-separator-character t)
-
-    ;;   the filename to save completions to.
-    (customize-set-variable
-     'save-completions-file-name
-     (expand-file-name "cache/completitions" user-emacs-directory))
-
-    ;; non-nil means save most-used completions when exiting emacs
-    (customize-set-variable 'save-completions-flag t)
-
-    ;;    Discard a completion if unused for this many hours. Hide
-    ;; (1 day = 24, 1 week = 168).  If this is 0, non-permanent completions
-    ;; will not be saved unless these are used.  Default is two weeks.
-    (customize-set-variable 'save-completions-retention-time 0)
-
-    ;; binds
-    (global-set-key (kbd "M-\\") 'complete)
-
-    ;; enable
-    ;; dynamic completion on
-    (eos/funcall 'dynamic-completion-mode 1)))
-
-;; add display-buffer-alist
-(add-to-list 'display-buffer-alist
-             '("\\*Completions\\*" display-buffer-below-selected))
-
-(when (require 'dabbrev nil t)
-  (progn
-    ;; custom
-    ;; non-nil means case sensitive search.
-    (customize-set-variable 'dabbrev-upcase-means-case-search t)
-
-    ;; whether dabbrev treats expansions as the same if they differ in case
-    ;; a value of nil means treat them as different.
-    (customize-set-variable 'dabbrev-case-distinction t)))
-
-;; custom
-;; whether or not to incrementally update display when flood-filling
-(customize-set-variable 'artist-flood-fill-show-incrementally nil)
-
-(require 'ede nil t)
 
 (require 'forms nil t)
 
@@ -988,7 +941,6 @@ point is on a symbol, return that symbol name.  Else return nil."
     ;; enable fuzzing matching
     (customize-set-variable 'helm-M-x-fuzzy-match t)
     (customize-set-variable 'helm-imenu-fuzzy-match t)
-    (customize-set-variable 'helm-locate-fuzzy-match t)
     (customize-set-variable 'helm-recentf-fuzzy-match t)
     (customize-set-variable 'helm-apropos-fuzzy-match t)
     (customize-set-variable 'helm-lisp-fuzzy-completion t)
@@ -1053,6 +1005,12 @@ point is on a symbol, return that symbol name.  Else return nil."
     (define-key helm-map (kbd "TAB") 'helm-execute-persistent-action)
     (define-key helm-map (kbd "C-j") 'helm-maybe-exit-minibuffer)
     (define-key helm-map (kbd "C-z") 'helm-select-action)))
+
+(when (require 'helm-lib nil t)
+  (progn
+    ;; custom
+    ;; display help window in full frame when non nil
+    (customize-set-variable 'helm-help-full-frame t)))
 
 ;; for some silency (byte-compile)
 (defvar helm-mini-default-sources nil "")
@@ -1173,7 +1131,9 @@ point is on a symbol, return that symbol name.  Else return nil."
     ;; binds
     ;; help-map (C-h)
     (if (boundp 'help-map)
-        (define-key help-map (kbd "b") 'helm-descbinds))))
+        (progn
+          ;; (define-key help-map (kbd "b") 'helm-descbinds)
+          (define-key help-map (kbd "C-b") 'helm-descbinds)))))
 
 (when (require 'iedit nil t)
   (progn
@@ -1253,12 +1213,26 @@ point is on a symbol, return that symbol name.  Else return nil."
     ;; init dashboard after emacs initialize
     (add-hook 'after-init-hook 'dashboard-setup-startup-hook)))
 
+(when (require 'artist nil t)
+  (progn
+    ;; custom
+    ;; whether or not to incrementally update display when flood-filling
+    (customize-set-variable 'artist-flood-fill-show-incrementally nil)
+
+    ;; whether or not to remove white-space at end of lines
+    (customize-set-variable 'artist-trim-line-endings nil)))
+
 (require 'locate nil t)
 
 (when (require 'helm-locate nil t)
   (progn
     ;; custom
-    (customize-set-value 'helm-locate-command "locate")))
+    ;; disable fuzzy matching in `helm-locate'.
+    (customize-set-variable 'helm-locate-fuzzy-match nil)
+
+    ;; a list of arguments for locate program
+    ;; berkeley-unix: "locate %s %s" (not working with fuzzing match?)
+    (customize-set-variable 'helm-locate-command "locate %s %s")))
 
 (when (require 'helm-swoop nil t)
   (progn
@@ -1469,11 +1443,22 @@ point is on a symbol, return that symbol name.  Else return nil."
     (customize-set-variable 'multi-term-dedicated-select-after-open-p t)
 
     ;; the buffer name of term buffer.
-    (customize-set-variable 'multi-term-buffer-name "Term")
+    (customize-set-variable 'multi-term-buffer-name "[TERM]")
 
     ;; binds (C-x) prefix
     (define-key ctl-x-map (kbd "<C-return>") 'multi-term)
     (define-key ctl-x-map (kbd "<return>") 'multi-term-dedicated-toggle)))
+
+(when (require 'vterm nil t)
+  (progn
+    ;; bind
+    (define-key ctl-x-map (kbd "C-q") 'vterm-copy-mode)
+
+    ;; hook to disable line numbers
+    (add-hook 'vterm-mode-hook
+              (lambda ()
+                (interactive)
+                (display-line-numbers-mode 0)))))
 
 (defun eos/launch/urxvt ()
   "Launch urxvt"
@@ -1614,6 +1599,31 @@ point is on a symbol, return that symbol name.  Else return nil."
 ;;     (ispell-change-dictionary change)
 ;;     (message "Dictionary switched from %s to %s" dic change)))))
 
+(require 'verb nil t)
+
+(when (require 'diff nil t)
+  (progn
+    ;; custom
+    ;; a string or list of strings specifying switches to be passed to diff
+    (customize-set-variable 'diff-switches "-u")))
+
+(when (require 'ediff nil t)
+  (progn
+    ;; custom
+    ;; options to pass to `ediff-custom-diff-program'.
+    (customize-set-variable 'ediff-custom-diff-options "-U3")
+
+    ;; the function used to split the main window between buffer-A and buffer-B
+    (customize-set-variable 'ediff-split-window-function 'split-window-horizontally)
+
+    ;; function called to set up windows
+    (customize-set-variable 'ediff-window-setup-function 'ediff-setup-windows-plain)
+
+    ;; hooks
+    (add-hook 'ediff-startup-hook 'ediff-toggle-wide-display)
+    (add-hook 'ediff-cleanup-hook 'ediff-toggle-wide-display)
+    (add-hook 'ediff-suspend-hook 'ediff-toggle-wide-display)))
+
 (when (require 'dmenu nil t)
   (progn
     ;; set dmenu-itens cache location
@@ -1662,6 +1672,11 @@ point is on a symbol, return that symbol name.  Else return nil."
 
 (require 'sql nil t)
 
+;; start compton after emacs initialize
+(add-hook 'after-init-hook
+          (lambda ()
+            (eos/run/proc "compton")))
+
 (defun eos/transset-set (opacity)
   "Set transparency on frame window specify by OPACITY."
   (interactive "nOpacity: ")
@@ -1682,11 +1697,6 @@ point is on a symbol, return that symbol name.  Else return nil."
           (lambda ()
             (interactive)
             (eos/transset-set 0.9)))
-
-;; start compton after emacs initialize
-(add-hook 'after-init-hook
-          (lambda ()
-            (eos/run/proc "compton")))
 
 (if (fboundp 'helm-calcul-expression)
     (define-key ctl-x-map (kbd "C-/") 'helm-calcul-expression))
@@ -1785,6 +1795,82 @@ point is on a symbol, return that symbol name.  Else return nil."
     (funcall 'emms-all)
     (funcall 'emms-default-players)))
 
+;; custom
+;; when non-nil, fontify code in code blocks
+(customize-set-variable 'org-src-fontify-natively t)
+
+;; if non-nil, the effect of TAB in a code block is as if it were
+;; issued in the language major mode buffer
+(customize-set-variable 'org-src-tab-acts-natively t)
+
+;; indentation for the content of a source code block.
+(customize-set-variable 'org-edit-src-content-indentation 0)
+
+;; confirm before evaluation
+(customize-set-variable 'org-confirm-babel-evaluate nil)
+
+;; how the source code edit buffer should be displayed
+(customize-set-variable 'org-src-window-setup 'current-window)
+
+;; non-nil means C-a and C-e behave specially in headlines and items
+(customize-set-variable 'org-special-ctrl-a/e t)
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            ;; do not truncate lines
+            (setq truncate-lines nil)
+
+            ;; set company backends
+            (eos/company/set-backends
+             '((company-ispell
+                company-yasnippet)
+               (company-files)))))
+
+;; binds
+(define-key org-mode-map (kbd "C-M-i") 'eos/company-or-indent)
+
+(setq org-agenda-include-diary t)
+
+(when (require 'tex-mode nil t)
+  (progn
+    ;; custom
+    ;; hooks
+    ))
+
+(when (require 'text-mode nil t)
+  (progn
+    ;; binds
+    (define-key text-mode-map (kbd "C-c C-g") 'keyboard-quit)
+    (define-key text-mode-map (kbd "TAB") 'eos/complete-or-indent)
+    (define-key text-mode-map (kbd "C-M-i") 'eos/company-or-indent)
+
+    (define-key text-mode-map (kbd "C-c C-k") 'with-editor-cancel)
+    (define-key text-mode-map (kbd "C-c C-c") 'with-editor-finish)
+
+    ;; text mode hook
+    (add-hook 'text-mode-hook
+              (lambda ()
+                ;; turn on auto fill mode
+                (turn-on-auto-fill)
+
+                ;; set company backends
+                (eos/company/set-backends
+                 '((company-ispell
+                    company-keywords
+                    company-capf
+                    company-dabbrev)
+                   (company-files)))))))
+
+(when (require 'markdown-mode nil t)
+  (progn
+    ;; custom
+    (customize-set-variable 'markdown-command "multimarkdown")))
+
+;; binds
+(when (boundp 'markdown-mode-map)
+  (progn
+    (define-key markdown-mode-map (kbd "TAB") 'eos/complete-or-indent)))
+
 (require 'notifications nil t)
 
 (require 'eldoc nil t)
@@ -1849,79 +1935,55 @@ point is on a symbol, return that symbol name.  Else return nil."
 ;; bind eos-docs-map under ctl-x-map
 (define-key ctl-x-map (kbd "l") 'eos-docs-map)
 
-;; custom
-;; when non-nil, fontify code in code blocks
-(customize-set-variable 'org-src-fontify-natively t)
-
-;; if non-nil, the effect of TAB in a code block is as if it were
-;; issued in the language major mode buffer
-(customize-set-variable 'org-src-tab-acts-natively t)
-
-;; indentation for the content of a source code block.
-(customize-set-variable 'org-edit-src-content-indentation 0)
-
-;; confirm before evaluation
-(customize-set-variable 'org-confirm-babel-evaluate nil)
-
-;; how the source code edit buffer should be displayed
-(customize-set-variable 'org-src-window-setup 'current-window)
-
-;; non-nil means C-a and C-e behave specially in headlines and items
-(customize-set-variable 'org-special-ctrl-a/e t)
-
-(add-hook 'org-mode-hook
-          (lambda ()
-            ;; do not truncate lines
-            (setq truncate-lines nil)
-
-            ;; set company backends
-            (eos/company/set-backends
-             '((company-ispell
-                company-yasnippet)
-               (company-files)))))
-
-;; binds
-(define-key org-mode-map (kbd "C-M-i") 'eos/company-or-indent)
-
-(when (require 'tex-mode nil t)
+(when (require 'completion nil t)
   (progn
     ;; custom
-    ;; hooks
-    ))
+    ;; how far to search in the buffer when looking for completions. Hide
+    ;; in number of characters.  If nil, search the whole buffer.
+    (customize-set-variable 'completion-search-distance 0)
 
-(when (require 'text-mode nil t)
-  (progn
+    ;; if non-nil, the next completion prompt does a cdabbrev search.
+    (customize-set-variable 'completion-cdabbrev-prompt-flag t)
+
+    ;; non-nil means show help message in *Completions* buffer.
+    (customize-set-variable 'completion-show-help t)
+
+    ;; non-nil means separator characters mark previous word as used
+    (customize-set-variable 'completion-on-separator-character t)
+
+    ;;   the filename to save completions to.
+    (customize-set-variable
+     'save-completions-file-name
+     (expand-file-name "cache/completitions" user-emacs-directory))
+
+    ;; non-nil means save most-used completions when exiting emacs
+    (customize-set-variable 'save-completions-flag t)
+
+    ;;    Discard a completion if unused for this many hours. Hide
+    ;; (1 day = 24, 1 week = 168).  If this is 0, non-permanent completions
+    ;; will not be saved unless these are used.  Default is two weeks.
+    (customize-set-variable 'save-completions-retention-time 0)
+
     ;; binds
-    (define-key text-mode-map (kbd "C-c C-g") 'keyboard-quit)
-    (define-key text-mode-map (kbd "TAB") 'eos/complete-or-indent)
-    (define-key text-mode-map (kbd "C-M-i") 'eos/company-or-indent)
+    (global-set-key (kbd "M-\\") 'complete)
 
-    (define-key text-mode-map (kbd "C-c C-k") 'with-editor-cancel)
-    (define-key text-mode-map (kbd "C-c C-c") 'with-editor-finish)
+    ;; enable
+    ;; dynamic completion on
+    (eos/funcall 'dynamic-completion-mode 1)))
 
-    ;; text mode hook
-    (add-hook 'text-mode-hook
-              (lambda ()
-                ;; turn on auto fill mode
-                (turn-on-auto-fill)
+;; add display-buffer-alist
+(add-to-list 'display-buffer-alist
+             '("\\*Completions\\*" display-buffer-below-selected))
 
-                ;; set company backends
-                (eos/company/set-backends
-                 '((company-ispell
-                    company-keywords
-                    company-capf
-                    company-dabbrev)
-                   (company-files)))))))
-
-(when (require 'markdown-mode nil t)
+(when (require 'dabbrev nil t)
   (progn
     ;; custom
-    (customize-set-variable 'markdown-command "multimarkdown")))
+    ;; non-nil means case sensitive search.
+    (customize-set-variable 'dabbrev-upcase-means-case-search t)
 
-;; binds
-(when (boundp 'markdown-mode-map)
-  (progn
-    (define-key markdown-mode-map (kbd "TAB") 'eos/complete-or-indent)))
+    ;; whether dabbrev treats expansions as the same if they differ in case
+    ;; a value of nil means treat them as different.
+    (customize-set-variable 'dabbrev-case-distinction t)))
 
 (when (require 'company nil t)
   (progn
@@ -2130,6 +2192,8 @@ current line."
   (progn
     ;; binds
     (define-key ctl-x-map (kbd "j") 'magit-status)))
+
+(require 'ede nil t)
 
 (when (require 'projectile nil t)
   (progn
@@ -2552,9 +2616,8 @@ current line."
 ;; (define-key ctl-x-map (kbd "C--") nil)
 ;; (define-key ctl-x-map (kbd "ESC") nil)
 ;; (define-key ctl-x-map (kbd ".") nil)
-(define-key ctl-x-map (kbd "C-l") nil)
+;; (define-key ctl-x-map (kbd "C-l") nil)
 (define-key ctl-x-map (kbd "C-d") nil)
-(define-key ctl-x-map (kbd "C-z") nil)
 (define-key ctl-x-map (kbd "C-<left>") nil)
 (define-key ctl-x-map (kbd "C-<right>") nil)
 (define-key ctl-x-map (kbd "C-<up>") nil)
@@ -2593,6 +2656,7 @@ current line."
 (define-key ctl-x-map (kbd "a") nil)
 (define-key ctl-x-map (kbd "h") nil)
 (define-key ctl-x-map (kbd "v") nil)
+(define-key ctl-x-map (kbd "x") nil)
 (define-key ctl-x-map (kbd "X") nil)
 
 ;; clean minor-mode-map-alist

@@ -89,6 +89,9 @@
 (depends-on "multi-term")
 (depends-on "vterm")
 
+;; tester
+(depends-on "verb")
+
 ;; bar
 (depends-on "moody")
 
