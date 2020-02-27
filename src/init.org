@@ -2467,11 +2467,32 @@
          (customize-set-variable 'multi-term-dedicated-select-after-open-p t)
 
          ;; the buffer name of term buffer.
-         (customize-set-variable 'multi-term-buffer-name "Term")
+         (customize-set-variable 'multi-term-buffer-name "[TERM]")
 
          ;; binds (C-x) prefix
          (define-key ctl-x-map (kbd "<C-return>") 'multi-term)
          (define-key ctl-x-map (kbd "<return>") 'multi-term-dedicated-toggle)))
+
+     #+END_SRC
+
+**** VTerm
+
+     VTerm is a module that implements a bridge to libvterm. It solves
+     a problem with terminals and emacs, which can be pretty slow
+     depending on the context due to the lack of mult-threading.
+
+     #+BEGIN_SRC emacs-lisp
+
+     (when (require 'vterm nil t)
+       (progn
+         ;; bind
+         (define-key ctl-x-map (kbd "C-q") 'vterm-copy-mode)
+
+         ;; hook to disable line numbers
+         (add-hook 'vterm-mode-hook
+                   (lambda ()
+                     (interactive)
+                     (display-line-numbers-mode 0)))))
 
      #+END_SRC
 
@@ -3188,6 +3209,13 @@
      #+END_SRC
 
 **** Org-Agenda
+
+     #+BEGIN_SRC emacs-lisp
+
+     (setq org-agenda-include-diary t)
+
+     #+END_SRC
+
 **** Tex
 
      #+BEGIN_SRC emacs-lisp

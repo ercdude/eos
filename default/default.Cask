@@ -87,6 +87,7 @@
 
 ;; term & shell
 (depends-on "multi-term")
+(depends-on "vterm")
 
 ;; bar
 (depends-on "moody")
