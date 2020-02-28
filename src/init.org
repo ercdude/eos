@@ -2460,6 +2460,9 @@
      a problem with terminals and emacs, which can be pretty slow
      depending on the context due to the lack of mult-threading.
 
+     On FreeBSD, there is an issue with utf8 which is better explained
+     [[https://github.com/akermu/emacs-libvterm/issues/242][on github]].
+
      #+BEGIN_SRC emacs-lisp
 
      (when (require 'vterm nil t)
