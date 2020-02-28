@@ -2656,8 +2656,6 @@ current line."
 (define-key ctl-x-map (kbd "a") nil)
 (define-key ctl-x-map (kbd "h") nil)
 (define-key ctl-x-map (kbd "v") nil)
-(define-key ctl-x-map (kbd "x") nil)
-(define-key ctl-x-map (kbd "X") nil)
 
 ;; clean minor-mode-map-alist
 (setq minor-mode-map-alist nil)
@@ -2745,41 +2743,11 @@ current line."
 (global-unset-key (kbd "<top-left-corner>"))
 (global-unset-key (kbd "<top-right-corner>"))
 
-(global-unset-key (kbd "<mouse-1>"))
-(global-unset-key (kbd "<mouse-2>"))
-(global-unset-key (kbd "<mouse-3>"))
-(global-unset-key (kbd "<mouse-4>"))
-(global-unset-key (kbd "<mouse-5>"))
-(global-unset-key (kbd "<mouse-6>"))
-(global-unset-key (kbd "<mouse-7>"))
-
-(global-unset-key (kbd "<right-divider>"))
-(global-unset-key (kbd "<vertical-line>"))
-
 (global-unset-key (kbd "<f10>"))
 (global-unset-key (kbd "<f11>"))
 (global-unset-key (kbd "<f16>"))
 (global-unset-key (kbd "<f18>"))
 (global-unset-key (kbd "<f20>"))
-
-(global-unset-key (kbd "<drag-mouse-1>"))
-(global-unset-key (kbd "<C-mouse-4>"))
-(global-unset-key (kbd "<C-mouse-5>"))
-(global-unset-key (kbd "<C-mouse-6>"))
-(global-unset-key (kbd "<C-mouse-7>"))
-(global-unset-key (kbd "<M-mouse-1>"))
-(global-unset-key (kbd "<M-mouse-2>"))
-(global-unset-key (kbd "<M-mouse-3>"))
-(global-unset-key (kbd "<S-mouse-3>"))
-(global-unset-key (kbd "<S-mouse-4>"))
-(global-unset-key (kbd "<S-mouse-5>"))
-(global-unset-key (kbd "<S-mouse-6>"))
-(global-unset-key (kbd "<S-mouse-7>"))
-(global-unset-key (kbd "<C-down-mouse-1>"))
-(global-unset-key (kbd "<C-down-mouse-2>"))
-(global-unset-key (kbd "<M-down-mouse-1>"))
-(global-unset-key (kbd "<M-drag-mouse-1>"))
-(global-unset-key (kbd "<S-down-mouse-1>"))
 
 (require 'eos-adapt
          (expand-file-name "eos-adapt.el" user-emacs-directory) t)
