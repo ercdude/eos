@@ -4536,11 +4536,6 @@
     (global-unset-key (kbd "<C-M-end>"))
     (global-unset-key (kbd "<C-M-home>"))
     (global-unset-key (kbd "<C-S-backspace>"))
-    (global-unset-key (kbd "<C-backspace>"))
-    (global-unset-key (kbd "<C-delete>"))
-    (global-unset-key (kbd "<C-down>"))
-    (global-unset-key (kbd "<C-next>"))
-    (global-unset-key (kbd "<C-end>"))
     (global-unset-key (kbd "<C-f10>"))
     (global-unset-key (kbd "<M-f10>"))
 
@@ -4562,7 +4557,6 @@
     (global-unset-key (kbd "<again>"))
     (global-unset-key (kbd "<menu>"))
     (global-unset-key (kbd "<header-line>"))
-    (global-unset-key (kbd "<mode-line>"))
 
     (global-unset-key (kbd "<XF86Back>"))
     (global-unset-key (kbd "<XF86Forward>"))
