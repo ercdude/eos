@@ -87,7 +87,8 @@
 
 ;; term & shell
 (depends-on "multi-term")
-(depends-on "vterm")
+;; before enable it, please read the VTerm section of init.org
+;;(depends-on "vterm")
 
 ;; tester
 (depends-on "verb")

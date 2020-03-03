@@ -2459,21 +2459,30 @@
      VTerm is a module that implements a bridge to libvterm. It solves
      a problem with terminals and emacs, which can be pretty slow
      depending on the context due to the lack of mult-threading.
+     But... it's in alpha and has a lot of issues (including
+     crashing), use with care!
 
      On FreeBSD, there is an issue with utf8 which is better explained
-     [[https://github.com/akermu/emacs-libvterm/issues/242][on github]].
+     [[https://github.com/akermu/emacs-libvterm/issues/242][on github]]. Tl;dr: you need to remove the utf8 flag from the
+     :command of ~vterm--process~ vterm.el to make it work.
+
+     Also, the ~vterm-copy-mode-map~ is not assigned when
+     ~vterm-copy-mode~ is toggled. I had to assign the map at
+     ~vterm-copy-mode~'s definition so it could work. (not sure if I
+     am the one wrong here or vterm.el)
 
      #+BEGIN_SRC emacs-lisp
 
      (when (require 'vterm nil t)
        (progn
          ;; bind
-         (define-key ctl-x-map (kbd "C-q") 'vterm-copy-mode)
+         (define-key vterm-mode-map (kbd "C-c C-q") 'vterm-copy-mode)
+         (define-key vterm-copy-mode-map (kbd "C-c C-q") 'vterm-copy-mode)
 
-         ;; hook to disable line numbers
          (add-hook 'vterm-mode-hook
                    (lambda ()
                      (interactive)
+                     ;; disable line numbers
                      (display-line-numbers-mode 0)))))
 
      #+END_SRC
