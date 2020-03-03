@@ -3816,6 +3816,30 @@
 
      #+END_SRC
 
+*** Translate
+**** google-translate
+
+     This package allows to translate any word (strings don't seems to
+     work AFAIK) using google translate. There are, basically, two
+     methods for translating: at-point (which uses "default"
+     languages) and smooth (which uses the directions-alist).
+
+     #+BEGIN_SRC emacs-lisp
+
+     (when (and (require 'google-translate nil t)
+                (require 'google-translate-smooth-ui nil t))
+       (progn
+         ;; default languages for translate (when using smooth)
+         (setq google-translate-translation-directions-alist
+           '(("pt" . "en") ("en" . "pt")))
+         ;; default target/source language (e.g: when using at point)
+         (setq google-translate-default-target-language "pt")
+         (setq google-translate-default-source-language "auto")
+         ;; using pop up buffer, otherwise we can't listen
+         (setq google-translate-output-destination nil)))
+
+     #+END_SRC
+
 ** Development
 *** C/C++
 **** Common

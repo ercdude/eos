@@ -62,12 +62,10 @@
 (depends-on "web-mode")
 (depends-on "cmake-mode")
 (depends-on "lua-mode")
+(depends-on "rmsbolt"
+            git: "https://gitlab.com/jgkamat/rmsbolt")
 ;; (depends-on "helm-compile"
 ;;               :git "https://github.com/esac-io/helm-compile")
-
-;; debuggers
-(depends-on "rmsbolt"
-  git: https://gitlab.com/jgkamat/rmsbolt)
 
 ;; window manager
 ;; depends on exwm
@@ -84,6 +82,7 @@
 
 ;; misc
 (depends-on "buffer-move")
+(depends-on "google-translate")
 
 ;; term & shell
 (depends-on "multi-term")
