@@ -3312,8 +3312,11 @@
        (progn
          ;; custom
          ;; the directory where RFC documents are stored
-         (customize-set-variable
-          'rfc-mode-directory (concat (expand-file-name user-emacs-directory) "rfc/"))))
+         (customize-set-variable 'rfc-mode-directory "~/rfc/")
+
+         ;; change color from section title to match theme
+         (custom-set-faces
+           '(rfc-mode-document-section-title-face ((t (:inherit nil :foreground "indian red")))))))
 
      #+END_SRC
 
@@ -4345,7 +4348,10 @@
      (when (require 'highlight-doxygen nil t)
        (progn
          ;; add doxygen
-         (add-hook 'prog-mode-hook 'highlight-doxygen-global-mode)))
+         (add-hook 'prog-mode-hook 'highlight-doxygen-global-mode)
+         ;; change background color of comment block
+         (custom-set-faces
+           '(highlight-doxygen-comment ((t (:inherit font-lock-doc-face :background "grey3")))))))
 
      #+END_SRC
 
