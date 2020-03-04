@@ -1477,7 +1477,7 @@
                                                  (lambda ()
                                                    (interactive)
                                                    (exwm-workspace-switch-create ,i))))
-                                             (number-sequence 0))))
+                                             (number-sequence 0 4))))
 
          ;; The following example demonstrates how to use simulation keys to mimic
          ;; the behavior of Emacs.  The value of `exwm-input-simulation-keys` is a
@@ -1499,11 +1499,6 @@
                                    ([?\C-v] . [next])
                                    ([?\C-d] . [delete])
                                    ([?\C-k] . [S-end delete])
-
-                                   ;; firefox temporary
-                                   ([?\C-o] . [C-prior]) ; change tab mapping
-                                   ([?\C-k] . [C-w]) ; close tab mapping
-                                   ([?\C-j] . [return]) ; close tab mapping
 
                                    ;; cut/paste.
                                    ([?\C-w] . [?\C-x])
