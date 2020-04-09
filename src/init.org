@@ -1684,9 +1684,10 @@
          ;; custom
          ;; monitors: check the xrandr(1) output and use the same name/order
          ;; TODO: create a func that retrieves these values from xrandr
-         ;; (customize-set-variable
-         ;;  'exwm-randr-workspace-monitor-plist '(0 "eDP-1"
-         ;;                                        1 "HDMI-1"))
+         (customize-set-variable
+           'exwm-randr-workspace-monitor-plist '(0 "eDP-1"
+                                                 1 "HDMI-1"
+                                                 2 "HDMI-1"))
 
          (customize-set-variable 'exwm-workspace-number
                                  (if (boundp 'exwm-randr-workspace-monitor-plist)
@@ -1694,7 +1695,7 @@
                                        (/ (safe-length exwm-randr-workspace-monitor-plist) 2))
                                    1))))
      ;; enable
-     ;; (exwm-randr-enable)
+     (exwm-randr-enable)
 
      #+END_SRC
 
@@ -3568,6 +3569,9 @@
          ;; custom
          ;; the directory where RFC documents are stored
          (customize-set-variable 'rfc-mode-directory "~/rfc/")
+
+         ;; bind
+         (define-key eos-docs-map (kbd "r") 'rfc-mode-browse)
 
          ;; change color from section title to match theme
          (custom-set-faces
