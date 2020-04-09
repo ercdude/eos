@@ -890,7 +890,7 @@
                   (lambda ()
                     ;; set the default appearance of fringes on the selected frame
                     ;; 1 ->  ("no-fringes" . 0)
-                    (set-fringe-style 1)))))
+                    (set-fringe-style 0)))))
 
     #+END_SRC
 
@@ -1734,20 +1734,7 @@
      #+END_SRC
 
 *** Window
-**** Buffer-move
-
-     #+BEGIN_SRC emacs-lisp
-
-     (when (require 'buffer-move nil t)
-       (progn
-         ;; bind
-         (global-set-key (kbd "<C-S-up>") 'buf-move-up)
-         (global-set-key (kbd "<C-S-down>") 'buf-move-down)
-         (global-set-key (kbd "<C-S-left>") 'buf-move-left)
-         (global-set-key (kbd "<C-S-right>") 'buf-move-right)))
-
-     #+END_SRC
-
+*** View
 *** Selector
 
     Front-end selector fuzzing match engine (helm).
@@ -1961,7 +1948,80 @@
 *** Session
 **** Desktop
 *** Security
+**** Network
+***** Nsm
+
+      Network Security Manager.
+
+      #+BEGIN_SRC emacs-lisp
+
+      (when (require 'nsm nil t)
+        (progn
+          ;; custom
+
+          ;; how secure the network should be.
+          ;; If a potential problem with the security of the network
+          ;; connection is found, the user is asked to give input
+          ;; into how the connection should be handled
+          ;; `high': This warns about additional things that many
+          ;; people would not find useful.
+          ;; `paranoid': On this level, the user is queried for
+          ;; most new connections
+          (customize-set-variable 'network-security-level 'paranoid)))
+
+      #+END_SRC
+
 **** Encryption
+***** Tls
+
+      This package implements a simple wrapper around "gnutls-cli" to
+      make Emacs support TLS/SSL.
+
+      #+BEGIN_SRC emacs-lisp
+
+      (when (require 'tls nil t)
+        (progn
+          ;; custom
+          ;; indicate if certificates should be checked against trusted root certs
+          ;; if this is ‘ask’, the user can decide whether to accept an
+          ;; untrusted certificate
+          (customize-set-variable 'tls-checktrust t)
+
+          ;; list of strings containing commands to
+          ;; start TLS stream to a host
+          ;; (customize-set-variable
+          ;;  'tls-program
+          ;;  '("openssl s_client -connect %h:%p -CAfile %t"))
+          (customize-set-variable
+           'tls-program
+           '("gnutls-cli --x509cafile %t -p %p %h" "gnutls-cli --x509cafile %t -p %p %h --protocols ssl3 ssl2"))))
+
+      #+END_SRC
+
+***** Gnutls
+
+      This package provides language bindings for the GnuTLS library
+      using the corresponding core functions in gnutls.c
+
+      #+BEGIN_SRC emacs-lisp
+
+      (when (require  'gnutls nil t)
+        (progn
+          ;; custom
+          ;; if non-nil, this should be a TLS priority string
+          (customize-set-variable 'gnutls-algorithm-priority nil)
+
+          ;; if non-nil, this should be t or a list of checks
+          ;; per hostname regex
+          (customize-set-variable 'gnutls-verify-error t)))
+
+      ;; functions
+      (defun gnutls-available-p ()
+        "Function redefined in order not to use built-in GnuTLS support"
+        nil)
+
+      #+END_SRC
+
 ***** Epa
 
       EasyPG is an all-in-one GnuPG interface for Emacs.
@@ -2120,8 +2180,6 @@
 
      #+END_SRC
 
-*** View
-
 *** Buffer
 **** Ibuffer
 
@@ -2133,6 +2191,22 @@
      #+BEGIN_SRC emacs-lisp
 
      (require 'ibuffer nil t)
+
+     #+END_SRC
+
+**** Buffer-move
+
+     Swap windows/buffer position (layout).
+
+     #+BEGIN_SRC emacs-lisp
+
+     (when (require 'buffer-move nil t)
+       (progn
+         ;; binds
+         (define-key ctl-x-map (kbd "<C-up>") 'buf-move-up)
+         (define-key ctl-x-map (kbd "<C-down>") 'buf-move-down)
+         (define-key ctl-x-map (kbd "<C-left>") 'buf-move-left)
+         (define-key ctl-x-map (kbd "<C-right>")'buf-move-right)))
 
      #+END_SRC
 
@@ -2269,15 +2343,34 @@
 
 **** Dired-subtree
 
+     This package defines function `dired-subtree-insert' which instead
+     inserts the subdirectory directly below its line in the original
+     listing, and indent the listing of subdirectory to resemble a
+     tree-like structure (somewhat similar to tree(1) except the pretty
+     graphics).
+
      #+BEGIN_SRC emacs-lisp
 
-     (require 'dired-subtree nil t)
+     (when (require 'dired-subtree nil t)
+       (progn
+         ;; custom
+         ;; default depth expanded by `dired-subtree-cycle'
+         (customize-set-variable 'dired-subtree-cycle-depth 2)
+
+         ;; a prefix put into each nested subtree
+         (customize-set-variable 'dired-subtree-line-prefix "  ")
+
+         ;; specifies how the prefix is fontified, subtree
+         (customize-set-variable 'dired-subtree-line-prefix-face 'subtree)
+
+         ;; when non-nil, add a background face to a subtree listing.
+         (customize-set-variable 'dired-subtree-use-backgrounds nil)))
 
      ;; binds
      (when (boundp 'dired-mode-map)
        (progn
-         (define-key dired-mode-map (kbd "i") 'dired-subtree-insert)
-         (define-key dired-mode-map (kbd ";") 'dired-subtree-remove)))
+         (define-key dired-mode-map (kbd "TAB") 'dired-subtree-insert)
+         (define-key dired-mode-map (kbd "<M-tab>") 'dired-subtree-remove)))
 
      #+END_SRC
 
@@ -2289,9 +2382,22 @@
 *** RFeed
 **** Elfeed
 
+     Elfeed is a web feed client for Emacs, inspired by notmuch.
+
      #+BEGIN_SRC emacs-lisp
 
-     (require 'elfeed nil t)
+     (when (require 'elfeed nil t)
+       (progn
+         ;; custom
+         ;; directory where elfeed will store its database.
+         (customize-set-variable
+          'elfeed-db-directory
+          (concat (expand-file-name user-emacs-directory) "elfeed"))
+
+         ;; default directory for saving enclosures. Hide
+         (customize-set-variable
+          'elfeed-enclosure-default-dir
+          (concat (expand-file-name user-emacs-directory) "cache/elfeed"))))
 
      #+END_SRC
 
@@ -2369,22 +2475,13 @@
          (customize-set-variable 'erc-show-channel-key-p t)
 
          ;; kill all query (also channel) buffers of this server on QUIT.
-         (customize-set-variable 'erc-kill-queries-on-quit t)
-
-         ;; functions
-         (defun eos/irc-tls ()
-           "A `erc-tls function interface."
-           (interactive)
-           (let ((server "irc.freenode.net")
-                 (nick "esac-io"))
-             (erc-tls :server server :port 6697 :nick nick
-                      :password (eos/lookup-password server nick 6697))))))
+         (customize-set-variable 'erc-kill-queries-on-quit t)))
 
      ;; binds
      (when (boundp 'erc-mode-map)
        (progn
          ;; use eos/complete
-         (define-key erc-mode-map (kbd "TAB") 'eos/complete)))
+         (define-key erc-mode-map (kbd "TAB") 'eos/company-or-indent)))
 
      #+END_SRC
 
@@ -2461,11 +2558,10 @@
      (when (require 'term nil t)
        (progn
          ;; custom
-         ;; if non-nil, is file name to use for explicitly requested inferior shell. (reference)
-         (customize-set-variable 'explicit-shell-file-name
-                                 (if (eq system-type "gnu/linux")
-                                     "/usr/bin/fish"
-                                   "/usr/local/bin/fish"))
+         ;; if non-nil, is file name to use for explicitly
+         ;; requested inferior shell
+         (customize-set-variable
+          'explicit-shell-file-name (getenv "SHELL"))
 
          ;; if non-nil, add a ‘/’ to completed directories
          (customize-set-variable 'term-completion-addsuffix t)
@@ -2606,7 +2702,7 @@
          (customize-set-variable 'shr-use-colors nil)
 
          ;; if non-nil, inhibit loading images
-         (customize-set-variable 'shr-inhibit-images t)
+         (customize-set-variable 'shr-inhibit-images nil)
 
          ;; images that have URLs matching this regexp will be blocked (regexp)
          (customize-set-variable 'shr-blocked-images nil)))
@@ -2638,6 +2734,7 @@
          ;; (customize-set-variable eww-form-checkbox-symbol "☐") ; Unicode hex 2610
          ;; (customize-set-variable eww-form-checkbox-selected-symbol "☑") ; Unicode hex 2611
 
+         ;; functions
          ;; Re-write of the `eww-search-words' definition.
          (defun eos/eww-search-words ()
            "Search the web for the text between BEG and END.
@@ -2655,6 +2752,14 @@
              (if (stringp search-string)
                  (eww search-string)
                (call-interactively #'eww))))
+
+         ;; hooks
+         (add-hook 'eww-mode-hook
+                   (lambda ()
+                     ;; disable truncate lines
+                     (setq truncate-lines nil)))
+
+         ;; when-progn ends here
          ))
 
      ;; binds
@@ -2888,16 +2993,34 @@
 *** Launcher
 **** Dmenu
 
+     Dmenu is a fast and lightweight dynamic menu for X.
+     It reads arbitrary text from stdin, and creates a
+     menu with one item for each line. The user can then select an item,
+     through the arrow keys or typing a part of the name,
+     and the line is printed to stdout.
+
+     Dmenu_run is a wrapper that ships with the dmenu
+     distribution that allows its use as an application launcher.
+
      #+BEGIN_SRC emacs-lisp
 
      (when (require 'dmenu nil t)
        (progn
-         ;; set dmenu-itens cache location
+         ;; custom
+         ;; string to display in the dmenu prompt
+         (customize-set-variable 'dmenu-prompt-string "dmenu: ")
+
+         ;; determines on how many recently executed commands
+         ;; dmenu should keep a record
+         (customize-set-variable 'dmenu-history-size 8)
+
+         ;; file in which the dmenu state is
+         ;; saved between Emacs sessions
          (customize-set-variable
           'dmenu-save-file
-          (concat user-emacs-directory "cache/dmenu-items"))
+          (concat (expand-file-name user-emacs-directory) "dmenu-items"))
 
-         ;; bind
+         ;; bind (C-x) prefix map
          (define-key ctl-x-map (kbd "x") 'dmenu)))
 
      #+END_SRC
@@ -3515,15 +3638,23 @@
 
 **** Dash
 
+     This package exposes functionality to work with and search dash
+     docsets.
+
      #+BEGIN_SRC emacs-lisp
 
      (when (require 'dash-docs nil t)
        (progn
-         ;; custom (fix async?)
-         ;; (customize-set-variable
-         ;;  'dash-docs-use-workaround-for-emacs-bug t)
+         ;; custom
+         ;; default path for docsets
+         (customize-set-variable
+          'dash-docs-docsets-path
+          (concat (expand-file-name user-emacs-directory) "docsets"))
 
-         ;; bind
+         ;; minimum length to start searching in docsets
+         (customize-set-variable 'dash-docs-min-length 2)
+
+         ;; binds
          (define-key eos-docs-map (kbd "u") 'dash-docs-update-docset)))
 
      #+END_SRC
@@ -3568,7 +3699,9 @@
        (progn
          ;; custom
          ;; the directory where RFC documents are stored
-         (customize-set-variable 'rfc-mode-directory "~/rfc/")
+         (customize-set-variable
+          'rfc-mode-directory
+          (concat (expand-file-name user-emacs-directory) "rfc/"))
 
          ;; bind
          (define-key eos-docs-map (kbd "r") 'rfc-mode-browse)
@@ -3594,6 +3727,7 @@
      Company is a modular completion framework.
      Modules for retrieving completion candidates are called backends,
      modules for displaying them are front-ends.
+
 
      #+BEGIN_SRC emacs-lisp
 
@@ -4073,7 +4207,7 @@
                      ;; load rtags
                      (eos/cc/load-rtags)))))
 
-     ;; binds
+     ;; binds (c-mode map)
      (when (boundp 'c-mode-map)
        (progn
          ;; set rtags prefix map in c-mode map (C-c r)
@@ -4082,6 +4216,16 @@
          ;; complete or indent
          (define-key c-mode-map (kbd "TAB") 'eos/company-or-indent)
          (define-key c-mode-map (kbd "C-M-i") 'eos/helm-company)))
+
+     ;; binds (c++-mode-map)
+     (when (boundp 'c++-mode-map)
+       (progn
+         ;; set rtags prefix map in c-mode map (C-c r)
+         (define-key c++-mode-map (kbd "C-c r") 'eos-rtags-map)
+
+         ;; complete or indent
+         (define-key c++-mode-map (kbd "TAB") 'eos/company-or-indent)
+         (define-key c++-mode-map (kbd "C-M-i") 'eos/helm-company)))
 
      #+END_SRC
 
@@ -4632,6 +4776,21 @@
 
      #+END_SRC
 
+*** Conf
+
+    This package is designed to edit many similar varieties of
+    Configuration and initialization files.
+
+    #+BEGIN_SRC emacs-lisp
+
+    (when (require 'conf-mode nil t)
+      (progn
+        ;; add files extensions to be handled by conf-mode
+        (add-to-list 'auto-mode-alist '("\\.compose\\'" . conf-mode))
+        (add-to-list 'auto-mode-alist '("\\.dockerfile\\'" . conf-mode))))
+
+    #+END_SRC
+
 ** Unbind
 *** Prefix
 **** Esc
@@ -4656,30 +4815,33 @@
      ;; (define-key ctl-x-map (kbd "C-SPC") nil)
      ;; (define-key ctl-x-map (kbd "C-=") nil)
      ;; (define-key ctl-x-map (kbd "C-0") nil)
-     ;; (define-key ctl-x-map (kbd "C-z") nil)
      ;; (define-key ctl-x-map (kbd "C--") nil)
      ;; (define-key ctl-x-map (kbd "ESC") nil)
      ;; (define-key ctl-x-map (kbd ".") nil)
      ;; (define-key ctl-x-map (kbd "C-l") nil)
-     (define-key ctl-x-map (kbd "C-d") nil)
      ;; (define-key ctl-x-map (kbd "C-x") nil)
-     (define-key ctl-x-map (kbd "C-j") nil)
-     (define-key ctl-x-map (kbd "C-<left>") nil)
-     (define-key ctl-x-map (kbd "C-<right>") nil)
-     (define-key ctl-x-map (kbd "C-<up>") nil)
-     (define-key ctl-x-map (kbd "C-<down>") nil)
+     ;; (define-key ctl-x-map (kbd "C-<left>") nil)
+     ;; (define-key ctl-x-map (kbd "C-<right>") nil)
+     ;; (define-key ctl-x-map (kbd "C-<up>") nil)
+     ;; (define-key ctl-x-map (kbd "C-<down>") nil)
      (define-key ctl-x-map (kbd "<right>") nil)
      (define-key ctl-x-map (kbd "<left>") nil)
+
+     (define-key ctl-x-map (kbd "C-o") nil)
+     (define-key ctl-x-map (kbd "C-d") nil)
+     (define-key ctl-x-map (kbd "C-c") nil)
+     (define-key ctl-x-map (kbd "C-j") nil)
      (define-key ctl-x-map (kbd "C-+") nil)
      (define-key ctl-x-map (kbd "C-a") nil)
      (define-key ctl-x-map (kbd "C-r") nil)
      (define-key ctl-x-map (kbd "C-n") nil)
+     (define-key ctl-x-map (kbd "C-z") nil)
      (define-key ctl-x-map (kbd "C-p") nil)
-     ;; (define-key ctl-x-map (kbd "C-o") nil)
      (define-key ctl-x-map (kbd "C-h") nil)
      (define-key ctl-x-map (kbd "C-u") nil)
      (define-key ctl-x-map (kbd "C-\@") nil)
      (define-key ctl-x-map (kbd "M-:") nil)
+
      (define-key ctl-x-map (kbd "`") nil)
      (define-key ctl-x-map (kbd "]") nil)
      ;; (define-key ctl-x-map (kbd "[") nil)

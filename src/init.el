@@ -508,7 +508,7 @@ point is on a symbol, return that symbol name.  Else return nil."
               (lambda ()
                 ;; set the default appearance of fringes on the selected frame
                 ;; 1 ->  ("no-fringes" . 0)
-                (set-fringe-style 1)))))
+                (set-fringe-style 0)))))
 
 (when (require 'files nil t)
   (progn
@@ -614,7 +614,7 @@ point is on a symbol, return that symbol name.  Else return nil."
                 (eos/funcall 'blink-cursor-mode 0)))))
 
 ;; binds
-(global-set-key (kbd "C-x C-o") 'other-frame)
+(global-set-key (kbd "s-o") 'other-frame)
 
 ;; set font by face attribute (reference)
 ;; (set-face-attribute 'default nil :height)
@@ -961,9 +961,10 @@ current line."
     ;; custom
     ;; monitors: check the xrandr(1) output and use the same name/order
     ;; TODO: create a func that retrieves these values from xrandr
-    ;; (customize-set-variable
-    ;;  'exwm-randr-workspace-monitor-plist '(0 "eDP-1"
-    ;;                                        1 "HDMI-1"))
+    (customize-set-variable
+      'exwm-randr-workspace-monitor-plist '(0 "eDP-1"
+                                            1 "HDMI-1"
+                                            2 "HDMI-1"))
 
     (customize-set-variable 'exwm-workspace-number
                             (if (boundp 'exwm-randr-workspace-monitor-plist)
@@ -971,7 +972,7 @@ current line."
                                   (/ (safe-length exwm-randr-workspace-monitor-plist) 2))
                               1))))
 ;; enable
-;; (exwm-randr-enable)
+(exwm-randr-enable)
 
 (defvar eos/helm-source-exwm-buffers
   nil
@@ -990,14 +991,6 @@ current line."
 ;; to run command without displaying the output in a window
 (add-to-list 'display-buffer-alist
              '("\\*Async Shell Command\\*" display-buffer-no-window))
-
-(when (require 'buffer-move nil t)
-  (progn
-    ;; bind
-    (global-set-key (kbd "<C-S-up>") 'buf-move-up)
-    (global-set-key (kbd "<C-S-down>") 'buf-move-down)
-    (global-set-key (kbd "<C-S-left>") 'buf-move-left)
-    (global-set-key (kbd "<C-S-right>") 'buf-move-right)))
 
 (when (require 'helm nil t)
   (progn
@@ -1161,6 +1154,52 @@ current line."
     ;; the base Scale Factor for the `height' face property of an icon
     (customize-set-variable 'all-the-icons-scale-factor 1.0)))
 
+(when (require 'nsm nil t)
+  (progn
+    ;; custom
+
+    ;; how secure the network should be.
+    ;; If a potential problem with the security of the network
+    ;; connection is found, the user is asked to give input
+    ;; into how the connection should be handled
+    ;; `high': This warns about additional things that many
+    ;; people would not find useful.
+    ;; `paranoid': On this level, the user is queried for
+    ;; most new connections
+    (customize-set-variable 'network-security-level 'paranoid)))
+
+(when (require 'tls nil t)
+  (progn
+    ;; custom
+    ;; indicate if certificates should be checked against trusted root certs
+    ;; if this is ‘ask’, the user can decide whether to accept an
+    ;; untrusted certificate
+    (customize-set-variable 'tls-checktrust t)
+
+    ;; list of strings containing commands to
+    ;; start TLS stream to a host
+    ;; (customize-set-variable
+    ;;  'tls-program
+    ;;  '("openssl s_client -connect %h:%p -CAfile %t"))
+    (customize-set-variable
+     'tls-program
+     '("gnutls-cli --x509cafile %t -p %p %h" "gnutls-cli --x509cafile %t -p %p %h --protocols ssl3 ssl2"))))
+
+(when (require  'gnutls nil t)
+  (progn
+    ;; custom
+    ;; if non-nil, this should be a TLS priority string
+    (customize-set-variable 'gnutls-algorithm-priority nil)
+
+    ;; if non-nil, this should be t or a list of checks
+    ;; per hostname regex
+    (customize-set-variable 'gnutls-verify-error t)))
+
+;; functions
+(defun gnutls-available-p ()
+  "Function redefined in order not to use built-in GnuTLS support"
+  nil)
+
 (when (require 'epa nil t)
   (progn
     ;; custom
@@ -1250,6 +1289,14 @@ current line."
 
 (require 'ibuffer nil t)
 
+(when (require 'buffer-move nil t)
+  (progn
+    ;; binds
+    (define-key ctl-x-map (kbd "<C-up>") 'buf-move-up)
+    (define-key ctl-x-map (kbd "<C-down>") 'buf-move-down)
+    (define-key ctl-x-map (kbd "<C-left>") 'buf-move-left)
+    (define-key ctl-x-map (kbd "<C-right>")'buf-move-right)))
+
 (when (require 'artist nil t)
   (progn
     ;; custom
@@ -1319,15 +1366,39 @@ current line."
       (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
       (define-key dired-mode-map (kbd "C-j") 'dired-find-alternate-file)))
 
-(require 'dired-subtree nil t)
+(when (require 'dired-subtree nil t)
+  (progn
+    ;; custom
+    ;; default depth expanded by `dired-subtree-cycle'
+    (customize-set-variable 'dired-subtree-cycle-depth 2)
+
+    ;; a prefix put into each nested subtree
+    (customize-set-variable 'dired-subtree-line-prefix "  ")
+
+    ;; specifies how the prefix is fontified, subtree
+    (customize-set-variable 'dired-subtree-line-prefix-face 'subtree)
+
+    ;; when non-nil, add a background face to a subtree listing.
+    (customize-set-variable 'dired-subtree-use-backgrounds nil)))
 
 ;; binds
 (when (boundp 'dired-mode-map)
   (progn
-    (define-key dired-mode-map (kbd "i") 'dired-subtree-insert)
-    (define-key dired-mode-map (kbd ";") 'dired-subtree-remove)))
+    (define-key dired-mode-map (kbd "TAB") 'dired-subtree-insert)
+    (define-key dired-mode-map (kbd "<M-tab>") 'dired-subtree-remove)))
 
-(require 'elfeed nil t)
+(when (require 'elfeed nil t)
+  (progn
+    ;; custom
+    ;; directory where elfeed will store its database.
+    (customize-set-variable
+     'elfeed-db-directory
+     (concat (expand-file-name user-emacs-directory) "elfeed"))
+
+    ;; default directory for saving enclosures. Hide
+    (customize-set-variable
+     'elfeed-enclosure-default-dir
+     (concat (expand-file-name user-emacs-directory) "cache/elfeed"))))
 
 (when (require 'moody nil t)
   (progn
@@ -1385,22 +1456,13 @@ current line."
     (customize-set-variable 'erc-show-channel-key-p t)
 
     ;; kill all query (also channel) buffers of this server on QUIT.
-    (customize-set-variable 'erc-kill-queries-on-quit t)
-
-    ;; functions
-    (defun eos/irc-tls ()
-      "A `erc-tls function interface."
-      (interactive)
-      (let ((server "irc.freenode.net")
-            (nick "esac-io"))
-        (erc-tls :server server :port 6697 :nick nick
-                 :password (eos/lookup-password server nick 6697))))))
+    (customize-set-variable 'erc-kill-queries-on-quit t)))
 
 ;; binds
 (when (boundp 'erc-mode-map)
   (progn
     ;; use eos/complete
-    (define-key erc-mode-map (kbd "TAB") 'eos/complete)))
+    (define-key erc-mode-map (kbd "TAB") 'eos/company-or-indent)))
 
 (when (require 'shell nil t)
   (progn
@@ -1418,11 +1480,10 @@ current line."
 (when (require 'term nil t)
   (progn
     ;; custom
-    ;; if non-nil, is file name to use for explicitly requested inferior shell. (reference)
-    (customize-set-variable 'explicit-shell-file-name
-                            (if (eq system-type "gnu/linux")
-                                "/usr/bin/fish"
-                              "/usr/local/bin/fish"))
+    ;; if non-nil, is file name to use for explicitly
+    ;; requested inferior shell
+    (customize-set-variable
+     'explicit-shell-file-name (getenv "SHELL"))
 
     ;; if non-nil, add a ‘/’ to completed directories
     (customize-set-variable 'term-completion-addsuffix t)
@@ -1509,7 +1570,7 @@ current line."
     (customize-set-variable 'shr-use-colors nil)
 
     ;; if non-nil, inhibit loading images
-    (customize-set-variable 'shr-inhibit-images t)
+    (customize-set-variable 'shr-inhibit-images nil)
 
     ;; images that have URLs matching this regexp will be blocked (regexp)
     (customize-set-variable 'shr-blocked-images nil)))
@@ -1533,6 +1594,7 @@ current line."
     ;; (customize-set-variable eww-form-checkbox-symbol "☐") ; Unicode hex 2610
     ;; (customize-set-variable eww-form-checkbox-selected-symbol "☑") ; Unicode hex 2611
 
+    ;; functions
     ;; Re-write of the `eww-search-words' definition.
     (defun eos/eww-search-words ()
       "Search the web for the text between BEG and END.
@@ -1550,6 +1612,14 @@ current line."
         (if (stringp search-string)
             (eww search-string)
           (call-interactively #'eww))))
+
+    ;; hooks
+    (add-hook 'eww-mode-hook
+              (lambda ()
+                ;; disable truncate lines
+                (setq truncate-lines nil)))
+
+    ;; when-progn ends here
     ))
 
 ;; binds
@@ -1675,12 +1745,21 @@ current line."
 
 (when (require 'dmenu nil t)
   (progn
-    ;; set dmenu-itens cache location
+    ;; custom
+    ;; string to display in the dmenu prompt
+    (customize-set-variable 'dmenu-prompt-string "dmenu: ")
+
+    ;; determines on how many recently executed commands
+    ;; dmenu should keep a record
+    (customize-set-variable 'dmenu-history-size 8)
+
+    ;; file in which the dmenu state is
+    ;; saved between Emacs sessions
     (customize-set-variable
      'dmenu-save-file
-     (concat user-emacs-directory "cache/dmenu-items"))
+     (concat (expand-file-name user-emacs-directory) "dmenu-items"))
 
-    ;; bind
+    ;; bind (C-x) prefix map
     (define-key ctl-x-map (kbd "x") 'dmenu)))
 
 ;; (when (require 'helm-external nil t)
@@ -2056,11 +2135,16 @@ current line."
 
 (when (require 'dash-docs nil t)
   (progn
-    ;; custom (fix async?)
-    ;; (customize-set-variable
-    ;;  'dash-docs-use-workaround-for-emacs-bug t)
+    ;; custom
+    ;; default path for docsets
+    (customize-set-variable
+     'dash-docs-docsets-path
+     (concat (expand-file-name user-emacs-directory) "docsets"))
 
-    ;; bind
+    ;; minimum length to start searching in docsets
+    (customize-set-variable 'dash-docs-min-length 2)
+
+    ;; binds
     (define-key eos-docs-map (kbd "u") 'dash-docs-update-docset)))
 
 (when (require 'helm-dash nil t)
@@ -2087,7 +2171,12 @@ current line."
   (progn
     ;; custom
     ;; the directory where RFC documents are stored
-    (customize-set-variable 'rfc-mode-directory "~/rfc/")
+    (customize-set-variable
+     'rfc-mode-directory
+     (concat (expand-file-name user-emacs-directory) "rfc/"))
+
+    ;; bind
+    (define-key eos-docs-map (kbd "r") 'rfc-mode-browse)
 
     ;; change color from section title to match theme
     (custom-set-faces
@@ -2412,7 +2501,7 @@ current line."
                 ;; load rtags
                 (eos/cc/load-rtags)))))
 
-;; binds
+;; binds (c-mode map)
 (when (boundp 'c-mode-map)
   (progn
     ;; set rtags prefix map in c-mode map (C-c r)
@@ -2421,6 +2510,16 @@ current line."
     ;; complete or indent
     (define-key c-mode-map (kbd "TAB") 'eos/company-or-indent)
     (define-key c-mode-map (kbd "C-M-i") 'eos/helm-company)))
+
+;; binds (c++-mode-map)
+(when (boundp 'c++-mode-map)
+  (progn
+    ;; set rtags prefix map in c-mode map (C-c r)
+    (define-key c++-mode-map (kbd "C-c r") 'eos-rtags-map)
+
+    ;; complete or indent
+    (define-key c++-mode-map (kbd "TAB") 'eos/company-or-indent)
+    (define-key c++-mode-map (kbd "C-M-i") 'eos/helm-company)))
 
 (defun eos/cc/load-rtags ()
   "Load rtags manually."
@@ -2752,6 +2851,12 @@ current line."
   (progn
     (add-to-list 'web-mode-engines-alist '(("php" . "\\.phtml\\'")))))
 
+(when (require 'conf-mode nil t)
+  (progn
+    ;; add files extensions to be handled by conf-mode
+    (add-to-list 'auto-mode-alist '("\\.compose\\'" . conf-mode))
+    (add-to-list 'auto-mode-alist '("\\.dockerfile\\'" . conf-mode))))
+
 ;; clean esc map
 (define-key esc-map (kbd "ESC") nil)
 (define-key esc-map (kbd "<f10>") nil)
@@ -2760,30 +2865,33 @@ current line."
 ;; (define-key ctl-x-map (kbd "C-SPC") nil)
 ;; (define-key ctl-x-map (kbd "C-=") nil)
 ;; (define-key ctl-x-map (kbd "C-0") nil)
-;; (define-key ctl-x-map (kbd "C-z") nil)
 ;; (define-key ctl-x-map (kbd "C--") nil)
 ;; (define-key ctl-x-map (kbd "ESC") nil)
 ;; (define-key ctl-x-map (kbd ".") nil)
 ;; (define-key ctl-x-map (kbd "C-l") nil)
-(define-key ctl-x-map (kbd "C-d") nil)
 ;; (define-key ctl-x-map (kbd "C-x") nil)
-(define-key ctl-x-map (kbd "C-j") nil)
-(define-key ctl-x-map (kbd "C-<left>") nil)
-(define-key ctl-x-map (kbd "C-<right>") nil)
-(define-key ctl-x-map (kbd "C-<up>") nil)
-(define-key ctl-x-map (kbd "C-<down>") nil)
+;; (define-key ctl-x-map (kbd "C-<left>") nil)
+;; (define-key ctl-x-map (kbd "C-<right>") nil)
+;; (define-key ctl-x-map (kbd "C-<up>") nil)
+;; (define-key ctl-x-map (kbd "C-<down>") nil)
 (define-key ctl-x-map (kbd "<right>") nil)
 (define-key ctl-x-map (kbd "<left>") nil)
+
+(define-key ctl-x-map (kbd "C-o") nil)
+(define-key ctl-x-map (kbd "C-d") nil)
+(define-key ctl-x-map (kbd "C-c") nil)
+(define-key ctl-x-map (kbd "C-j") nil)
 (define-key ctl-x-map (kbd "C-+") nil)
 (define-key ctl-x-map (kbd "C-a") nil)
 (define-key ctl-x-map (kbd "C-r") nil)
 (define-key ctl-x-map (kbd "C-n") nil)
+(define-key ctl-x-map (kbd "C-z") nil)
 (define-key ctl-x-map (kbd "C-p") nil)
-;; (define-key ctl-x-map (kbd "C-o") nil)
 (define-key ctl-x-map (kbd "C-h") nil)
 (define-key ctl-x-map (kbd "C-u") nil)
 (define-key ctl-x-map (kbd "C-\@") nil)
 (define-key ctl-x-map (kbd "M-:") nil)
+
 (define-key ctl-x-map (kbd "`") nil)
 (define-key ctl-x-map (kbd "]") nil)
 ;; (define-key ctl-x-map (kbd "[") nil)
