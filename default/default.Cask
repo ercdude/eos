@@ -7,7 +7,6 @@
 (depends-on "elfeed")
 
 ;; project management
-(depends-on "helm-projectile")
 (depends-on "projectile")
 
 ;; version control
@@ -15,16 +14,12 @@
 
 ;; compilation
 (depends-on "cmake-ide")
-;; (depends-on "helm-compile";
-;;             :git "https://github.com/esac-io/helm-compile")
 
 ;; syntax check
-(depends-on "helm-flycheck")
 (depends-on "flycheck")
 
 ;; completion
 (depends-on "yasnippet")
-(depends-on "helm-company")
 (depends-on "company-shell")
 (depends-on "company-irony")
 (depends-on "company-c-headers")
@@ -40,26 +35,15 @@
 ;; translate
 (depends-on "google-translate")
 
-;; search
-(depends-on "helm-swoop")
-(depends-on "helm-ag")
-
-;; help
-(depends-on "helm-descbinds")
-
 ;; documentation
-(depends-on "helm-dash")
 (depends-on "rfc-mode")
+(depends-on "dash-docs")
 
 ;; multimedia
-;; (depends-on "helm-youtube")
 (depends-on "emms")
 
 ;; security
 (depends-on "password-store")
-
-;; remote access
-(depends-on "helm-tramp")
 
 ;; apparence
 (depends-on "all-the-icons")
@@ -68,7 +52,6 @@
 
 ;; file
 (depends-on "dired-subtree")
-(depends-on "dired-toggle-sudo")
 
 ;; edit
 (depends-on "editorconfig")
@@ -77,9 +60,7 @@
             :git "http://www.dr-qubit.org/git/undo-tree.git")
 
 ;; development
-(depends-on "helm-gtags")
 (depends-on "ess")
-(depends-on "highlight-doxygen")
 (depends-on "go-mode")
 (depends-on "fish-mode")
 (depends-on "web-mode")
@@ -92,9 +73,6 @@
 (depends-on "csharp-mode")
 
 ;; window manager
-;; depends on exwm
-(depends-on "helm-exwm"
-            :git "https://github.com/emacs-helm/helm-exwm")
 ;; depends on xelb
 (depends-on "exwm"
             :git "https://github.com/ch11ng/exwm")
@@ -113,12 +91,9 @@
 ;; before enable it, please read the VTerm section of init.org
 ;;(depends-on "vterm")
 
-;; analysis
+;; network
 (depends-on "request")
 (depends-on "verb")
 
 ;; bar
 (depends-on "moody")
-
-;; fuzzy matching engine
-(depends-on "helm")
