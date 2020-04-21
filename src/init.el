@@ -445,8 +445,6 @@ Keymaps list will be printed on *Messages* buffer."
 (global-unset-key (kbd "<C-M-end>"))
 (global-unset-key (kbd "<C-M-home>"))
 (global-unset-key (kbd "<C-S-backspace>"))
-(global-unset-key (kbd "<C-backspace>"))
-(global-unset-key (kbd "<C-delete>"))
 (global-unset-key (kbd "<C-down>"))
 (global-unset-key (kbd "<C-next>"))
 (global-unset-key (kbd "<C-end>"))
@@ -477,45 +475,11 @@ Keymaps list will be printed on *Messages* buffer."
 (global-unset-key (kbd "<XF86Forward>"))
 (global-unset-key (kbd "<XF86WakeUp>"))
 
-(global-unset-key (kbd "<top-edge>"))
-(global-unset-key (kbd "<top-left-corner>"))
-(global-unset-key (kbd "<top-right-corner>"))
-
-(global-unset-key (kbd "<mouse-1>"))
-(global-unset-key (kbd "<mouse-2>"))
-(global-unset-key (kbd "<mouse-3>"))
-(global-unset-key (kbd "<mouse-4>"))
-(global-unset-key (kbd "<mouse-5>"))
-(global-unset-key (kbd "<mouse-6>"))
-(global-unset-key (kbd "<mouse-7>"))
-
-(global-unset-key (kbd "<right-divider>"))
-(global-unset-key (kbd "<vertical-line>"))
-
 (global-unset-key (kbd "<f10>"))
 (global-unset-key (kbd "<f11>"))
 (global-unset-key (kbd "<f16>"))
 (global-unset-key (kbd "<f18>"))
 (global-unset-key (kbd "<f20>"))
-
-(global-unset-key (kbd "<drag-mouse-1>"))
-(global-unset-key (kbd "<C-mouse-4>"))
-(global-unset-key (kbd "<C-mouse-5>"))
-(global-unset-key (kbd "<C-mouse-6>"))
-(global-unset-key (kbd "<C-mouse-7>"))
-(global-unset-key (kbd "<M-mouse-1>"))
-(global-unset-key (kbd "<M-mouse-2>"))
-(global-unset-key (kbd "<M-mouse-3>"))
-(global-unset-key (kbd "<S-mouse-3>"))
-(global-unset-key (kbd "<S-mouse-4>"))
-(global-unset-key (kbd "<S-mouse-5>"))
-(global-unset-key (kbd "<S-mouse-6>"))
-(global-unset-key (kbd "<S-mouse-7>"))
-(global-unset-key (kbd "<C-down-mouse-1>"))
-(global-unset-key (kbd "<C-down-mouse-2>"))
-(global-unset-key (kbd "<M-down-mouse-1>"))
-(global-unset-key (kbd "<M-drag-mouse-1>"))
-(global-unset-key (kbd "<S-down-mouse-1>"))
 
 ;; line movement
 (global-set-key (kbd "C-a") 'eos/move-beginning-of-line)
@@ -1012,8 +976,8 @@ These styles are described in `completion-styles-alist'."
 (when (boundp 'icomplete-minibuffer-map)
   (progn
     (define-key icomplete-minibuffer-map (kbd "C-j") 'icomplete-force-complete-and-exit)
-    (define-key icomplete-minibuffer-map (kbd "M-p") 'icomplete-forward-completions)
-    (define-key icomplete-minibuffer-map (kbd "M-n") 'icomplete-backward-completions)
+    (define-key icomplete-minibuffer-map (kbd "C-n") 'icomplete-forward-completions)
+    (define-key icomplete-minibuffer-map (kbd "C-p") 'icomplete-backward-completions)
 
     ;; toogle styles
     (define-key icomplete-minibuffer-map (kbd "C-,") 'eos/icomplete/toggle-completion-styles)
