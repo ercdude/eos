@@ -4971,12 +4971,12 @@
       (defun eos/raise-volume ()
         "Raise volume by a factor of 5."
         (interactive)
-        (async-shell-command "amixer -D default set Master 5+ unmute"))
+        (async-shell-command "amixer -D default set PCM 5+ unmute"))
 
       (defun eos/reduce-volume ()
         "Reduce volume by a factor of -5."
         (interactive)
-        (async-shell-command "amixer -D default set Master 5- unmute"))
+        (async-shell-command "amixer -D default set PCM 5- unmute"))
 
       (defun eos/toggle-audio ()
         "Toggle audio mute/unmute."
@@ -5724,9 +5724,9 @@
         '(rfc-mode-document-section-title-face ((t (:inherit nil :foreground "indian red")))))
 
       ;; the directory where RFC documents are stored
-      ;; (customize-set-variable
-      ;;  'rfc-mode-directory
-      ;;  (concat (expand-file-name user-emacs-directory) "rfc/"))))
+      (customize-set-variable
+        'rfc-mode-directory
+        (concat (expand-file-name user-emacs-directory) "rfc/"))
 
       #+END_SRC
 
