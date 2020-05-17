@@ -1,7 +1,8 @@
 (source melpa)
 
 ;; launcher
-(depends-on "dmenu")
+(depends-on "cannon"
+            :git "https://github.com/esac-io/cannon")
 
 ;; feeds
 (depends-on "elfeed")
@@ -25,19 +26,23 @@
 (depends-on "company-shell")
 
 ;; fuzzy match
-(depends-on "flx")
+;; (depends-on "flx")
 
 ;; office
 (depends-on "dictionary")
-(depends-on "pdf-tools")
 (depends-on "markdown-mode")
+
+;; blog
+(depends-on "htmlize")
+(depends-on "org-static-blog")
 
 ;; translate
 (depends-on "google-translate")
 
 ;; documentation
-;; (depends-on "rfc-mode")
 (depends-on "dash-docs")
+(depends-on "rfc-docs"
+            :git "https://github.com/esac-io/rfc-docs")
 
 ;; multimedia
 (depends-on "emms")

@@ -16,7 +16,13 @@ COMPANY   := ~/.emacs.d/site-lisp/company-20200324.2145
 FLYCHECK  := ~/.emacs.d/site-lisp/flycheck-20200405.2310
 
 # Additional emacs loadpath
-LOADPATH	:= -L $(DASH) -L $(XELB) -L $(EXWM) -L $(DASH-DOCS) -L $(ASYNC)  -L $(COMPANY) -L $(FLYCHECK)
+LOADPATH := -L $(ASYNC) \
+	    -L $(DASH) \
+	    -L $(XELB) \
+	    -L $(EXWM) \
+	    -L $(DASH-DOCS) \
+	    -L $(FLYCHECK) \
+	    -L $(COMPANY)
 
 # Scritps to eval
 TANGLE			:= tangle.el
