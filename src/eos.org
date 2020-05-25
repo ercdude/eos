@@ -4594,8 +4594,7 @@
 
       ;; when invoking a shell, override the HISTFILE with this value
       (customize-set-variable
-       'tramp-histfile-override
-       (concat (expand-file-name user-emacs-directory) "cache/.tramp_history"))
+       'tramp-histfile-override "~/.tramp_history")
 
       ;; connection timeout in seconds
       (customize-set-variable 'tramp-connection-timeout 60)
@@ -5755,7 +5754,7 @@
 
 #+BEGIN_SRC emacs-lisp
       ;; bind
-      (define-key eos-docs-map (kbd "r") 'rfc-mode-browse)
+      (define-key eos-docs-map (kbd "r") 'rfc-docs-search)
 #+END_SRC
 
 ***** Customize

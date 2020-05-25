@@ -216,9 +216,9 @@
     `(dashboard-text-banner ((t (:foreground ,fg-black))))
 
     ;; Diff
-    `(diff-added ((t (:background ,bg-green :foreground ,fg-white))))
+    `(diff-added ((t (:background ,bg-green :foreground ,fg-bright))))
     `(diff-refine-changed ((t (:background ,yellow :foreground ,black))))
-    `(diff-removed ((t (:background ,bg-red :foreground ,fg-white))))
+    `(diff-removed ((t (:background ,bg-red :foreground ,fg-bright))))
     `(diff-changed ((t (:background ,bg-orange))))
     `(diff-file-header ((t (:foreground ,bg-white :background unspecified))))
     `(diff-function ((t (:inherit unspecified :foreground ,fg-orange))))
@@ -362,9 +362,9 @@
     `(message-separator ((t (:foreground ,fg-blue))))
 
     ;; Magit
-    `(magit-branch-current ((t (:inherit nil :background ,blue :foreground ,bg-white))))
-    `(magit-branch-local ((t (:background ,bg-magenta :foreground ,bg-white))))
-    `(magit-branch-remote ((t (:background ,green :foreground ,fg-white))))
+    `(magit-branch-current ((t (:inherit nil :background ,blue :foreground ,fg-bright))))
+    `(magit-branch-local ((t (:background ,bg-magenta :foreground ,fg-bright))))
+    `(magit-branch-remote ((t (:background ,green :foreground ,fg-bright))))
     `(magit-log-author ((t (:foreground ,red :slant normal :weight normal))))
     `(magit-signature-expired ((t (:foreground ,yellow))))
     `(magit-signature-revoked ((t (:foreground ,magenta))))
