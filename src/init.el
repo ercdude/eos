@@ -1322,6 +1322,8 @@ The user's $HOME directory is abbreviated as a tilde."
 (customize-set-variable 'exwm-input-global-keys
                         `(([?\s-r] . exwm-reset)
                           ([?\s-q] . exwm-input-toggle-keyboard)
+                          ([?\s-t] . exwm-layout-toggle-fullscreen)
+                          ([?\s-d] . exwm-floating-toggle-floating)
                           ;; ([?\s-w] . exwm-workspace-switch)
                           ;; ([?\s-k] . exwm-workspace-delete)
                           ;; ([?\s-a] . exwm-workspace-swap)
@@ -2157,7 +2159,7 @@ sent. Add this function to `message-header-setup-hook'."
  (expand-file-name "cache/cannon-items" user-emacs-directory))
 
 ;; clt-x-map (C-x) prefix
-(define-key ctl-x-map (kbd "x") 'cannon)))
+(define-key ctl-x-map (kbd "x") 'cannon-launch)))
 
 (when (require 'verb nil t)
   (progn
@@ -2190,8 +2192,7 @@ sent. Add this function to `message-header-setup-hook'."
 
 ;; when invoking a shell, override the HISTFILE with this value
 (customize-set-variable
- 'tramp-histfile-override
- (concat (expand-file-name user-emacs-directory) "cache/.tramp_history"))
+ 'tramp-histfile-override "~/.tramp_history")
 
 ;; connection timeout in seconds
 (customize-set-variable 'tramp-connection-timeout 60)
@@ -2263,10 +2264,14 @@ sent. Add this function to `message-header-setup-hook'."
 ;; start compton after emacs initialize
 (add-hook 'after-init-hook #'eos/compton)
 
-(defun eos/slock ()
+(defvar eos-lock-command
+  "my.lock"
+  "The lock command which eos/lock uses")
+
+(defun eos/lock ()
   "Call slock utility."
   (interactive)
-  (eos-call-proc "slock" nil))
+  (cannon--make-comint-process eos-lock-command eos-lock-command))
 
 (define-key ctl-x-map (kbd "<end>") 'eos/slock)
 
@@ -2774,7 +2779,7 @@ The tangled file will be compiled."
 (require 'rfc-docs nil t)
 
 ;; bind
-(define-key eos-docs-map (kbd "r") 'rfc-mode-browse)
+(define-key eos-docs-map (kbd "r") 'rfc-docs-search)
 
 ;; change color from section title to match theme
 (custom-set-faces

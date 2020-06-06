@@ -59,7 +59,7 @@
 (depends-on "dired-subtree")
 
 ;; edit
-(depends-on "editorconfig")
+(depends-on "editorconfig") ;; not installing?
 (depends-on "iedit")
 (depends-on "undo-tree"
             :git "http://www.dr-qubit.org/git/undo-tree.git")

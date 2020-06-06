@@ -1,7 +1,7 @@
-;; indicate this is the root of the project
+# indicate this is the root of the project
 root = true
 
-;; rules apply globally
+# rules apply globally
 [*]
 indent_style = space
 end_of_line = lf

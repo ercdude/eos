@@ -2589,6 +2589,8 @@
       (customize-set-variable 'exwm-input-global-keys
                               `(([?\s-r] . exwm-reset)
                                 ([?\s-q] . exwm-input-toggle-keyboard)
+                                ([?\s-t] . exwm-layout-toggle-fullscreen)
+                                ([?\s-d] . exwm-floating-toggle-floating)
                                 ;; ([?\s-w] . exwm-workspace-switch)
                                 ;; ([?\s-k] . exwm-workspace-delete)
                                 ;; ([?\s-a] . exwm-workspace-swap)
@@ -4523,7 +4525,7 @@
       #+BEGIN_SRC emacs-lisp
 
       ;; clt-x-map (C-x) prefix
-      (define-key ctl-x-map (kbd "x") 'cannon)))
+      (define-key ctl-x-map (kbd "x") 'cannon-launch)))
 
       #+END_SRC
 
@@ -4803,10 +4805,14 @@
 
       #+BEGIN_SRC emacs-lisp
 
-      (defun eos/slock ()
+      (defvar eos-lock-command
+        "my.lock"
+        "The lock command which eos/lock uses")
+
+      (defun eos/lock ()
         "Call slock utility."
         (interactive)
-        (eos-call-proc "slock" nil))
+        (cannon--make-comint-process eos-lock-command eos-lock-command))
 
       #+END_SRC
 
