@@ -58,65 +58,6 @@ This is a workaround until no better xrandr interface is created."
                                eos-xrandr-right-screen
                                eos-xrandr-left-screen)))
 
-;; =================== Printscreen =======================
-(defgroup screenshot nil
-  "Screenshot command interface."
-  :group 'extensions
-  :group 'convenience)
-
-(defcustom printscreen-program "scrot"
-  "The program to take screenshot of X buffers."
-  :type 'string
-  :group 'screenshot)
-
-(defcustom printscreen-dir (concat (getenv "HOME") "/images/")
-  "The default dir to save screenshot files."
-  :type 'string
-  :group 'screenshot)
-
-(defcustom printscreen-file-pattern "%Y%m%d%H%M%S_$wx$h_scrot.png"
-  "The default file pattern to save screenshot files."
-  :type 'string
-  :group 'screenshot)
-
-(defcustom printscreen-params
-  "" ;; "-e 'mv $f ~/Images/'"
-  "The arguments to be used with the screenshot program"
-  :type 'string
-  :group 'screenshot)
-
-;; TODO: get a list of arguments, not a string
-(defun eos--printscreen (filename)
-  "Takes a screenshot using printscreen-program."
-  (async-shell-command (format "%s %s %s"
-                               printscreen-program
-                               filename
-                               printscreen-params)))
-
-(defun eos/print-mouse-region (&optional image-path)
-  "Saves a printscreen of a region selected with the mouse."
-  (interactive)
-  (let ((image-path
-          (or image-path
-            (concat
-              (read-directory-name "Save to dir:"
-                printscreen-dir)
-              printscreen-file-pattern))))
-    (eos--printscreen (concat (format "'%s' %s"
-                                      (expand-file-name image-path)
-                                      "--select")))))
-
-(defun eos/printscreen (&optional image-path)
-  "Saves a printscreen of all screen."
-  (interactive)
-  (let ((image-path
-          (or image-path
-            (concat
-              (read-directory-name "Save to dir:"
-                printscreen-dir)
-              printscreen-file-pattern))))
-    (eos--printscreen (format "'%s'" (expand-file-name image-path)))))
-
 ;; =================== Date =======================
 (defun eos/show-date ()
   "Prints the date to minibuffer"

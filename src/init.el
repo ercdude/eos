@@ -1,5 +1,8 @@
-;;; Package --- eos
-;;; Commentary: ... Present day, present time ....
+;;; Package --- EOS, EMACS OS
+;;
+;;; Commentary:
+;; ... Present day, present time ....
+;;
 ;;; Code:
 
 ;;; -*- lexical-binding: t -*-
@@ -7,22 +10,11 @@
 (when (version< emacs-version "26.3")
   (error "This requires Emacs 26.3 and above!"))
 
-(require 'org nil t)
+;; (require 'org nil t)
 
 ;; threshold inital value
 (setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
       gc-cons-percentage 0.5)
-
-(defun eos/defer-gc-collection ()
-  "Set `gc-cons-threshold' to most positive fix number,
-The largest value that is representable in a Lisp integer."
-  (setq gc-cons-threshold most-positive-fixnum))
-
-(defun eos/reset-gc-collection ()
-  "Reset garbage collection."
-  (run-at-time 1 nil
-               (lambda ()
-                 (setq gc-cons-threshold 16777216))))
 
 (add-hook 'emacs-startup-hook
           (lambda ()
@@ -32,63 +24,77 @@ The largest value that is representable in a Lisp integer."
 ;; yes or no
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-(defvar eos-file-name-handler-alist
+(defvar saved-file-name-handler-alist
   file-name-handler-alist
   "Save `file-name-handler-alist' variable.")
 
+(defvar eos-window-map
+  (make-sparse-keymap)
+  "Window commands keymap.")
+
 (defvar eos-tags-map
   (make-sparse-keymap)
-  "Keymap for tags (navigation) keybinds.")
+  "Tags (navigation) commands keymap.")
 
 (defvar eos-pm-map
   (make-sparse-keymap)
-  "Keymap for project manager keybinds.")
+  "Project management commands keymap.")
 
 (defvar eos-sc-map
   (make-sparse-keymap)
-  "Keymap for syntax check keybinds.")
+  "Syntax check commands keymap.")
 
-(defvar eos-complete-map
+(defvar eos-completion-map
   (make-sparse-keymap)
-  "Keymap for (complete) keybinds.")
-
-(defvar eos-window-map
-  (make-sparse-keymap)
-  "Keymap for window related keybinds.")
+  "Completion commands keymap.")
 
 (defvar eos-docs-map
   (make-sparse-keymap)
-  "Keymap for documentation keybinds.")
+  "Docs commands keymap.")
 
-(defvar eos-find-map
+(defvar eos-files-map
   (make-sparse-keymap)
-  "Keymap for find keybinds.")
+  "Files commands keymap.")
+
+(defvar eos-debug-map
+  (make-sparse-keymap)
+  "Debug commands keymap.")
 
 (defvar eos-filter-map
   (make-sparse-keymap)
-  "Keymap for filter keybinds.")
+  "Filter commands keymap.")
 
 (defvar eos-utils-map
   (make-sparse-keymap)
-  "Keymap for utils keybinds.")
+  "Utils commands keymap.")
 
 (defvar eos-rtags-map
   (make-sparse-keymap)
-  "Keymap for rtag minor mode keybinds.")
+  "Rtag commands keymap.")
 
 (dolist (prefix-map '(eos-tags-map
                       eos-pm-map
                       eos-sc-map
                       eos-docs-map
-                      eos-find-map
+                      eos-files-map
                       eos-filter-map
                       eos-utils-map
                       eos-window-map
-                      eos-complete-map
+                      eos-completion-map
                       eos-rtags-map))
   (define-prefix-command prefix-map))
 
 ;; (define-prefix-command 'eos-filter-map)
+
+;; eos prefixs
+(define-key ctl-x-map (kbd "a") 'eos-filter-map)
+(define-key ctl-x-map (kbd "p") 'eos-pm-map)
+(define-key ctl-x-map (kbd "t") 'eos-tags-map)
+(define-key ctl-x-map (kbd "c") 'eos-utils-map)
+(define-key ctl-x-map (kbd "e") 'eos-sc-map)
+(define-key ctl-x-map (kbd "f") 'eos-file-map)
+(define-key ctl-x-map (kbd "l") 'eos-docs-map)
+(define-key ctl-x-map (kbd "<tab>") 'eos-completion-map)
 
 ;; clean file-name-handler-alist
 (setq file-name-handler-alist nil)
@@ -96,233 +102,70 @@ The largest value that is representable in a Lisp integer."
 ;; restore file-name-handler-alist
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (setq file-name-handler-alist eos-file-name-handler-alist)))
+            (setq file-name-handler-alist saved-file-name-handler-alist)))
 
-(require 'cl-seq nil t)
+;; non-nil inhibits the startup screen
+;; this variable is an alias for `inhibit-startup-screen'
+(customize-set-variable 'inhibit-startup-message t)
 
-(defun eos-update-load-path (&rest _)
-  "Update `load-path'."
-  (dolist (dir '("site-lisp" "lisp"))
-    (add-to-list 'load-path
-                 (expand-file-name dir user-emacs-directory))))
+;; non-nil inhibits the initial startup echo area message
+(customize-set-variable 'inhibit-startup-echo-area-message nil)
 
-(defun eos-add-subdirs-to-load-path (&rest _)
-  "Add sub-directories to `load-path'."
-  (interactive)
+(require 'warnings nil t)
+
+;; minimum severity level for displaying the warning buffer
+(customize-set-variable 'warning-minimum-level :error)
+
+;; minimum severity level for logging a warning.
+(customize-set-variable 'warning-minimum-log-level :warning)
+
+;; add sub-directories to `load-path'."
+(dolist (dir '("site-lisp"))
   (let ((default-directory
-          (expand-file-name "site-lisp" user-emacs-directory)))
+          (expand-file-name dir user-emacs-directory)))
     (normal-top-level-add-subdirs-to-load-path)))
 
-;; research
-;; (cl-remove-duplicates load-path)
+;; clean load-path list (remove duplicates)
+(delete-dups load-path)
 
-(defun eos-load-file (file)
-  "Load FILE if exists."
-  (if (file-exists-p file)
-      (load (expand-file-name file) t nil nil)
-    (message "file %s not found" file)))
+;; set term to eterm-color
+;; (setenv "TERM" "eterm-color")
 
-;; update load path
-(eos-update-load-path)
-(eos-add-subdirs-to-load-path)
+;; the email address of the current user (non-nil)
+(let ((user-mail (getenv "EMAIL"))
+      (user-name (getenv "USER")))
+  (when (stringp user-mail)
+    (customize-set-variable 'user-mail-address user-mail)
+    (message "user-mail updated"))
+  (when (stringp user-name)
+    (customize-set-variable 'user-login-name user-name)
+    (message "user-name updated")))
 
-(defun eos-call-proc (name &optional args)
-  "Call (execute) a process by NAME with ARGS."
-  (if (executable-find name)
-      (if args
-          (start-process name nil name args)
-        (start-process name nil name)))
-  nil)
+(require 'simple nil t)
 
-(defun eos-call-func (func &rest args)
-  "Call FUNC with ARGS, if it's bounded."
-  (when (fboundp func)
-    (if args
-        (funcall func args)
-      (funcall func))))
+;; don't omit information when lists nest too deep
+(customize-set-variable 'eval-expression-print-level nil)
 
-(defun eos-edit-move-lines (n)
-  "Move N lines, up if N is positive, else down."
-  (let* (text-start
-         text-end
-         (region-start (point))
-         (region-end region-start)
-         swap-point-mark
-         delete-latest-newline)
+;; your preference for a mail composition package
+(customize-set-variable 'mail-user-agent 'message-user-agent)
 
-    ;; STEP 1: identifying the text to cut.
-    (when (region-active-p)
-      (if (> (point) (mark))
-          (setq region-start (mark))
-        (exchange-point-and-mark)
-        (setq swap-point-mark t
-              region-end (point))))
+;; what to do when the output buffer is used by another shell command
+(customize-set-variable 'async-shell-command-buffer 'rename-buffer)
 
-    ;; text-end and region-end
-    (end-of-line)
+;; column number display in the mode line
+(funcall 'column-number-mode 1)
 
-    (if (< (point) (point-max))
-        (forward-char 1)
-      (setq delete-latest-newline t)
-      (insert-char ?\n))
-    (setq text-end (point)
-          region-end (- region-end text-end))
+;; buffer size display in the mode line
+(funcall 'size-indication-mode 1)
 
-    ;; text-start and region-start
-    (goto-char region-start)
-    (beginning-of-line)
-    (setq text-start (point)
-          region-start (- region-start text-end))
+(add-to-list 'load-path
+             (expand-file-name "lisp/vex" user-emacs-directory))
 
-    ;; STEP 2: cut and paste.
-    (let ((text (delete-and-extract-region text-start text-end)))
-      (forward-line n)
-      ;; If the current-column != 0, I have moved the region at the bottom of a
-      ;; buffer doesn't have the trailing newline.
-      (when (not (= (current-column) 0))
-        (insert-char ?\n)
-        (setq delete-latest-newline t))
-      (insert text))
+(require 'vex nil t)
 
-    ;; STEP 3: Restoring.
-    (forward-char region-end)
+(declare-function safe-funcall "vex-c" (func &rest args))
 
-    (when delete-latest-newline
-      (save-excursion
-        (goto-char (point-max))
-        (delete-char -1)))
-
-    (when (region-active-p)
-      (setq deactivate-mark nil)
-      (set-mark (+ (point) (- region-start region-end)))
-      (if swap-point-mark
-          (exchange-point-and-mark)))))
-
-(defun eos/edit-move-lines-up (n)
-  "Move N lines up."
-  (interactive "p")
-  (if (eq n nil)
-      (setq n 1))
-  (eos-edit-move-lines (- n)))
-
-(defun eos/edit-move-lines-down (n)
-  "Move N lines down."
-  (interactive "p")
-  (if (eq n nil)
-      (setq n 1))
-  (eos-edit-move-lines n))
-
-(defun eos/edit-move-words-left (n)
-  "Move word N times to the left."
-  (interactive "p")
-  (if (eq n nil)
-      (setq n 1))
-  (transpose-words (- n)))
-
-(defun eos/edit-indent-buffer ()
-  "Indent the currently visited buffer."
-  (interactive)
-  (indent-region (point-min) (point-max)))
-
-(defun eos/edit-indent-region-or-buffer ()
-  "Indent a region if selected, otherwise the whole buffer."
-  (interactive)
-  (save-excursion
-    (if (region-active-p)
-        (progn
-          (indent-region (region-beginning) (region-end))
-          (message "Indented selected region."))
-      (progn
-        (eos/edit-indent-buffer)
-        (message "Indented buffer.")))))
-
-(defun eos/edit-duplicate-current-line-or-region (arg)
-  "Duplicates the current line or region ARG times.
-
-If there's no region, the current line will be duplicated.
-However, if there's a region, all lines that region covers will be duplicated."
-
-  (interactive "p")
-  (let (beg end (origin (point)))
-    (if (and mark-active (> (point) (mark)))
-        (exchange-point-and-mark))
-    (setq beg (line-beginning-position))
-    (if mark-active
-        (exchange-point-and-mark))
-    (setq end (line-end-position))
-    (let ((region (buffer-substring-no-properties beg end))
-          (i arg))
-      (while (> i 0)
-        (goto-char end)
-        (newline)
-        (insert region)
-        (setq end (point))
-        (setq i (1- i)))
-      (goto-char (+ origin (* (length region) arg) arg)))))
-
-(defun eos-copy-text-or-symbol-at-point ()
-  "Get the text in region or symbol at point.
-      If region is active, return the text in that region.  Else if the
-      point is on a symbol, return that symbol name.  Else return nil."
-  (cond ((use-region-p)
-         (buffer-substring-no-properties
-          (region-beginning) (region-end)))
-        ((symbol-at-point)
-         (substring-no-properties (thing-at-point 'symbol)))
-        (t
-         nil)))
-
-(defun eos-copy-line (&optional arg)
-  "Do a kill-line but copy rather than kill. This function directly calls
-kill-line, so see documentation of kill-line for how to use it including prefix
-argument and relevant variables. This function works by temporarily making the
-buffer read-only."
-  (interactive "P")
-  (let ((buffer-read-only t)
-        (kill-read-only-ok t))
-    (kill-line arg))
-  (move-beginning-of-line nil))
-
-(defun eos/move-beginning-of-line (arg)
-  "Move point back to indentation(ARG) start, or line(ARG) start."
-  (interactive "^p")
-  (setq arg (or arg 1))
-
-  ;; Move lines first
-  (when (/= arg 1)
-    (let ((line-move-visual nil))
-      (forward-line (1- arg))))
-
-  (let ((orig-point (point)))
-    (back-to-indentation)
-    (when (= orig-point (point))
-      (move-beginning-of-line 1))))
-
-(defun eos-kill-buffer (buffer-name)
-  "Kill BUFFER-NAME if exists."
-  (when (get-buffer buffer-name)
-    (kill-buffer buffer-name)))
-
-(defun eos/kill-current-buffer ()
-  "Kill the current buffer without prompting."
-  (interactive)
-  (kill-buffer (current-buffer)))
-
-(defun eos-mkdir (dir)
-  "Create DIR in the file system."
-  (when (and (not (file-exists-p dir))
-             (make-directory dir :parents))))
-
-(defun eos/search-keymaps (key)
-  "Search for KEY in all known keymaps.
-Keymaps list will be printed on *Messages* buffer."
-  (interactive "kPress key: ")
-  (mapatoms (lambda (ob)
-              (when (and (boundp ob) (keymapp (symbol-value ob)))
-                (when (functionp (lookup-key (symbol-value ob) key))
-                  (message "%s" ob))))))
-
-(defun eos/set-frame-transparency (&optional opacity)
+(defun set-frame-transparency (&optional opacity)
   "Set OPACITY transparency in current frame."
   (interactive "P")
   (let ((opacity (or opacity
@@ -331,50 +174,35 @@ Keymaps list will be printed on *Messages* buffer."
         (async-shell-command (format "transset -a %.1f" opacity))
       (message "transset not found"))))
 
-(defun eos/set-background-image (&optional image-file)
+(defun set-background-image (&optional image-file)
   "Set IMAGE-FILE as background using feh binary."
   (interactive "P")
   (setq image-file (or image-file
-                      (read-file-name "Image: ")))
+                       (read-file-name "Image: ")))
   (if (executable-find "feh")
       (async-shell-command (format "feh  --bg-fill %s" image-file))
     (message "feh not found")))
 
-(defun eos/open-scratch ()
-  "Open or switch to *scratch* buffer."
-  (interactive)
-  (let (buffer (get-buffer "*scratch*"))
-    (if buffer
-        (switch-to-buffer buffer)
-      (progn
-        (setq buffer (get-buffer-create "*scratch*"))
-        (with-current-buffer "*scratch*"
-          (when (zerop (buffer-size))
-            (insert (substitute-command-keys initial-scratch-message)))
-          (if (eq major-mode 'fundamental-mode)
-              (funcall initial-major-mode)))
-        (switch-to-buffer buffer)))))
-
 ;; line movement
-(global-set-key (kbd "C-a") 'eos/move-beginning-of-line)
+(global-set-key (kbd "C-a") 'back-to-indent-or-line)
 (global-set-key (kbd "C-e") 'move-end-of-line)
 
 ;; word movement
-;; (global-set-key (kbd "C-<left>") 'backward-word)
-;; (global-set-key (kbd "C-<right>") 'forward-whitespace)
+(global-set-key (kbd "C-<left>") 'backward-word)
+(global-set-key (kbd "C-<right>") 'forward-whitespace)
 
 ;; scroll movement
 (global-set-key (kbd "C-M-v") 'scroll-other-window)
 (global-set-key (kbd "C-M-y") 'scroll-other-window-down)
 
 ;; edit
-(global-set-key (kbd "M-i") 'eos/edit-indent-region-or-buffer)
-(global-set-key (kbd "M-j") 'eos/edit-duplicate-current-line-or-region)
-(global-set-key (kbd "M-p") 'eos/edit-move-lines-up)
-(global-set-key (kbd "M-n") 'eos/edit-move-lines-down)
+(global-set-key (kbd "M-i") 'indent-region-or-buffer)
+(global-set-key (kbd "M-j") 'clone-line-or-region)
+(global-set-key (kbd "M-n") 'transpose-lines-up)
+(global-set-key (kbd "M-p") 'transpose-lines-down)
 
 ;; kill
-(define-key ctl-x-map (kbd "k") 'eos/kill-current-buffer)
+(define-key ctl-x-map (kbd "k") 'kill-buffer)
 
 ;; mark
 (define-key eos-utils-map (kbd "h") 'mark-whole-buffer)
@@ -382,18 +210,350 @@ Keymaps list will be printed on *Messages* buffer."
 (define-key eos-utils-map (kbd "p") 'mark-paragraph)
 (define-key eos-utils-map (kbd "w") 'mark-word)
 
-;; eos prefixs
-(define-key ctl-x-map (kbd "a") 'eos-filter-map)
-(define-key ctl-x-map (kbd "p") 'eos-pm-map)
-(define-key ctl-x-map (kbd "t") 'eos-tags-map)
-(define-key ctl-x-map (kbd "c") 'eos-utils-map)
-(define-key ctl-x-map (kbd "e") 'eos-sc-map)
-(define-key ctl-x-map (kbd "f") 'eos-find-map)
-(define-key ctl-x-map (kbd "l") 'eos-docs-map)
-(define-key ctl-x-map (kbd "<tab>") 'eos-complete-map)
+;;  (require 'tramp nil t)
 
-;; non-nil means to make the cursor very visible
-(customize-set-variable 'visible-cursor t)
+;; set tramp default method
+(customize-set-variable 'tramp-default-method "ssh")
+
+;; if non-nil, chunksize for sending input to local process.
+;; (customize-set-variable 'tramp-chunksize 512)
+
+;; a value of t would require an immediate reread during filename completion,
+;; nil means to use always cached values for the directory contents.
+(customize-set-variable 'tramp-completion-reread-directory-timeout nil)
+
+;; set tramp verbose level
+(customize-set-variable 'tramp-verbose 4)
+
+;; file which keeps connection history for tramp connections.
+(customize-set-variable
+ 'tramp-persistency-file-name
+ (concat (expand-file-name user-emacs-directory) "cache/tramp"))
+
+;; when invoking a shell, override the HISTFILE with this value
+(customize-set-variable
+ 'tramp-histfile-override "~/.tramp_history")
+
+;; connection timeout in seconds
+(customize-set-variable 'tramp-connection-timeout 60)
+
+(require 'imap nil t)
+
+;; how long to wait between checking for the end of output
+(customize-set-variable 'imap-read-timeout 2)
+
+;; if non-nil, store session password without prompting
+(customize-set-variable 'imap-store-password t)
+
+(require 'smtpmail nil t)
+
+;; specify default SMTP server
+;; (customize-set-variable 'smtpmail-default-smtp-server "smtp.gmail.com")
+
+;; the name of the host running SMTP server
+;; (customize-set-variable 'smtpmail-smtp-server "smtp.gmail.com")
+
+;; type of SMTP connections to use
+(customize-set-variable 'smtpmail-stream-type 'ssl)
+
+;; smtp service port number
+(customize-set-variable 'smtpmail-smtp-service 465)
+
+;; non-nil means mail is queued; otherwise it is sent immediately.
+(customize-set-variable 'smtpmail-queue-mail nil)
+
+;; directory where smtpmail.el stores queued mail.
+;; (customize-set-variable 'smtpmail-queue-dir "")
+
+(require 'nnimap nil t)
+
+;; limit the number of articles to look for after moving an article
+(customize-set-variable 'nnimap-request-articles-find-limit nil)
+
+(require 'sendmail nil t)
+
+;; text inserted at end of mail buffer when a message is initialized
+(customize-set-variable 'mail-signature "Att.")
+
+;; file containing the text inserted at end of mail buffer
+;; default: ~/.signature
+;; (customize-set-variable 'mail-signature-file nil)
+
+(require 'nsm nil t)
+
+;; if a potential problem with the security of the network
+;; connection is found, the user is asked to give input
+;; into how the connection should be handled
+;; `high': This warns about additional things that many
+;; people would not find useful.
+;; `paranoid': On this level, the user is queried for
+;; most new connections
+(customize-set-variable 'network-security-level 'paranoid)
+
+;; the file the security manager settings will be stored in.
+(customize-set-variable 'nsm-settings-file
+                        (expand-file-name "nsm/netword-security.data" user-emacs-directory))
+
+(require 'eps-config nil t)
+
+;; the gpg executable
+(customize-set-variable 'epg-gpg-program "gpg2")
+
+;; (require 'tls nil t)
+
+;; indicate if certificates should be checked against trusted root certs
+;; if this is ‘ask’, the user can decide whether to accept an
+;; untrusted certificate
+;; (customize-set-variable 'tls-checktrust nil)
+
+;; list of strings containing commands to
+;; start TLS stream to a host
+;; '("openssl s_client -connect %h:%p -CAfile %t")
+;; '("gnutls-cli --x509cafile %t -p %p %h --insecure")
+;; (customize-set-variable
+;; 'tls-program
+;; '("gnutls-cli --x509cafile /etc/ssl/certs/ca-certificates.crt -p %p %h"))
+
+(require  'gnutls nil t)
+
+;; if non-nil, this should be a TLS priority string
+(customize-set-variable 'gnutls-algorithm-priority nil)
+
+;; if non-nil, this should be t or a list of checks
+;; per hostname regex
+(customize-set-variable 'gnutls-verify-error nil)
+
+(require 'epa nil t)
+
+;; if non-nil, cache passphrase for symmetric encryption
+(customize-set-variable
+ 'epa-file-cache-passphrase-for-symmetric-encryption t)
+
+;; if t, always asks user to select recipients
+(customize-set-variable 'epa-file-select-keys t)
+
+;; in epa commands, a particularly useful mode is ‘loopback’, which
+;; redirects all Pinentry queries to the caller, so Emacs can query
+;; passphrase through the minibuffer, instead of external Pinentry
+;; program
+(customize-set-variable 'epa-pinentry-mode 'loopback)
+
+(require 'notifications nil t)
+
+(require 'forms nil t)
+
+(require 'async nil t)
+(require 'async-bytecomp nil t)
+
+;; to run command without displaying the output in a window
+(add-to-list 'display-buffer-alist
+             '("\\*Async Shell Command\\*"
+               (display-buffer-no-window)
+               (allow-no-window . t)))
+
+(require 'nnmail nil t)
+
+;; expirable articles that are older than this will be expired
+(customize-set-variable 'nnmail-expiry-wait 4)
+
+(require 'mm-bodies nil t)
+
+(add-to-list 'mm-body-charset-encoding-alist '(utf-8 . base64))
+
+(require 'shr nil t)
+
+;; frame width to use for rendering
+(customize-set-variable 'shr-width 120)
+
+;; if non-nil, use proportional fonts for text
+(customize-set-variable 'shr-use-fonts nil)
+
+;; if non-nil, respect color specifications in the HTML
+(customize-set-variable 'shr-use-colors nil)
+
+;; if non-nil, inhibit loading images
+(customize-set-variable 'shr-inhibit-images nil)
+
+;; images that have URLs matching this regexp will be blocked (regexp)
+(customize-set-variable 'shr-blocked-images nil)
+
+(require 'custom nil t)
+
+;; file used for storing customization information.
+;; The default is nil, which means to use your init file
+;; as specified by ‘user-init-file’.  If the value is not nil,
+;; it should be an absolute file name.
+(customize-set-variable
+ 'custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
+
+;; load custom-file
+;; (safe-load-file custom-file)
+
+(require 'files nil t)
+
+;; control use of version numbers for backup files.
+(customize-set-variable 'version-control t)
+
+;; non-nil means always use copying to create backup files
+(customize-set-variable 'backup-by-copying t)
+
+;; number of newest versions to keep when a new numbered backup is made
+(customize-set-variable 'kept-new-versions 6)
+
+;; number of oldest versions to keep when a new numbered backup is made
+(customize-set-variable 'kept-old-versions 2)
+
+;; if t, delete excess backup versions silently
+(customize-set-variable 'delete-old-versions t)
+
+;; non-nil means make a backup of a file the first time it is saved
+(customize-set-variable 'make-backup-files nil)
+
+;; non-nil says by default do auto-saving of every file-visiting buffer
+(customize-set-variable 'auto-save-default nil)
+
+;; most *NIX tools work best when files are terminated
+;; with a newline
+(customize-set-variable 'require-final-newline t)
+
+;; backup directory list
+;; alist of filename patterns and backup directory names
+(customize-set-variable 'backup-directory-alist '(("" . "~/.emacs.d/backup")))
+
+;; create cache directory
+(add-hook 'window-setup-hook
+          (lambda ()
+            (safe-mkdir (concat user-emacs-directory "cache"))))
+
+(require 'ffap nil t)
+
+;; eos-files-map
+(define-key eos-files-map (kbd "f") 'find-file-at-point)
+(define-key eos-files-map (kbd "d") 'dired-at-point)
+(define-key eos-files-map (kbd "C-d") 'ffap-list-directory)
+
+(require 'locate nil t)
+
+(define-key eos-files-map (kbd "l") 'locate)
+
+(require 'recentf nil t)
+
+;; file to save the recent list into.
+(customize-set-variable
+ 'recentf-save-file (concat user-emacs-directory "cache/recentf"))
+
+(defun eos/icomplete/recentf-open-file ()
+  "Open `recent-list' item in a new buffer.
+The user's $HOME directory is abbreviated as a tilde."
+  (interactive)
+  (let ((files (mapcar 'abbreviate-file-name recentf-list)))
+    (find-file
+     (completing-read "Recentf: " files nil t))))
+
+;; eos-files-map
+(define-key eos-files-map (kbd "r") 'recentf-open-files)
+(define-key eos-files-map (kbd "t") 'eos/icomplete/recentf-open-file)
+
+(require 'diff nil t)
+
+;; a string or list of strings specifying switches to be passed to diff
+(customize-set-variable 'diff-switches "-u")
+
+(require 'ediff nil t)
+
+;; options to pass to `ediff-custom-diff-program'.
+(customize-set-variable 'ediff-custom-diff-options "-U3")
+
+;; the function used to split the main window between buffer-A and buffer-B
+(customize-set-variable 'ediff-split-window-function 'split-window-horizontally)
+
+;; function called to set up windows
+(customize-set-variable 'ediff-window-setup-function 'ediff-setup-windows-plain)
+
+(add-hook 'ediff-startup-hook 'ediff-toggle-wide-display)
+(add-hook 'ediff-cleanup-hook 'ediff-toggle-wide-display)
+(add-hook 'ediff-suspend-hook 'ediff-toggle-wide-display)
+
+(require 'jka-compr nil t)
+(require 'jka-compr-hook nil t)
+
+;; list of compression related suffixes to try when loading files
+(customize-set-variable 'jka-compr-load-suffixes '(".gz" ".el.gz"))
+
+;; if you set this outside Custom while Auto Compression mode is
+;; already enabled (as it is by default), you have to call
+;; `jka-compr-update' after setting it to properly update other
+;; variables. Setting this through Custom does that automatically.
+
+;; turn on the mode
+(safe-funcall 'auto-compression-mode 1)
+
+(require 'arc-mode nil t)
+
+;; TODO
+
+;; (require 'dired nil t)
+
+;; enable dired-find-alternate-file
+(put 'dired-find-alternate-file 'disabled nil)
+
+(require 'frame nil t)
+
+;; with some window managers you may have to set this to non-nil
+;; in order to set the size of a frame in pixels, to maximize
+;; frames or to make them fullscreen.
+(customize-set-variable 'frame-resize-pixelwise t)
+
+;; normalize before maximize
+(customize-set-variable 'x-frame-normalize-before-maximize t)
+
+;; set frame title format
+(customize-set-variable 'frame-title-format
+                        '((:eval (if (buffer-file-name)
+                                     (abbreviate-file-name (buffer-file-name))
+                                   "%b"))))
+
+;; alist of parameters for the initial X window frame
+(add-to-list 'initial-frame-alist '(fullscreen . fullheight))
+
+;; (vertical-scroll-bars)
+;; (bottom-divider-width . 0)
+;; (right-divider-width . 6)
+
+;; set font by face attribute (reference)
+;; (set-face-attribute 'default nil :height)
+
+;; alist of default values for frame creation
+(add-to-list 'default-frame-alist '(internal-border-width . 2))
+
+(defun safe-set-frame-font (font)
+  "Set the default font to FONT."
+  (cond ((find-font (font-spec :name font))
+         (set-frame-font font nil t))))
+
+;; set transparency after a frame is created
+;; (add-hook 'after-make-frame-functions
+;;            (lambda (frame)
+;;              (interactive)
+;;              (set-frame-transparency .8)))
+
+;; ctl-x-5-map (frame prefix map)
+;;     (define-key ctl-x-5-map (kbd "t")
+;;       ((lambda ()
+;;          (interactive)
+;;          (set-frame-transparency 1))))
+
+;; global map
+(global-set-key (kbd "C-x C-o") 'other-frame)
+
+;; set font
+(safe-set-frame-font "Hermit Light:pixelsize=16")
+
+;; enable window divider
+(window-divider-mode)
+
+;; disable blink cursor
+(blink-cursor-mode 1)
 
 ;; scroll options
 ;; number of lines of margin at the top and bottom of a window
@@ -454,21 +614,18 @@ Keymaps list will be printed on *Messages* buffer."
 ;;                 (inhibit-same-window . t)
 ;;                 (window-height . fit-window-to-buffer))))
 
-(when (require 'windmove nil t)
-  (progn
+(require 'windmove nil t)
 
 ;; window move default keybinds (shift-up/down etc..)
-(eos-call-func 'windmove-default-keybindings)))
+(add-hook 'window-setup-hook
+          (lambda ()
+            (safe-funcall 'windmove-default-keybindings)))
 
-;; custom
-;; non-nil inhibits the startup screen.
-(customize-set-variable 'inhibit-startup-screen t)
+(require 'page nil t)
 
-;; non-nil inhibits the startup screen
-(customize-set-variable 'inhibit-startup-message t)
-
-;; non-nil inhibits the initial startup echo area message
-(customize-set-variable 'inhibit-startup-echo-area-message t)
+;; enable narrow functions
+(put 'narrow-to-page 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
 
 ;; custom
 ;; non-nil means do not display continuation lines.
@@ -477,13 +634,6 @@ Keymaps list will be printed on *Messages* buffer."
 ;; sentences should be separated by a single space,
 ;; so treat two sentences as two when filling
 (customize-set-variable 'sentence-end-double-space nil)
-
-;; default indent
-;; distance between tab stops (for display of tab characters), in columns.
-(customize-set-variable 'tab-width 4)
-
-;; indentation can insert tabs if this is non-nil.
-(customize-set-variable 'indent-tabs-mode nil)
 
 ;; kill process not confirmation required
 ;; list of functions called with no args to query before killing a buffer.
@@ -495,6 +645,25 @@ Keymaps list will be printed on *Messages* buffer."
 ;; non-nil means load prefers the newest version of a file.
 (customize-set-variable 'load-prefer-newer t)
 
+(require 'hl-line nil t)
+
+;; enable highlight line
+(safe-funcall 'global-hl-line-mode 1)
+
+(require 'linum nil t)
+
+;; format used to display line numbers.
+(customize-set-variable 'linum-format " %2d ")
+
+(require 'display-line-numbers nil t)
+
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
+;; (safe-funcall 'global-display-line-numbers-mode 1)))
+
+;; non-nil means to make the cursor very visible
+(customize-set-variable 'visible-cursor t)
+
 ;; (add-hook 'buffer-list-update-hook
 ;;           (lambda ()
 ;;             (when (boundp 'eos/big-file-p)
@@ -502,29 +671,89 @@ Keymaps list will be printed on *Messages* buffer."
 ;;                   (or display-line-numbers
 ;;                       (setq display-line-numbers 0))))))
 
-(when (require 'ibuffer nil t)
-  (progn
+;; coding system to use with system messages
+(customize-set-variable 'locale-coding-system 'utf-8)
 
-;; the criteria by which to sort the buffers
-(customize-set-variable 'ibuffer-default-sorting-mode 'filename/process)
+;; coding system to be used for encoding the buffer contents on saving
+(customize-set-variable 'buffer-file-coding-system 'utf-8)
 
-;; if non-nil, display the current Ibuffer buffer itself
-(customize-set-variable 'ibuffer-view-ibuffer nil)
+;; add coding-system at the front of the priority list for automatic detection
+(prefer-coding-system 'utf-8)
+
+;; set coding system (UFT8)
+(set-language-environment "UTF-8")
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+
+(require 'help nil t)
+
+;; always select the help window
+(customize-set-variable 'help-window-select t)
+
+;; maximum height of a window displaying a temporary buffer.
+(customize-set-variable 'temp-buffer-max-height
+                        (lambda
+                          (buffer)
+                          (if (and (display-graphic-p) (eq (selected-window) (frame-root-window)))
+                              (/ (x-display-pixel-height) (frame-char-height) 4)
+                            (/ (- (frame-height) 4) 4))))
+
+;; reference
+;; (customize-set-variable 'temp-buffer-max-height 12)
 
 
 
-(define-key ctl-x-map (kbd "b") 'ibuffer)))
+(add-hook 'window-setup-hook
+          (lambda ()
+            (safe-funcall 'temp-buffer-resize-mode 1)))
 
-(when (require 'hideshow nil t)
-  (progn
+(require 'help-fns nil t)
 
-(add-hook 'prog-mode-hook 'hs-minor-mode)
+(defun eos/describe-symbol-at-point (&optional arg)
+  "Get help (documentation) for the symbol at point as ARG.
 
-;; ctl-x-map
-(define-key ctl-x-map (kbd "[") 'hs-toggle-hiding)))
+With a prefix argument, switch to the *Help* window.  If that is
+already focused, switch to the most recently used window
+instead."
+  (interactive "P")
+  (let ((symbol (symbol-at-point)))
+    (when symbol
+      (describe-symbol symbol)))
+  (when current-prefix-arg
+    (let ((help (get-buffer-window "*Help*")))
+      (when help
+        (if (not (eq (selected-window) help))
+            (select-window help)
+          (select-window (get-mru-window)))))))
 
-(when (require 'minibuffer nil t)
-  (progn
+(require 'help-mode nil t)
+
+(when (boundp 'help-mode-map)
+  (define-key help-mode-map (kbd "C-j") 'push-button))
+
+(require 'info nil t)
+
+;; non-nil means don’t record intermediate Info nodes to the history
+(customize-set-variable 'info-history-skip-intermediate-nodes nil)
+
+;; 0 -> means do not display breadcrumbs
+;; (customize-set-variable 'info-breadcrumbs-depth 0)
+
+(require 'eldoc nil t)
+
+;; number of seconds of idle time to wait before printing.
+(customize-set-variable 'eldoc-idle-delay 0.1)
+
+;; if value is any non-nil value other than t, symbol name may be truncated
+;; if it will enable the function arglist or documentation string to fit on a
+;; single line without resizing window
+(customize-set-variable 'eldoc-echo-area-use-multiline-p t)
+
+;; enable eldoc globally
+(safe-funcall 'eldoc-mode 1)
+
+(require 'minibuffer nil t)
 
 ;; non-nil means to allow minibuffer commands while in the minibuffer
 (customize-set-variable 'enable-recursive-minibuffers nil)
@@ -576,42 +805,20 @@ Keymaps list will be printed on *Messages* buffer."
 (customize-set-variable 'minibuffer-eldef-shorten-default t)
 
 ;; non-nil means to delete duplicates in history
-(customize-set-variable 'history-delete-duplicates t)))
-
-(defun eos/focus-minibuffer ()
-  "Focus the active minibuffer.
-Bind this to `completion-list-mode-map' to easily jump
-between the list of candidates present in the \\*Completions\\*
-buffer and the minibuffer."
-  (interactive)
-  (let ((mini (active-minibuffer-window)))
-    (when mini
-      (select-window mini))))
-
-(defun eos/focus-minibuffer-or-completions ()
-  "Focus the active minibuffer or the \\*Completions\\*.
-If both the minibuffer and the Completions are present, this
-command will first move per invocation to the former, then the
-latter, and then continue to switch between the two.
-The continuous switch is essentially the same as running
-`eos/focus-minibuffer' and `switch-to-completions' in
-succession."
-  (interactive)
-  (let* ((mini (active-minibuffer-window))
-         (completions (get-buffer-window "*Completions*")))
-    (cond ((and mini
-                (not (minibufferp)))
-           (select-window mini nil))
-          ((and completions
-                (not (eq (selected-window)
-                         completions)))
-           (select-window completions nil)))))
+(customize-set-variable 'history-delete-duplicates t)
 
 ;; defer garbage collection
-(add-hook 'minibuffer-setup-hook 'eos/defer-gc-collection)
+;; set `gc-cons-threshold' to most-positive-fixnum
+;; the largest lisp integer value representation
+(add-hook 'minibuffer-setup-hook
+          (lambda ()
+            (setq gc-cons-threshold most-positive-fixnum)))
 
-;; reset threshold to inital value
-(add-hook 'minibuffer-exit-hook 'eos/reset-gc-collection)
+;; reset threshold to inital value (16 megabytes)
+(add-hook 'minibuffer-exit-hook
+          (lambda () (run-at-time 1 nil
+                                  (lambda ()
+                                    (setq gc-cons-threshold 16777216)))))
 
 ;; minibuffer-local-map
 (define-key minibuffer-local-map (kbd "M-`") 'minibuffer-completion-help)
@@ -620,17 +827,23 @@ succession."
 ;; research (maybe this is not necessary) (C-k: kill line)
 ;; (define-key minibuffer-local-map (kbd "M-w") 'eos/icomplete/kill-ring-save)
 
-;; global-map
-(global-set-key (kbd "ESC ESC") 'eos/focus-minibuffer-or-completions)
-
 ;; ctl-x-map
-(define-key ctl-x-map (kbd "a") 'eos/focus-minibuffer-or-completions)
+(define-key ctl-x-map (kbd "a") 'select-minibuffer-or-completions-window)
+
+;; esc-map
+(define-key esc-map (kbd "ESC")
+  (lambda ()
+    (interactive)
+    (let ((minibuffer (active-minibuffer-window)))
+      (when minibuffer
+        (select-window minibuffer)
+        (minibuffer-keyboard-quit)))))
 
 ;; if `file-name-shadow-mode' is active, any part of the
 ;; minibuffer text that would be ignored because of this is given the
 ;; properties in `file-name-shadow-properties', which may
 ;; be used to make the ignored text invisible, dim, etc.
-;; (file-name-shadow-mode -1)
+(file-name-shadow-mode -1)
 
 ;; when active, any recursive use of the minibuffer will show
 ;; the recursion depth in the minibuffer prompt, this is only
@@ -640,6 +853,18 @@ succession."
 ;; when active, minibuffer prompts that show a default value only show
 ;; the default when it's applicable
 (minibuffer-electric-default-mode 1)
+
+(require 'savehist nil t)
+
+;; file name where minibuffer history is saved to and loaded from.
+(customize-set-variable
+ 'savehist-file (concat user-emacs-directory "cache/history"))
+
+;; if non-nil, save all recorded minibuffer histories.
+(customize-set-variable 'savehist-save-minibuffer-history t)
+
+;; enable savehist mode
+(safe-funcall 'savehist-mode 1)
 
 (require 'completion nil t)
 
@@ -715,7 +940,7 @@ Else indents the current line."
 (define-key completion-list-mode-map (kbd "ESC ESC") 'eos/focus-minibuffer-or-completions)
 
 ;; enable dynamic completion mode
-(eos-call-func 'dynamic-completion-mode 1)
+(safe-funcall 'dynamic-completion-mode 1)
 
 (require 'icomplete nil t)
 
@@ -733,7 +958,7 @@ Else indents the current line."
 (customize-set-variable 'icomplete-show-matches-on-no-input t)
 
 ;; when non-nil, hide common prefix from completion candidates
-(customize-set-variable 'icomplete-hide-common-prefix t)
+(customize-set-variable 'icomplete-hide-common-prefix nil)
 
 ;; maximum number of lines to use in the minibuffer
 (customize-set-variable 'icomplete-prospects-height 1)
@@ -776,9 +1001,8 @@ current buffer"
                    collect kill))
     ;; if candidates
     (if candidates
-        (insert
-         (completing-read "Kill-ring: " candidates nil t))
-      (message "Mark ring is empty"))))
+        (insert (completing-read "Kill-ring: " candidates nil t))
+      (message "Kill ring is empty"))))
 
 (defun eos/icomplete-mark-ring-line-string-at-pos (pos)
   "Return line string at position POS."
@@ -846,6 +1070,7 @@ These styles are described in `completion-styles-alist'."
     (define-key icomplete-minibuffer-map (kbd "C-p") 'icomplete-backward-completions)
     (define-key icomplete-minibuffer-map (kbd "SPC") 'nil)
 
+
     ;; toogle styles
     (define-key icomplete-minibuffer-map (kbd "C-,") 'eos/icomplete/toggle-completion-styles)
 
@@ -865,326 +1090,10 @@ These styles are described in `completion-styles-alist'."
 ;; enable (global)
 (icomplete-mode 1)
 
-;; coding system to use with system messages
-(customize-set-variable 'locale-coding-system 'utf-8)
-
-;; coding system to be used for encoding the buffer contents on saving
-(customize-set-variable 'buffer-file-coding-system 'utf-8)
-
-;; add coding-system at the front of the priority list for automatic detection
-(prefer-coding-system 'utf-8)
-
-;; set coding system (UFT8)
-(set-language-environment "UTF-8")
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
-
-(when (require 'simple nil t)
-  (progn
-
-;; don't omit information when lists nest too deep
-(customize-set-variable 'eval-expression-print-level nil)
-
-;; your preference for a mail composition package
-(customize-set-variable 'mail-user-agent 'message-user-agent)
-
-;; column number display in the mode line
-(eos-call-func 'column-number-mode 1)
-
-;; buffer size display in the mode line
-(eos-call-func 'size-indication-mode 1)))
-
-(require 'prog-mode nil t)
-
-(when (require 'server nil t)
-  (progn
-
-;; enable emacs server after startup
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (eos-call-func 'server-start)))))
-
-(when (require 'help nil t)
-  (progn
-
-;; always select the help window
-(customize-set-variable 'help-window-select t)
-
-;; maximum height of a window displaying a temporary buffer.
-(customize-set-variable 'temp-buffer-max-height
-                        (lambda
-                          (buffer)
-                          (if (and (display-graphic-p) (eq (selected-window) (frame-root-window)))
-                              (/ (x-display-pixel-height) (frame-char-height) 4)
-                            (/ (- (frame-height) 4) 4))))
-
-;; reference
-;; (customize-set-variable 'temp-buffer-max-height 12)
-
-
-
-(temp-buffer-resize-mode 1)))
-
-(when (require 'help-mode nil t)
-  (progn
-
-(when (boundp 'help-mode-map)
-  (define-key help-mode-map (kbd "C-j") 'push-button))))
-
-(when (require 'help-fns nil t)
-  (progn
-
-(defun eos/describe-symbol-at-point (&optional arg)
-  "Get help (documentation) for the symbol at point as ARG.
-
-With a prefix argument, switch to the *Help* window.  If that is
-already focused, switch to the most recently used window
-instead."
-  (interactive "P")
-  (let ((symbol (symbol-at-point)))
-    (when symbol
-      (describe-symbol symbol)))
-  (when current-prefix-arg
-    (let ((help (get-buffer-window "*Help*")))
-      (when help
-        (if (not (eq (selected-window) help))
-            (select-window help)
-          (select-window (get-mru-window)))))))))
-
-(when (require 'info nil t)
-  (progn
-
-;; non-nil means don’t record intermediate Info nodes to the history
-(customize-set-variable 'info-history-skip-intermediate-nodes nil)))
-
-;; 0 -> means do not display breadcrumbs
-;; (customize-set-variable 'info-breadcrumbs-depth 0)
-
-(when (require 'fringe nil t)
-  (progn
-
-;; custom
-;; 0 -> ("no-fringes" . 0), remove ugly icons to represet new lines
-;; ascii is more than enough to represent this information
-;; default appearance of fringes on all frame
-(customize-set-variable 'fringe-mode 0)))
-
-(when (require 'files nil t)
-  (progn
-
-;; control use of version numbers for backup files.
-(customize-set-variable 'version-control t)
-
-;; non-nil means always use copying to create backup files
-(customize-set-variable 'backup-by-copying t)
-
-;; number of newest versions to keep when a new numbered backup is made
-(customize-set-variable 'kept-new-versions 6)
-
-;; number of oldest versions to keep when a new numbered backup is made
-(customize-set-variable 'kept-old-versions 2)
-
-;; if t, delete excess backup versions silently
-(customize-set-variable 'delete-old-versions t)
-
-;; non-nil means make a backup of a file the first time it is saved
-(customize-set-variable 'make-backup-files nil)
-
-;; non-nil says by default do auto-saving of every file-visiting buffer
-(customize-set-variable 'auto-save-default nil)
-
-;; most *NIX tools work best when files are terminated
-;; with a newline
-(customize-set-variable 'require-final-newline t)
-
-;; backup directory list
-;; alist of filename patterns and backup directory names
-(customize-set-variable 'backup-directory-alist '(("" . "~/.emacs.d/backup")))))
-
-;; create cache directory
-(eos-mkdir (concat user-emacs-directory "cache"))
-
-(require 'isearch nil t)
-
-(when (require 'ffap nil t)
-  (progn
-
-;; eos-find-map
-(define-key eos-find-map (kbd "f") 'find-file-at-point)
-(define-key eos-find-map (kbd "d") 'dired-at-point)
-(define-key eos-find-map (kbd "C-d") 'ffap-list-directory)))
-
-(when (require 'locate nil t)
-  (progn
-
-(define-key eos-find-map (kbd "l") 'locate)))
-
-(when (require 'replace nil t)
-  (progn
-
-(defun eos/occur-at-point ()
-  "Occur with symbol or region as its arguments."
-  (interactive)
-  (let* ((bounds (if (use-region-p)
-                     (cons (region-beginning) (region-end))
-                   (bounds-of-thing-at-point 'symbol)))
-         (string nil))
-    (unless bounds
-      (setq string (read-string "Occur: ")))
-    (if bounds
-        (progn
-          (occur (buffer-substring-no-properties
-                  (car bounds) (cdr bounds)))
-          (deactivate-mark))
-      (occur string))))
-
-(global-set-key (kbd "M-s M-o") 'eos/occur-at-point)))
-
-(require 'recentf nil t)
-
-;; file to save the recent list into.
-(customize-set-variable
- 'recentf-save-file (concat user-emacs-directory "cache/recentf"))
-
-(defun eos/icomplete/recentf-open-file ()
-  "Open `recent-list' item in a new buffer.
-The user's $HOME directory is abbreviated as a tilde."
-  (interactive)
-  (let ((files (mapcar 'abbreviate-file-name recentf-list)))
-    (find-file
-     (completing-read "Recentf: " files nil t))))
-
-;; eos-find-map
-(define-key eos-find-map (kbd "r") 'recentf-open-files)
-(define-key eos-find-map (kbd "t") 'eos/icomplete/recentf-open-file)
-
-(when (require 'bookmark nil t)
-  (progn
-
-;; custom
-;; file in which to save bookmarks by default.
-(customize-set-variable
- 'bookmark-default-file (concat user-emacs-directory "cache/bookmarks"))))
-
-(when (require 'savehist nil t)
-  (progn
-
-;; file name where minibuffer history is saved to and loaded from.
-(customize-set-variable
- 'savehist-file (concat user-emacs-directory "cache/history"))
-
-;; if non-nil, save all recorded minibuffer histories.
-(customize-set-variable 'savehist-save-minibuffer-history t)
-
-;; enable savehist mode
-(eos-call-func 'savehist-mode 1)))
-
-(require 'frame nil t)
-
-;; with some window managers you may have to set this to non-nil
-;; in order to set the size of a frame in pixels, to maximize
-;; frames or to make them fullscreen.
-(customize-set-variable 'frame-resize-pixelwise t)
-
-;; normalize before maximize
-(customize-set-variable 'x-frame-normalize-before-maximize t)
-
-;; set frame title format
-(customize-set-variable 'frame-title-format
-                        '((:eval (if (buffer-file-name)
-                                     (abbreviate-file-name (buffer-file-name))
-                                   "%b"))))
-
-;; alist of parameters for the initial X window frame
-(add-to-list 'initial-frame-alist '(fullscreen . fullheight))
-
-;; (vertical-scroll-bars)
-;; (bottom-divider-width . 0)
-;; (right-divider-width . 6)
-
-;; set font by face attribute (reference)
-;; (set-face-attribute 'default nil :height)
-
-;; alist of default values for frame creation
-(add-to-list 'default-frame-alist '(internal-border-width . 2))
-
-(defun eos-set-frame-font (font)
-  "Set the default font to FONT."
-  (cond ((find-font (font-spec :name font))
-         (set-frame-font font nil t))))
-
-;; set transparency after a frame is created
-;; (add-hook 'after-make-frame-functions
-;;           (lambda (frame)
-;;             (interactive)
-;;             (eos/set-frame-transparency 0.8)))
-
-;; ;; fix first frame
-;; (add-hook 'emacs-startup-hook
-;;           (lambda ()
-;;             (interactive)
-;;             (make-frame)
-;;             (delete-other-frames)))
-
-;; ctl-x-5-map (frame prefix map)
-(define-key ctl-x-5-map (kbd "t")
-  ((lambda ()
-     (interactive)
-     (eos/set-frame-transparency 1))))
-
-;; global map
-(global-set-key (kbd "C-x C-o") 'other-frame)
-
-;; enable window divider
-(window-divider-mode)
-
-;; disable blink cursor
-(blink-cursor-mode 1)
-
-(when (require 'page nil t)
-  (progn
-
-;; enable narrow functions
-(put 'narrow-to-page 'disabled nil)
-(put 'narrow-to-region 'disabled nil)))
-
-(when (require 'kmacro nil t)
-  (progn
-
-(define-key ctl-x-map (kbd "m") 'kmacro-keymap)))
-
-(when (require 'paren nil t)
-  (progn
-
-;; visualization of matching parens
-(eos-call-func 'show-paren-mode 1)))
-
-(when (require 'time nil t)
-  (progn
-
-;; seconds between updates of time in the mode line.
-(customize-set-variable 'display-time-interval 15)
-
-;; non-nil indicates time should be displayed as hh:mm, 0 <= hh <= 23
-(customize-set-variable 'display-time-24hr-format t)
-
-;; set format time string
-(customize-set-variable 'display-time-format "%H:%M")
-
-;; load-average values below this value won’t be shown in the mode line.
-(customize-set-variable 'display-time-load-average-threshold 1.0)
-
-;; enable display time
-(eos-call-func 'display-time-mode 1)))
-
-(require 'tmm nil t)
-
-(when (require 'tool-bar nil t)
-  (progn
+(require 'tool-bar nil t)
 
 ;; disable
-(eos-call-func 'tool-bar-mode 0)))
+(safe-funcall 'tool-bar-mode 0)
 
 (require 'tooltip nil t)
 
@@ -1203,103 +1112,148 @@ The user's $HOME directory is abbreviated as a tilde."
 
 (tooltip-mode 1)
 
-(when (require 'menu-bar nil t)
-  (progn
+(require 'menu-bar nil t)
 
-(eos-call-func 'menu-bar-mode 0)))
+(safe-funcall 'menu-bar-mode 0)
 
-(when (require 'scroll-bar nil t)
-  (progn
+(require 'scroll-bar nil t)
 
 ;; disable scroll bar
-(eos-call-func 'scroll-bar-mode 0)))
+(safe-funcall 'scroll-bar-mode 0)
 
-(when (require 'hl-line nil t)
-  (progn
+(require 'fringe nil t)
 
-;; enable highlight line
-(eos-call-func 'global-hl-line-mode 1)))
+;; custom
+;; 0 -> ("no-fringes" . 0), remove ugly icons to represet new lines
+;; ascii is more than enough to represent this information
+;; default appearance of fringes on all frame
+(customize-set-variable 'fringe-mode 0)
 
-(when (require 'linum nil t)
-  (progn
+;; remove underline
+(customize-set-variable 'x-underline-at-descent-line t)
 
-;; format used to display line numbers.
-(customize-set-variable 'linum-format " %2d ")))
+;; mode-line format
+(customize-set-variable 'mode-line-format
+                        '("%e"
+                          ;; "%*%& %l:%c | %I "
+                          mode-line-front-space
+                          mode-line-mule-info
+                          mode-line-modified
+                          mode-line-remote
+                          ;; " %*%& "
+                          ;; mode-line-misc-info
+                          ;; mode-line-misc-info
+                          " "
+                          "%l:%c"
+                          " • "
+                          (:eval (propertized-buffer-identification "%b"))
+                          " • "
+                          "("
+                          mode-name
+                          ")"
+                          (:eval (when vc-mode " »"))
+                          (vc-mode vc-mode)))
 
-(when (require 'display-line-numbers nil t)
-  (progn
+;; indentation can insert tabs if this is non-nil
+(customize-set-variable 'indent-tabs-mode nil)
 
-(add-hook 'prog-mode-hook 'display-line-numbers-mode)))
+;; default number of columns for margin-changing functions to indent
+(customize-set-variable 'standard-indent 4)
 
-;; (eos-call-func 'global-display-line-numbers-mode 1)))
+;; distance between tab stops (for display of tab characters), in columns.
+(customize-set-variable 'tab-width 4)
 
-(when (require 'whitespace nil t)
-  (progn
+;; if 'complete, TAB first tries to indent the current line
+;; if t, hitting TAB always just indents the current line
+;; If nil, hitting TAB indents the current line if point is at the left margin
+;; or in the line's indentation
+(customize-set-variable 'tab-always-indent 'complete)
+
+(require 'kmacro nil t)
+
+(define-key ctl-x-map (kbd "m") 'kmacro-keymap)
+
+(require 'elec-pair nil t)
+
+;; alist of pairs that should be used regardless of major mode.
+(customize-set-variable 'electric-pair-pairs
+                        '((?\{ . ?\})
+                          (?\( . ?\))
+                          (?\[ . ?\])
+                          (?\" . ?\")))
+
+(safe-funcall 'electric-pair-mode 1)
+
+(require 'newcomment nil t)
+
+;; global-map
+(global-set-key (kbd "M-c") 'comment-or-uncomment-region)
+
+(require 'face-remap nil t)
+
+;; ctl-x-map (C-x)
+(define-key ctl-x-map (kbd "=") 'text-scale-adjust)
+
+(require 'isearch nil t)
+
+(require 'delsel nil t)
+
+;; delete selection-mode
+(safe-funcall 'delete-selection-mode 1)
+
+(require 'replace nil t)
+
+(defun eos/occur-at-point ()
+  "Occur with symbol or region as its arguments."
+  (interactive)
+  (let* ((bounds (if (use-region-p)
+                     (cons (region-beginning) (region-end))
+                   (bounds-of-thing-at-point 'symbol)))
+         (string nil))
+    (unless bounds
+      (setq string (read-string "Occur: ")))
+    (if bounds
+        (progn
+          (occur (buffer-substring-no-properties
+                  (car bounds) (cdr bounds)))
+          (deactivate-mark))
+      (occur string))))
+
+(global-set-key (kbd "M-s M-o") 'eos/occur-at-point)
+
+(require 'whitespace nil t)
 
 ;; clean whitespace and newlines before buffer save
 (add-hook 'before-save-hook #'whitespace-cleanup)
 
 ;; binds
-(define-key ctl-x-map (kbd ".") 'whitespace-mode)))
+(define-key ctl-x-map (kbd ".") 'whitespace-mode)
 
-(when (require 'subword nil t)
-  (progn
+(require 'tmm nil t)
 
-(eos-call-func 'global-subword-mode 1)))
+(require 'server nil t)
 
-(when (require 'face-remap nil t)
-  (progn
+;; enable emacs server after startup
+(add-hook 'window-setup-hook
+          (lambda ()
+            (safe-funcall 'server-start)))
+
+(require 'shell nil t)
+
+;; hook
+(add-hook 'shell-mode-hook
+          (lambda()
+            ;; do not display continuation lines.
+            (setq truncate-lines nil)
+
+            ;; when available remove company-mode
+            (when (fboundp 'company-mode)
+              (company-mode -1))))
+
+(require 'eshell nil t)
 
 ;; ctl-x-map (C-x)
-(define-key ctl-x-map (kbd "=") 'text-scale-adjust)))
-
-(require 'custom nil t)
-
-;; file used for storing customization information.
-;; The default is nil, which means to use your init file
-;; as specified by ‘user-init-file’.  If the value is not nil,
-;; it should be an absolute file name.
-(customize-set-variable
- 'custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
-
-;; load custom-file
-;; (eos-load-file custom-file)
-
-(require 'forms nil t)
-
-(when (require 'conf-mode nil t)
-  (progn
-
-(add-to-list 'auto-mode-alist '("\\.compose\\'" . conf-mode))
-(add-to-list 'auto-mode-alist '("\\.dockerfile\\'" . conf-mode))))
-
-(require 'imap nil t)
-
-;; how long to wait between checking for the end of output
-(customize-set-variable 'imap-read-timeout 2)
-
-;; if non-nil, store session password without prompting
-(customize-set-variable 'imap-store-password t)
-
-(require 'smtpmail nil t)
-
-;; specify default SMTP server
-;; (customize-set-variable 'smtpmail-default-smtp-server "smtp.gmail.com")
-
-;; the name of the host running SMTP server
-;; (customize-set-variable 'smtpmail-smtp-server "smtp.gmail.com")
-
-;; type of SMTP connections to use
-(customize-set-variable 'smtpmail-stream-type 'ssl)
-
-;; smtp service port number
-(customize-set-variable 'smtpmail-smtp-service 465)
-
-;; non-nil means mail is queued; otherwise it is sent immediately.
-(customize-set-variable 'smtpmail-queue-mail nil)
-
-;; directory where smtpmail.el stores queued mail.
-;; (customize-set-variable 'smtpmail-queue-dir "")
+(define-key ctl-x-map (kbd "&") 'eshell)
 
 (require 'exwm nil t)
 (require 'exwm-core nil t)
@@ -1322,8 +1276,8 @@ The user's $HOME directory is abbreviated as a tilde."
 (customize-set-variable 'exwm-input-global-keys
                         `(([?\s-r] . exwm-reset)
                           ([?\s-q] . exwm-input-toggle-keyboard)
-                          ([?\s-t] . exwm-layout-toggle-fullscreen)
-                          ([?\s-d] . exwm-floating-toggle-floating)
+                          ([?\s-d] . exwm-layout-toggle-floating)
+                          ([?\s-m] . exwm-layout-toggle-fullscreen)
                           ;; ([?\s-w] . exwm-workspace-switch)
                           ;; ([?\s-k] . exwm-workspace-delete)
                           ;; ([?\s-a] . exwm-workspace-swap)
@@ -1374,30 +1328,28 @@ The user's $HOME directory is abbreviated as a tilde."
                           ([?\C-s] . [?\C-f])))
 
 ;; this little bit will make sure that XF86 keys work in exwm buffers as well
- (if (boundp 'exwm-input-prefix-keys)
-     (progn
-       (dolist (key '(XF86AudioLowerVolume
-                      XF86AudioRaiseVolume
-                      XF86PowerOff
-                      XF86AudioMute
-                      XF86AudioPlay
-                      XF86AudioStop
-                      XF86AudioPrev
-                      XF86AudioNext
-                      XF86ScreenSaver
-                      XF68Back
-                      XF86Forward
-                      Scroll_Lock
-                      print))
-         (cl-pushnew key exwm-input-prefix-keys))))
-
-(global-set-key (kbd "s-o") 'other-frame)
+(if (boundp 'exwm-input-prefix-keys)
+    (progn
+      (dolist (key '(XF86AudioLowerVolume
+                     XF86AudioRaiseVolume
+                     XF86PowerOff
+                     XF86AudioMute
+                     XF86AudioPlay
+                     XF86AudioStop
+                     XF86AudioPrev
+                     XF86AudioNext
+                     XF86ScreenSaver
+                     XF68Back
+                     XF86Forward
+                     Scroll_Lock
+                     print))
+        (cl-pushnew key exwm-input-prefix-keys))))
 
 ;; set frame opacy
-(add-hook 'exwm-init-hook
-          (lambda ()
-            (interactive)
-            (eos/set-frame-transparency 0.8)))
+;; (add-hook 'exwm-init-hook
+;;           (lambda ()
+;;             (interactive)
+;;             (set-frame-transparency 0.8)))
 
 ;; All buffers created in EXWM mode are named "*EXWM*". You may want to
 ;; change it in `exwm-update-class-hook' and `exwm-update-title-hook', which
@@ -1417,12 +1369,15 @@ The user's $HOME directory is abbreviated as a tilde."
               (concat exwm-class-name "|" exwm-title)
               32))))
 
-(eos-call-func 'exwm-enable)
+;; enable exwm if graphic display is non-nil
+(when (display-graphic-p)
+  (safe-funcall 'exwm-enable))
 
 (require 'exwm-randr nil t)
 
 ;; monitors: check the xrandr(1) output and use the same name/order
 ;; TODO: create a func that retrieves these values from xrandr
+
 (customize-set-variable
   'exwm-randr-workspace-monitor-plist '(0 "eDP-1"
                                         1 "HDMI-1"
@@ -1436,189 +1391,29 @@ The user's $HOME directory is abbreviated as a tilde."
 
 (exwm-randr-enable)
 
-(require 'nsm nil t)
+;; start compton after emacs initialize
+(add-hook 'after-init-hook
+          (lambda ()
+            (safe-start-process "pulse" "pulseaudio" "-D")))
 
-;; if a potential problem with the security of the network
-;; connection is found, the user is asked to give input
-;; into how the connection should be handled
-;; `high': This warns about additional things that many
-;; people would not find useful.
-;; `paranoid': On this level, the user is queried for
-;; most new connections
-(customize-set-variable 'network-security-level 'paranoid)
-
-;; the file the security manager settings will be stored in.
-(customize-set-variable 'nsm-settings-file
-                        (expand-file-name "nsm/netword-security.data" user-emacs-directory))
-
-(require 'eps-config nil t)
-
-;; the gpg executable
-(customize-set-variable 'epg-gpg-program "gpg2")
-
-(require 'tls nil t)
-
-;; indicate if certificates should be checked against trusted root certs
-;; if this is ‘ask’, the user can decide whether to accept an
-;; untrusted certificate
-(customize-set-variable 'tls-checktrust nil)
-
-;; list of strings containing commands to
-;; start TLS stream to a host
-;; '("openssl s_client -connect %h:%p -CAfile %t")
-;; '("gnutls-cli --x509cafile %t -p %p %h --insecure")
-(customize-set-variable
- 'tls-program
- '("gnutls-cli --x509cafile /etc/ssl/certs/ca-certificates.crt -p %p %h"))
-
-(when (require  'gnutls nil t)
-  (progn
-
-;; if non-nil, this should be a TLS priority string
-(customize-set-variable 'gnutls-algorithm-priority nil)
-
-;; if non-nil, this should be t or a list of checks
-;; per hostname regex
-(customize-set-variable 'gnutls-verify-error nil)))
-
-(require 'epa nil t)
-
-;; if non-nil, cache passphrase for symmetric encryption
-(customize-set-variable
- 'epa-file-cache-passphrase-for-symmetric-encryption t)
-
-;; if t, always asks user to select recipients
-(customize-set-variable 'epa-file-select-keys t)
-
-;; in epa commands, a particularly useful mode is ‘loopback’, which
-;; redirects all Pinentry queries to the caller, so Emacs can query
-;; passphrase through the minibuffer, instead of external Pinentry
-;; program
-(customize-set-variable 'epa-pinentry-mode 'loopback)
-
-(require 'auth-source nil t)
-
-(defun eos-auth-search (host user)
-  "Lookup (format HOST USER PORT) password on auth-source default file."
-  (let ((auth (auth-source-search :host host :user user)))
-    (if auth
-        (let ((secretf (plist-get (car auth) :secret)))
-          (if secretf
-              (funcall secretf)
-            (message "Auth entry for %s@%s has no secret!"
-                     user host)))
-      (message "No auth entry found for %s@%s" user host))))
-
-;; Note: If the auth-sources variable contains ~/.auth.gpg before
-;; ~/.auth, the auth-source library will try to read the GnuPG
-;; encrypted .gpg file first, before the unencrypted file.
-
-;; list of authentication sources
-(customize-set-variable
- 'auth-sources '("~/.auth/auth.gpg" "~/.auth/netrc"))
-
-(require 'password-store nil t)
-
-(when (require 'package nil t)
-  (progn
+;; (require 'package nil t)
 
 (customize-set-variable
- 'package-archives
- '(("gnu" . "https://elpa.gnu.org/packages/")
-   ("melpa" . "https://melpa.org/packages/")))))
+  'package-archives
+  '(("gnu" . "https://elpa.gnu.org/packages/")
+    ("melpa" . "https://melpa.org/packages/")))
 
 ;; enable (manually only)
 ;; (package-initialize)
 
-(require 'async nil t)
-(require 'async-bytecomp nil t)
+(require 'dired-async nil t)
 
-;; to run command without displaying the output in a window
-(add-to-list 'display-buffer-alist
-             '("\\*Async Shell Command\\*"
-               (display-buffer-no-window)
-               (allow-no-window . t)))
+(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
+(define-key dired-mode-map (kbd "C-j") 'dired-find-alternate-file)
 
-(when (require 'elec-pair nil t)
-  (progn
+(safe-funcall 'dired-async-mode 1)
 
-;; alist of pairs that should be used regardless of major mode.
-(customize-set-variable 'electric-pair-pairs
-                        '((?\{ . ?\})
-                          (?\( . ?\))
-                          (?\[ . ?\])
-                          (?\" . ?\")))
-
-(eos-call-func 'electric-pair-mode 1)))
-
-(when (require 'newcomment nil t)
-  (progn
-
-;; global-map
-(global-set-key (kbd "M-c") 'comment-or-uncomment-region)))
-
-(when (require 'delsel nil t)
-  (progn
-
-;; delete selection-mode
-(eos-call-func 'delete-selection-mode 1)))
-
-(require 'iedit nil t)
-
-;; if no-nil, the key is inserted into global-map,
-;; isearch-mode-map, esc-map and help-map.
-(customize-set-variable 'iedit-toggle-key-default t)
-
-;; bind (iedit-mode-keymap)
-(when (boundp 'iedit-mode-keymap)
-  (progn
-    (define-key iedit-mode-keymap (kbd "<tab>") 'eos/complete-in-buffer-or-indent)
-    (define-key iedit-mode-keymap (kbd "M-n") 'iedit-next-occurrence)))
-
-;; bind (global)
-;; (global-set-key (kbd "C-;") 'iedit-mode)
-
-(when (require 'undo-tree nil t)
-  (progn
-
-;; define alias for redo
-(defalias 'redo 'undo-tree-redo)
-
-(define-key ctl-x-map (kbd "u") 'undo-tree-visualize)
-
-;; enable
-(eos-call-func 'global-undo-tree-mode 1)))
-
-(require 'editorconfig nil t)
-
-(eos-call-func 'editorconfig-mode)
-
-(when (require 'buffer-move nil t)
-  (progn
-
-(define-key ctl-x-map (kbd "<C-up>") 'buf-move-up)
-(define-key ctl-x-map (kbd "<C-down>") 'buf-move-down)
-(define-key ctl-x-map (kbd "<C-left>") 'buf-move-left)
-(define-key ctl-x-map (kbd "<C-right>")'buf-move-right)))
-
-(when (require 'dired nil t)
-  (progn
-
-;; enable dired-find-alternate-file
-(put 'dired-find-alternate-file 'disabled nil)))
-
-(when (require 'dired-async nil t)
-  (progn
-
-(eos-call-func 'dired-async-mode 1)
-
-(if (boundp 'dired-mode-map)
-    (progn
-      (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
-      (define-key dired-mode-map (kbd "C-j") 'dired-find-alternate-file)))))
-
-(when (require 'dired-subtree nil t)
-  (progn
+(require 'dired-subtree nil t)
 
 ;; default depth expanded by `dired-subtree-cycle'
 (customize-set-variable 'dired-subtree-cycle-depth 2)
@@ -1635,7 +1430,132 @@ The user's $HOME directory is abbreviated as a tilde."
 (when (boundp 'dired-mode-map)
   (progn
     (define-key dired-mode-map (kbd "TAB") 'dired-subtree-insert)
-    (define-key dired-mode-map (kbd "<M-tab>") 'dired-subtree-remove)))))
+    (define-key dired-mode-map (kbd "<M-tab>") 'dired-subtree-remove)))
+
+(require 'dired-rsync nil t)
+
+;; the default options for the rsync command
+(customize-set-variable 'dired-rsync-options "-a -z -v -r --info=progress2")
+
+(define-key dired-mode-map (kbd "C-c C-r") 'dired-rsync)
+
+(require 'bookmark nil t)
+
+;; custom
+;; file in which to save bookmarks by default.
+(customize-set-variable
+ 'bookmark-default-file (concat user-emacs-directory "cache/bookmarks"))
+
+(require 'term nil t)
+
+;; if non-nil, is file name to use for explicitly
+;; requested inferior shell
+(customize-set-variable
+ 'explicit-shell-file-name (getenv "SHELL"))
+
+;; if non-nil, add a ‘/’ to completed directories
+(customize-set-variable 'term-completion-addsuffix t)
+
+;; regexp to recognize prompts in the inferior process
+;; (customize-set-variable 'term-prompt-regexp "^\\(>\\|\\(->\\)+\\) *")
+(customize-set-variable 'term-prompt-regexp ".*:.*>.*? ")
+
+;; if non-nil, automatically list possibilities on partial completion.
+(customize-set-variable 'term-completion-autolist t)
+
+;; if true, buffer name equals process name
+(customize-set-variable 'term-ansi-buffer-base-name t)
+
+;; functions
+(defun eos/term-send-kill-line ()
+  "Kill line in multi-term mode with the possibility to paste it like in a normal shell."
+  (interactive)
+  (when (fboundp 'term-send-raw-string)
+      (kill-line)
+      (term-send-raw-string "\C-k")))
+
+(defun eos/run-term ()
+  "Exec \\[term] but asks for the `term-mode' buffer name."
+  (interactive)
+  (funcall 'term (getenv "SHELL"))
+  (rename-buffer (read-string "Term name: " nil nil "Term") t))
+
+(add-hook 'term-mode-hook
+          (lambda()
+            ;; do not display continuation lines.
+            (setq truncate-lines nil)
+
+            ;; disable company mode
+            (when (fboundp 'company-mode)
+              (company-mode -1))))
+
+;; bind term-raw-map/term-mode-map with hook
+(add-hook 'term-mode-hook
+          (lambda ()
+            (when (and (boundp 'term-raw-map)
+                       (boundp 'term-mode-map))
+              (progn
+                ;; term-raw-map
+                (define-key term-raw-map (kbd "s-q") 'term-line-mode)
+
+                ;; term-mode-map
+                (define-key term-mode-map (kbd "s-q") 'term-char-mode)))))
+
+;; clt-x-map (C-x) prefix
+(define-key ctl-x-map (kbd "<C-return>") 'eos/run-term)
+
+(require 'multi-term nil t)
+
+;; if this is nil, setup to environment variable of `SHELL'"
+(customize-set-variable 'multi-term-program nil)
+
+;; focus terminal window after you open dedicated window
+(customize-set-variable 'multi-term-dedicated-select-after-open-p t)
+
+;; the buffer name of term buffer.
+(customize-set-variable 'multi-term-buffer-name "Term")
+
+;; clt-x-map (C-x) prefix
+(define-key ctl-x-map (kbd "RET") 'multi-term-dedicated-toggle)
+
+(require 'auth-source nil t)
+
+(defun eos-auth-search (host user)
+  "Lookup (format HOST USER PORT) password on auth-source default file."
+  (let ((auth (auth-source-search :host host :user user)))
+    (if auth
+        (let ((secretf (plist-get (car auth) :secret)))
+          (if secretf
+              (funcall secretf)
+            (message "Auth entry for %s@%s has no secret!" user host)))
+      (message "No auth entry found for %s@%s" user host))))
+
+;; Note: If the auth-sources variable contains ~/.auth.gpg before
+;; ~/.auth, the auth-source library will try to read the GnuPG
+;; encrypted .gpg file first, before the unencrypted file.
+
+;; list of authentication sources
+(customize-set-variable
+ 'auth-sources '("~/.auth/auth.gpg" "~/.auth/netrc"))
+
+(require 'password-store nil t)
+
+(require 'time nil t)
+
+;; seconds between updates of time in the mode line.
+(customize-set-variable 'display-time-interval 15)
+
+;; non-nil indicates time should be displayed as hh:mm, 0 <= hh <= 23
+(customize-set-variable 'display-time-24hr-format t)
+
+;; set format time string
+(customize-set-variable 'display-time-format "%H:%M")
+
+;; load-average values below this value won’t be shown in the mode line.
+(customize-set-variable 'display-time-load-average-threshold 1.0)
+
+;; enable display time
+(safe-funcall 'display-time-mode 1)
 
 (require 'all-the-icons nil t)
 
@@ -1655,27 +1575,73 @@ The user's $HOME directory is abbreviated as a tilde."
 ;; load theme
 (load-theme 'moebius t)
 
-(when (require 'artist nil t)
+;; (require 'buffer-move nil t)
+
+;; (define-key ctl-x-map (kbd "<C-up>") 'buf-move-up)
+;; (define-key ctl-x-map (kbd "<C-down>") 'buf-move-down)
+;; (define-key ctl-x-map (kbd "<C-left>") 'buf-move-left)
+;; (define-key ctl-x-map (kbd "<C-right>")'buf-move-right)
+
+(require 'ibuffer nil t)
+
+;; the criteria by which to sort the buffers
+(customize-set-variable 'ibuffer-default-sorting-mode 'filename/process)
+
+;; if non-nil, display the current Ibuffer buffer itself
+(customize-set-variable 'ibuffer-view-ibuffer nil)
+
+
+
+(define-key ctl-x-map (kbd "b") 'ibuffer)
+
+(require 'iedit nil t)
+
+;; if no-nil, the key is inserted into global-map,
+;; isearch-mode-map, esc-map and help-map.
+(customize-set-variable 'iedit-toggle-key-default t)
+
+;; bind (iedit-mode-keymap)
+(when (boundp 'iedit-mode-keymap)
   (progn
+    (define-key iedit-mode-keymap (kbd "<tab>") 'eos/complete-in-buffer-or-indent)
+    (define-key iedit-mode-keymap (kbd "M-n") 'iedit-next-occurrence)))
+
+;; bind (global)
+;; (global-set-key (kbd "C-;") 'iedit-mode)
+
+(require 'undo-tree nil t)
+
+;; define alias for redo
+(defalias 'redo 'undo-tree-redo)
+
+(define-key ctl-x-map (kbd "u") 'undo-tree-visualize)
+
+;; enable
+(add-hook 'window-setup-hook
+          (lambda ()
+            (safe-funcall 'global-undo-tree-mode 1)))
+
+;; (require 'editorconfig nil t)
+
+;; (safe-funcall 'editorconfig-mode 1)
+
+(require 'artist nil t)
 
 ;; whether or not to incrementally update display when flood-filling
 (customize-set-variable 'artist-flood-fill-show-incrementally nil)
 
 ;; whether or not to remove white-space at end of lines
-(customize-set-variable 'artist-trim-line-endings nil)))
+(customize-set-variable 'artist-trim-line-endings nil)
 
-(when (require 'elfeed nil t)
-  (progn
+(require 'elfeed nil t)
 
 ;; directory where elfeed will store its database.
-(customize-set-variable
- 'elfeed-db-directory
- (concat (expand-file-name user-emacs-directory) "elfeed"))
+(customize-set-variable 'elfeed-db-directory
+                        (concat (expand-file-name user-emacs-directory) "elfeed"))
 
 ;; default directory for saving enclosures. Hide
-(customize-set-variable
- 'elfeed-enclosure-default-dir
- (concat (expand-file-name user-emacs-directory) "cache/elfeed"))))
+(customize-set-variable 'elfeed-enclosure-default-dir
+                        (concat (expand-file-name user-emacs-directory) "cache/elfeed"))
 
 (require 'gnus nil t)
 
@@ -1778,19 +1744,215 @@ The user's $HOME directory is abbreviated as a tilde."
 ;; set timestamp
 (add-hook 'gnus-select-group-hook 'gnus-group-set-timestamp)
 
-(require 'nnimap nil t)
+(require 'emms nil t)
+(require 'emms-setup nil t)
 
-;; limit the number of articles to look for after moving an article
-(customize-set-variable 'nnimap-request-articles-find-limit nil)
+;; list of players that emms can use (only mpv)
+(customize-set-variable 'emms-player-list '(emms-player-mpv))
 
-(require 'nnmail nil t)
+;; string used for displaying the current track in mode-line and titlebar
+(customize-set-variable 'emms-mode-line-format "")
 
-;; expirable articles that are older than this will be expired
-(customize-set-variable 'nnmail-expiry-wait 4)
+;; list of players that EMMS can use
+(customize-set-variable 'emms-player-list '(emms-player-mpv))
 
-(require 'mm-bodies nil t)
+;;  the default name of the EMMS playlist buffer
+(customize-set-variable 'emms-playlist-buffer-name "EMMS|Playlist")
 
-(add-to-list 'mm-body-charset-encoding-alist '(utf-8 . base64))
+;; the default directory to look for media files.
+(customize-set-variable
+ 'emms-source-file-default-directory (expand-file-name "~/media/"))
+
+;; disable emms mode line
+;; (add-hook 'emms-playlist-mode-hook
+;;           (lambda ()
+;;             (when (and (boundp 'emms-mode-line-active-p)
+;;                        (fboundp 'emms-mode-line-disable))
+;;               (progn
+;;                 (if emms-mode-line-active-p
+;;                     (emms-mode-line-disable))))))
+
+;; if emms is available, enable it
+;; (add-hook 'window-setup-hook
+;;           (lambda ()
+;;             (safe-funcall 'emms-all)
+;;             (safe-funcall 'emms-default-players)))
+
+(require 'rcirc nil t)
+
+;; non-nil means log IRC activity to disk
+;; logfiles are kept in `rcirc-log-directory
+(customize-set-variable 'rcirc-log-flag nil)
+
+;; major-mode function to use in multiline edit buffers
+(customize-set-variable 'rcirc-multiline-major-mode 'text-mode)
+
+;; format string to use in nick completions
+(customize-set-variable 'rcirc-completion-fomart "%s:")
+
+;; list of authentication passwords (not your job)
+(customize-set-variable 'rcirc-authinfo nil)
+
+;; coding system used to decode incoming irc messages
+(customize-set-variable 'rcirc-decode-coding-system 'utf-8)
+
+;; responses which will be hidden when `rcirc-omit-mode is enable
+(customize-set-variable 'rcirc-omit-responses
+                        '("JOIN" "PART" "QUIT" "NICK"))
+
+
+
+;; (rcirc-omit-mode 1)))
+
+(require 'eww nil t)
+
+;; prefix uRL to search engine
+(customize-set-variable 'eww-search-prefix "https://www.google.com/search?q=")
+;; (customize-set-variable eww-search-prefix "https://duckduckgo.com/html/?q=")
+
+;; directory where files will downloaded
+(customize-set-variable 'eww-download-directory "~/down")
+
+;; symbol used to represent a checkbox
+(customize-set-variable 'eww-form-checkbox-symbol "[ ]")
+
+;; symbol used to represent a selected checkbox.
+(customize-set-variable 'eww-form-checkbox-selected-symbol "[X]")
+;; (customize-set-variable eww-form-checkbox-symbol "☐") ; Unicode hex 2610
+;; (customize-set-variable eww-form-checkbox-selected-symbol "☑") ; Unicode hex 2611
+
+(add-hook 'eww-mode-hook
+          (lambda ()
+            ;; disable truncate lines
+            (setq truncate-lines nil)))
+
+(when (boundp 'eww-mode-map)
+    (define-key eww-mode-map (kbd "C-j") 'eww-follow-link))
+
+(require 'browse-url nil t)
+
+;; the name of the browser program used by ‘browse-url-generic’.
+(customize-set-variable 'browse-url-generic-program "eww")
+
+;; function to display the current buffer in a WWW browser: eww
+(customize-set-variable 'browse-url-browser-function 'eww-browse-url)
+
+(require 'ag nil t)
+
+;; non-nil means we highlight the current search term in results
+(customize-set-variable 'ag-highlight-search t)
+
+;; non-nil means we reuse the existing search results buffer
+(customize-set-variable 'ag-reuse-buffers t)
+
+;; non-nil means we open search results in the same window
+(customize-set-variable 'ag-reuse-window t)
+
+;; projects keymap
+(define-key eos-pm-map (kbd "a") 'ag-project-at-point)
+
+;; filter keymap
+(define-key eos-filter-map (kbd "a") 'ag)
+(define-key eos-filter-map (kbd "d") 'ag-dired)
+(define-key eos-filter-map (kbd "f") 'ag-files)
+
+(require 'grep nil t)
+
+;; the default find command for M-x grep-find or M-x find-grep
+(customize-set-variable 'grep-find-command
+                        '("find ~/ -type f -exec grep --color -nH --null -e  \\{\\} +" . 49))
+
+(define-key eos-filter-map (kbd "r") 'rgrep)
+
+(require 'ispell nil t)
+
+;; program invoked by M-x ispell-word and M-x ispell-region commands.
+(customize-set-variable 'ispell-program-name "aspell")
+
+;; todo research (not working)
+;; (add-to-list 'display-buffer-alist
+;;              '("\\*Choices\\*"
+;;                (display-buffer-below-selected display-buffer-at-bottom)
+;;                (inhibit-same-window . t)
+;;                (window-height . 0.2)))
+
+;; silent compiler
+(defvar ispell-current-dictionary nil nil)
+
+(defun eos/ispell/switch-dictionary ()
+  "Switch dictionaries."
+  (interactive)
+  (let* ((dic ispell-current-dictionary)
+         (change (if (string= dic "english") "brasileiro" "english")))
+    (ispell-change-dictionary change)
+    (message "Dictionary switched from %s to %s" dic change)))
+
+;; enable globally after emacs startup
+(add-hook 'window-setup-hook
+          (lambda () (ispell-minor-mode 1)))
+
+;; eos-sc-map
+(define-key eos-sc-map (kbd "i") 'ispell-word)
+(define-key eos-sc-map (kbd "I") 'ispell-buffer)
+
+(require 'flyspell nil t)
+
+;; string that is the name of the default dictionary
+(customize-set-variable 'flyspell-default-dictionary "english")
+
+;; hooks
+(add-hook 'text-mode-hook #'flyspell-mode)
+(add-hook 'prog-mode-hook #'flyspell-prog-mode)
+
+(require 'flycheck nil t)
+
+(defun eos/set-flycheck-checker (checker)
+  "Set flycheck CHECKER variable."
+  (make-local-variable 'flycheck-checker)
+  (when (boundp 'flycheck-checker)
+    (setq flycheck-checker checker)))
+
+
+
+;; dont display this buffer
+(add-to-list 'display-buffer-alist
+             '("\\*Flycheck error messages\\*"
+               (display-buffer-no-window)
+               (allow-no-window . t)))
+
+;; flycheck mode after some programming mode
+;; is activated (c-mode, elisp-mode, etc).
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (interactive)
+            (flycheck-mode 1)))
+
+;; (global-flycheck-mode 1)
+
+;; binds
+(define-key eos-sc-map (kbd "C-g") 'keyboard-quit)
+(define-key eos-sc-map (kbd "e") 'flycheck-list-errors)
+(define-key eos-sc-map (kbd "b") 'flycheck-buffer)
+(define-key eos-sc-map (kbd "d") 'flycheck-disable-checker)
+(define-key eos-sc-map (kbd "m") 'flycheck-mode)
+(define-key eos-sc-map (kbd "s") 'flycheck-select-checker)
+(define-key eos-sc-map (kbd "?") 'flycheck-describe-checker)
+
+;; (define-key eos-sc-map (kbd "M") 'flycheck-manual)
+;; (define-key eos-sc-map (kbd "v") 'flycheck-verify-setup)
+
+(require 'cannon nil t)
+
+;; file in which the launcher state is
+;; saved between Emacs sessions
+(customize-set-variable
+ 'cannon-cache-file
+ (expand-file-name "cache/cannon" user-emacs-directory))
+
+;; clt-x-map (C-x) prefix
+(define-key ctl-x-map (kbd "x") 'cannon-launch)
+
+(safe-funcall 'cannon-mode 1)
 
 (require 'message nil t)
 
@@ -1850,325 +2012,13 @@ sent. Add this function to `message-header-setup-hook'."
 ;; normal hook, run each time a new outgoing message is initialized
 (add-hook 'message-setup-hook 'message-sort-headers)
 
-(require 'sendmail nil t)
-
-;; text inserted at end of mail buffer when a message is initialized
-(customize-set-variable 'mail-signature "Att.")
-
-;; file containing the text inserted at end of mail buffer
-;; default: ~/.signature
-;; (customize-set-variable 'mail-signature-file nil)
-
-(when (require 'moody nil t)
-  (progn
-
-;; remove underline
-(customize-set-variable 'x-underline-at-descent-line t)
-
-;; change line height
-(customize-set-variable 'moody-mode-line-height 1)
-
-;; mode-line format
-(customize-set-variable 'mode-line-format
-                        '("%e"
-                          ;; "%*%& %l:%c | %I "
-                          " "
-                          mode-line-mule-info
-                          mode-line-modified
-                          ;; " %*%& "
-                          ;; mode-line-misc-info
-                          ;; mode-line-percent-position
-                          " %l:%c "
-                          ;; mode-line-misc-info
-                          moody-mode-line-buffer-identification
-                          ""
-                          " %m "
-                          (vc-mode moody-vc-mode)
-                          " "
-                          ))))
-
-(require 'rcirc nil t)
-
-;; non-nil means log IRC activity to disk
-;; logfiles are kept in `rcirc-log-directory
-(customize-set-variable 'rcirc-log-flag nil)
-
-;; major-mode function to use in multiline edit buffers
-(customize-set-variable 'rcirc-multiline-major-mode 'text-mode)
-
-;; format string to use in nick completions
-(customize-set-variable 'rcirc-completion-fomart "%s:")
-
-;; list of authentication passwords (not your job)
-(customize-set-variable 'rcirc-authinfo nil)
-
-;; coding system used to decode incoming irc messages
-(customize-set-variable 'rcirc-decode-coding-system 'utf-8)
-
-;; responses which will be hidden when `rcirc-omit-mode is enable
-(customize-set-variable 'rcirc-omit-responses
-                        '("JOIN" "PART" "QUIT" "NICK"))
-
-
-
-;; (rcirc-omit-mode 1)))
-
-(require 'shell nil t)
-
-;; hook
-(add-hook 'shell-mode-hook
-          (lambda()
-            ;; do not display continuation lines.
-            (setq truncate-lines nil)
-
-            ;; when available remove company-mode
-            (when (fboundp 'company-mode)
-              (company-mode -1))))
-
-(require 'eshell nil t)
-
-;; ctl-x-map (C-x)
-(define-key ctl-x-map (kbd "&") 'eshell)
-
-(require 'term nil t)
-
-;; if non-nil, is file name to use for explicitly
-;; requested inferior shell
-(customize-set-variable
- 'explicit-shell-file-name (getenv "SHELL"))
-
-;; if non-nil, add a ‘/’ to completed directories
-(customize-set-variable 'term-completion-addsuffix t)
-
-;; regexp to recognize prompts in the inferior process
-;; (customize-set-variable 'term-prompt-regexp "^\\(>\\|\\(->\\)+\\) *")
-(customize-set-variable 'term-prompt-regexp ".*:.*>.*? ")
-
-;; if non-nil, automatically list possibilities on partial completion.
-(customize-set-variable 'term-completion-autolist t)
-
-;; if true, buffer name equals process name
-(customize-set-variable 'term-ansi-buffer-base-name t)
-
-;; functions
-(defun eos/term-send-kill-line ()
-  "Kill line in multi-term mode with the possibility to paste it like in a normal shell."
-  (interactive)
-  (when (fboundp 'term-send-raw-string)
-    (progn
-      (kill-line)
-      (term-send-raw-string "\C-k"))))
-
-(add-hook 'term-mode-hook
-          (lambda()
-            ;; do not display continuation lines.
-            (setq truncate-lines nil)
-
-            ;; disable company mode
-            (when (fboundp 'company-mode)
-              (company-mode -1))))
-
-;; bind term-raw-map/term-mode-map with hook
-(add-hook 'term-mode-hook
-          (lambda ()
-            (when (and (boundp 'term-raw-map)
-                       (boundp 'term-mode-map))
-              (progn
-                ;; term-raw-map
-                (define-key term-raw-map (kbd "s-q") 'term-line-mode)
-
-                ;; term-mode-map
-                (define-key term-mode-map (kbd "s-q") 'term-char-mode)))))
-
-(when (require 'multi-term nil t)
-  (progn
-
-;; if this is nil, setup to environment variable of `SHELL'"
-(customize-set-variable 'multi-term-program nil)
-
-;; focus terminal window after you open dedicated window
-(customize-set-variable 'multi-term-dedicated-select-after-open-p t)
-
-;; the buffer name of term buffer.
-(customize-set-variable 'multi-term-buffer-name "Term")
-
-;; clt-x-map (C-x) prefix
-(define-key ctl-x-map (kbd "<C-return>") 'multi-term)
-(define-key ctl-x-map (kbd "<return>") 'multi-term-dedicated-toggle)))
-
-(when (require 'shr nil t)
-  (progn
-
-;; frame width to use for rendering
-(customize-set-variable 'shr-width 120)
-
-;; if non-nil, use proportional fonts for text
-(customize-set-variable 'shr-use-fonts nil)
-
-;; if non-nil, respect color specifications in the HTML
-(customize-set-variable 'shr-use-colors nil)
-
-;; if non-nil, inhibit loading images
-(customize-set-variable 'shr-inhibit-images nil)
-
-;; images that have URLs matching this regexp will be blocked (regexp)
-(customize-set-variable 'shr-blocked-images nil)))
-
-(when (require 'eww nil t)
-  (progn
-
-;; prefix uRL to search engine
-(customize-set-variable 'eww-search-prefix "https://www.google.com/search?q=")
-;; (customize-set-variable eww-search-prefix "https://duckduckgo.com/html/?q=")
-
-;; directory where files will downloaded
-(customize-set-variable 'eww-download-directory "~/down")
-
-;; symbol used to represent a checkbox
-(customize-set-variable 'eww-form-checkbox-symbol "[ ]")
-
-;; symbol used to represent a selected checkbox.
-(customize-set-variable 'eww-form-checkbox-selected-symbol "[X]")
-;; (customize-set-variable eww-form-checkbox-symbol "☐") ; Unicode hex 2610
-;; (customize-set-variable eww-form-checkbox-selected-symbol "☑") ; Unicode hex 2611
-
-(add-hook 'eww-mode-hook
-          (lambda ()
-            ;; disable truncate lines
-            (setq truncate-lines nil)))))
-
-(when (boundp 'eww-mode-map)
-  (progn
-    (define-key eww-mode-map (kbd "C-j") 'eww-follow-link)))
-
-(when (require 'browse-url nil t)
-  (progn
-
-;; the name of the browser program used by ‘browse-url-generic’.
-(customize-set-variable 'browse-url-generic-program "eww")
-
-;; function to display the current buffer in a WWW browser: eww
-(customize-set-variable 'browse-url-browser-function 'eww-browse-url)))
-
-(require 'ag nil t)
-
-;; non-nil means we highlight the current search term in results
-(customize-set-variable 'ag-highlight-search t)
-
-;; projects keymap
-(define-key eos-pm-map (kbd "a") 'ag-project-at-point)
-
-;; filter keymap
-(define-key eos-filter-map (kbd "a") 'ag)
-(define-key eos-filter-map (kbd "d") 'ag-dired)
-(define-key eos-filter-map (kbd "f") 'ag-files)
-
-(require 'grep nil t)
-
-;; the default find command for M-x grep-find or M-x find-grep
-(customize-set-variable 'grep-find-command
-                        '("find ~/ -type f -exec grep --color -nH --null -e  \\{\\} +" . 49))
-
-(define-key eos-filter-map (kbd "r") 'rgrep)
-
-(require 'ispell nil t)
-
-;; program invoked by M-x ispell-word and M-x ispell-region commands.
-(customize-set-variable 'ispell-program-name "aspell")
-
-;; todo research (not working)
-;; (add-to-list 'display-buffer-alist
-;;              '("\\*Choices\\*"
-;;                (display-buffer-below-selected display-buffer-at-bottom)
-;;                (inhibit-same-window . t)
-;;                (window-height . 0.2)))
-
-;; silent compiler
-(defvar ispell-current-dictionary nil nil)
-
-(defun eos/ispell/switch-dictionary ()
-  "Switch dictionaries."
-  (interactive)
-  (let* ((dic ispell-current-dictionary)
-         (change (if (string= dic "english") "brasileiro" "english")))
-    (ispell-change-dictionary change)
-    (message "Dictionary switched from %s to %s" dic change)))
-
-;; enable globally after emacs startup
-(add-hook 'emacs-startup-hook
-          (lambda () (ispell-minor-mode 1)))
-
-;; eos-sc-map
-(define-key eos-sc-map (kbd "i") 'ispell-word)
-(define-key eos-sc-map (kbd "I") 'ispell-buffer)
-
-(when (require 'flyspell nil t)
-  (progn
-
-;; string that is the name of the default dictionary
-(customize-set-variable 'flyspell-default-dictionary "english")
-
-;; hooks
-(add-hook 'text-mode-hook #'flyspell-mode)
-(add-hook 'prog-mode-hook #'flyspell-prog-mode)))
-
-(require 'flycheck nil t)
-
-(defun eos/set-flycheck-checker (checker)
-  "Set flycheck CHECKER variable."
-  (make-local-variable 'flycheck-checker)
-  (when (boundp 'flycheck-checker)
-    (setq flycheck-checker checker)))
-
-
-
-;; dont display this buffer
-(add-to-list 'display-buffer-alist
-             '("\\*Flycheck error messages\\*"
-               (display-buffer-no-window)
-               (allow-no-window . t)))
-
-;; flycheck mode after some programming mode
-;; is activated (c-mode, elisp-mode, etc).
-(add-hook 'prog-mode-hook
-          (lambda ()
-            (interactive)
-            (flycheck-mode 1)))
-
-;; (global-flycheck-mode 1)
-
-;; binds
-(define-key eos-sc-map (kbd "C-g") 'keyboard-quit)
-(define-key eos-sc-map (kbd "e") 'flycheck-list-errors)
-(define-key eos-sc-map (kbd "b") 'flycheck-buffer)
-(define-key eos-sc-map (kbd "d") 'flycheck-disable-checker)
-(define-key eos-sc-map (kbd "m") 'flycheck-mode)
-(define-key eos-sc-map (kbd "s") 'flycheck-select-checker)
-(define-key eos-sc-map (kbd "?") 'flycheck-describe-checker)
-
-;; (define-key eos-sc-map (kbd "M") 'flycheck-manual)
-;; (define-key eos-sc-map (kbd "v") 'flycheck-verify-setup)
-
-(when (require 'cannon nil t)
-  (progn
-
-;; file in which the launcher state is
-;; saved between Emacs sessions
-(customize-set-variable
- 'cannon-items-file
- (expand-file-name "cache/cannon-items" user-emacs-directory))
-
-;; clt-x-map (C-x) prefix
-(define-key ctl-x-map (kbd "x") 'cannon-launch)))
-
-(when (require 'verb nil t)
-  (progn
+(require 'verb nil t)
 
 (add-hook 'org-ctrl-c-ctrl-c-hook
           (lambda ()
             (when (boundp 'verb-mode)
               (if verb-mode
-                  (eos-call-func 'verb-send-request-on-point 'this-window)))))))
+                  (eos-call-func 'verb-send-request-on-point 'this-window)))))
 
 (require 'tramp nil t)
 
@@ -2197,8 +2047,7 @@ sent. Add this function to `message-header-setup-hook'."
 ;; connection timeout in seconds
 (customize-set-variable 'tramp-connection-timeout 60)
 
-(when (require 'comint nil t)
-  (progn
+(require 'comint nil t)
 
 ;; if non-nil, assume that the subprocess echoes any input.
 (customize-set-variable 'comint-process-echoes t)
@@ -2210,10 +2059,9 @@ sent. Add this function to `message-header-setup-hook'."
 ;; (customize-set-variable 'comint-prompt-regexp ".*:.*>.*? ")
 
 ;; value to use for TERM when the system uses terminfo.
-(customize-set-variable 'comint-terminfo-terminal "eterm-color")))
+(customize-set-variable 'comint-terminfo-terminal "eterm-color")
 
-(when (require 'ielm nil t)
-  (progn
+(require 'ielm nil t)
 
 ;; if non-nil, after entering the first line of
 ;; an incomplete sexp, a newline will be inserted after the prompt.
@@ -2226,43 +2074,17 @@ sent. Add this function to `message-header-setup-hook'."
 (customize-set-variable 'ielm-prompt "elisp > ")
 
 ;; if non-nil, the IELM prompt is read only
-(customize-set-variable 'ielm-prompt-read-only nil)))
+(customize-set-variable 'ielm-prompt-read-only nil)
 
-(when (require 'sql nil t)
-  (progn
+(require 'sql nil t)
 
 ;; select the SQL database product used
-(customize-set-variable 'sql-product "sqlite")))
-
-(when (require 'diff nil t)
-  (progn
-
-;; a string or list of strings specifying switches to be passed to diff
-(customize-set-variable 'diff-switches "-u")))
-
-(when (require 'ediff nil t)
-  (progn
-
-;; options to pass to `ediff-custom-diff-program'.
-(customize-set-variable 'ediff-custom-diff-options "-U3")
-
-;; the function used to split the main window between buffer-A and buffer-B
-(customize-set-variable 'ediff-split-window-function 'split-window-horizontally)
-
-;; function called to set up windows
-(customize-set-variable 'ediff-window-setup-function 'ediff-setup-windows-plain)
-
-(add-hook 'ediff-startup-hook 'ediff-toggle-wide-display)
-(add-hook 'ediff-cleanup-hook 'ediff-toggle-wide-display)
-(add-hook 'ediff-suspend-hook 'ediff-toggle-wide-display)))
-
-(defun eos/compton ()
-  "Call compton compositor utility."
-  (interactive)
-  (eos-call-proc "compton" "-b"))
+(customize-set-variable 'sql-product "sqlite")
 
 ;; start compton after emacs initialize
-(add-hook 'after-init-hook #'eos/compton)
+(add-hook 'after-init-hook
+          (lambda ()
+            (safe-start-process "compton" "compton" "-b")))
 
 (defvar eos-lock-command
   "my.lock"
@@ -2273,16 +2095,68 @@ sent. Add this function to `message-header-setup-hook'."
   (interactive)
   (cannon--make-comint-process eos-lock-command eos-lock-command))
 
-(define-key ctl-x-map (kbd "<end>") 'eos/slock)
+(define-key ctl-x-map (kbd "<end>") 'eos/lock)
 
-(defun eos/scrot ()
-  "Call scrot utility."
+(defgroup screenshot nil
+  "Screenshot command interface."
+  :group 'extensions
+  :group 'convenience)
+
+(defcustom printscreen-program "scrot"
+  "The program to take screenshot of X buffers."
+  :type 'string
+  :group 'screenshot)
+
+(defcustom printscreen-dir (concat (getenv "HOME") "/images/")
+  "The default dir to save screenshot files."
+  :type 'string
+  :group 'screenshot)
+
+(defcustom printscreen-file-pattern "%Y%m%d%H%M%S_$wx$h_scrot.png"
+  "The default file pattern to save screenshot files."
+  :type 'string
+  :group 'screenshot)
+
+(defcustom printscreen-params
+  "" ;; "-e 'mv $f ~/Images/'"
+  "The arguments to be used with the screenshot program"
+  :type 'string
+  :group 'screenshot)
+
+;; TODO: get a list of arguments, not a string
+(defun eos--printscreen (filename)
+  "Takes a screenshot using printscreen-program."
+  (async-shell-command (format "%s %s %s"
+                               printscreen-program
+                               filename
+                               printscreen-params)))
+
+(defun eos/print-mouse-region (&optional image-path)
+  "Saves a printscreen of a region selected with the mouse."
   (interactive)
-  (eos-call-proc "scrot" "-s")
-  (message "Saved in %s directory" (pwd)))
+  (let ((image-path
+          (or image-path
+            (concat
+              (read-directory-name "Save to dir:"
+                printscreen-dir)
+              printscreen-file-pattern))))
+    (eos--printscreen (concat (format "'%s' %s"
+                                      (expand-file-name image-path)
+                                      "--select")))))
+
+(defun eos/printscreen (&optional image-path)
+  "Saves a printscreen of all screen."
+  (interactive)
+  (let ((image-path
+          (or image-path
+            (concat
+              (read-directory-name "Save to dir:"
+                printscreen-dir)
+              printscreen-file-pattern))))
+    (eos--printscreen (format "'%s'" (expand-file-name image-path)))))
 
 ;; global-map
-(global-set-key (kbd "<print>") 'eos/scrot)
+(global-set-key (kbd "<print>") 'eos/printscreen)
 
 (defun eos/raise-volume ()
   "Raise volume by a factor of 5."
@@ -2367,7 +2241,7 @@ Only I will remain.")
   (interactive)
   (unless (get-buffer "*dashboard*")
     (generate-new-buffer "*dashboard*"))
-  (eos-call-func 'dashboard-refresh-buffer))
+  (safe-funcall 'dashboard-refresh-buffer))
 
 (defun eos-dashboard-insert-footer ()
   "Insert dashboard-footer message."
@@ -2386,41 +2260,6 @@ Only I will remain.")
             (interactive)
             (eos-dashboard-insert-footer)))
 
-(require 'emms nil t)
-(require 'emms-setup nil t)
-
-;; list of players that emms can use (only mpv)
-(customize-set-variable 'emms-player-list '(emms-player-mpv))
-
-;; string used for displaying the current track in mode-line and titlebar
-(customize-set-variable 'emms-mode-line-format "")
-
-;; list of players that EMMS can use
-(customize-set-variable 'emms-player-list '(emms-player-mpv))
-
-;;  the default name of the EMMS playlist buffer
-(customize-set-variable 'emms-playlist-buffer-name "EMMS|Playlist")
-
-;; the default directory to look for media files.
-(customize-set-variable
- 'emms-source-file-default-directory (expand-file-name "~/media/"))
-
-;; disable emms mode line
-(add-hook 'emms-playlist-mode-hook
-          (lambda ()
-            (when (and (boundp 'emms-mode-line-active-p)
-                       (fboundp 'emms-mode-line-disable))
-              (progn
-                (if emms-mode-line-active-p
-                    (emms-mode-line-disable))))))
-
-;; if emms is available, enable it
-(when (and (fboundp 'emms-all)
-           (fboundp 'emms-default-players))
-  (progn
-    (funcall 'emms-all)
-    (funcall 'emms-default-players)))
-
 (require 'org nil t)
 
 ;; custom
@@ -2435,29 +2274,13 @@ Only I will remain.")
 (customize-set-variable 'org-edit-src-content-indentation 0)
 
 ;; confirm before evaluation
-(customize-set-variable 'org-confirm-babel-evaluate nil)
+(customize-set-variable 'org-confirm-babel-evaluate t)
 
 ;; how the source code edit buffer should be displayed
 (customize-set-variable 'org-src-window-setup 'current-window)
 
 ;; non-nil means C-a and C-e behave specially in headlines and items
 (customize-set-variable 'org-special-ctrl-a/e t)
-
-;; languages which can be evaluated in Org buffers.
-(customize-set-variable 'org-babel-load-languages
-                        '((lisp . t)
-                          (emacs-lisp . t)
-                          (calc . t)
-                          (R . t)
-                          (haskell . t)
-                          (octave . t)
-                          (latex . t)
-                          (sed . t)
-                          (shell . t)
-                          (sqlite . t)
-                          (lua . t)
-                          (perl . t)
-                          (python . t)))
 
 (defun eos/build ()
   "If the current buffer is 'init.org' the code-blocks are tangled.
@@ -2470,10 +2293,22 @@ The tangled file will be compiled."
     ;; read, tangle, copy and byte compile
     (save-restriction
       (save-excursion
+        ;; TODO: research a better way to insert file contents
         (find-file eos-org-file)
         (org-babel-tangle)
         (copy-file eos-el-file init-file t t t)
         (async-byte-compile-file init-file)))))
+
+(defun eos/make ()
+  "Call Make to build EOS distro."
+  (interactive)
+  (let* ((program "make")
+         (buffer (get-buffer-create "*make*"))
+         (filename (expand-file-name "Makefile" user-emacs-directory))
+         (target "all")
+         (program-args (list "-f" filename target)))
+    (when (executable-find program)
+      (apply 'call-process program nil buffer nil program-args))))
 
 (defun eos/org/set-company-backends ()
   "Set `org-mode' company backends."
@@ -2491,50 +2326,33 @@ The tangled file will be compiled."
             (setq truncate-lines nil)
 
             ;; set company backends
-            (eos/org/set-company-backends)))
+            (eos/org/set-company-backends)
 
-;; silent compiler
+            ;; languages which can be evaluated in Org buffers.
+            (org-babel-do-load-languages
+             'org-babel-load-languages
+             '((emacs-lisp . t)
+               (shell . t)
+               (haskell . t)
+               (sqlite . t)
+               (python . t)))))
+
+;; to silence the compiler
 (defvar org-mode-map nil nil)
 
 (define-key org-mode-map (kbd "C-M-i") 'eos/complete-in-buffer-or-indent)
 
 (require 'tex-mode nil t)
 
-(require 'text-mode nil t)
+(require 'markdown-mode nil t)
 
-(defun eos/text/set-company-backends ()
-  "Set `text-mode' company backends."
-  (interactive)
-  (eos-set-company-backends
-   '((company-ispell :with
-                     company-dabbrev)
-     (company-files))))
-
-(add-hook 'text-mode-hook
-          (lambda ()
-            ;; turn on auto fill mode
-            (turn-on-auto-fill)
-
-            ;; set company backends
-            (eos/text/set-company-backends)))
-
-(define-key text-mode-map (kbd "C-c C-g") 'keyboard-quit)
-(define-key text-mode-map (kbd "TAB") 'eos/complete-in-buffer-or-indent)
-
-(define-key text-mode-map (kbd "C-c C-k") 'with-editor-cancel)
-(define-key text-mode-map (kbd "C-c C-c") 'with-editor-finish)
-
-(when (require 'markdown-mode nil t)
-  (progn
-
-(customize-set-variable 'markdown-command "multimarkdown")))
+(customize-set-variable 'markdown-command "multimarkdown")
 
 (when (boundp 'markdown-mode-map)
   (progn
     (define-key markdown-mode-map (kbd "TAB") 'eos/complete-in-buffer-or-indent)))
 
-(when (require 'doc-view nil t)
-  (progn
+(require 'doc-view nil t)
 
 ;; the base directory, where the PNG images will be saved
 (customize-set-variable
@@ -2542,10 +2360,9 @@ The tangled file will be compiled."
  (concat (expand-file-name user-emacs-directory) "cache/docview"))
 
 ;; in continuous mode reaching the page edge advances to next/previous page
-(customize-set-variable 'doc-view-continuous t)))
+(customize-set-variable 'doc-view-continuous t)
 
-(when (require 'dictionary nil t)
-  (progn
+(require 'dictionary nil t)
 
 ;; create some clickable buttons on top of the window if non-nil
 (customize-set-variable 'dictionary-create-buttons nil)
@@ -2565,7 +2382,7 @@ The tangled file will be compiled."
       (message "Missing word"))))
 
 ;; binds
-(define-key eos-docs-map (kbd ".") 'eos/dictionary-search-at-point)))
+(define-key eos-docs-map (kbd ".") 'eos/dictionary-search-at-point)
 
 (require 'org-static-blog nil t)
 
@@ -2607,7 +2424,7 @@ The tangled file will be compiled."
   "Update htmls and call `org-static-blog-publish'."
   (interactive)
   (eos/blog/update-html)
-  (eos-call-func 'org-static-blog-publish))
+  (safe-funcall 'org-static-blog-publish))
 
 ;; title of the blog
 (customize-set-variable
@@ -2676,40 +2493,7 @@ The tangled file will be compiled."
 ;; non-nil means add section numbers to headlines when exporting
 (customize-set-variable 'org-export-with-section-numbers nil)
 
-(when (and (require 'google-translate nil t)
-           (require 'google-translate-smooth-ui nil t))
-  (progn
-
-;; alist of translation directions
-;; each of direction could be selected directly in
-;; the minibuffer during translation.
-(customize-set-variable
- 'google-translate-translation-directions-alist
- '(("pt" . "en") ("en" . "pt")))
-
-;; default target language
-(customize-set-variable
- 'google-translate-default-target-language "pt")
-
-;; default source language
-;; "auto" if you want Google Translate to always detect the source language
-(customize-set-variable 'google-translate-default-source-language
-                        "auto")
-
-;; determines where translation output will be displayed, if
-;; `nil' the translation output will be displayed in the pop up
-;; buffer (default).
-(customize-set-variable 'google-translate-output-destination nil)))
-
-(require 'notifications nil t)
-
-(require 'eldoc nil t)
-
-;; number of seconds of idle time to wait before printing.
-(customize-set-variable 'eldoc-idle-delay 0)
-
-(when (require 'man nil t)
-  (progn
+(require 'man nil t)
 
 (add-hook 'Man-mode-hook
           (lambda ()
@@ -2721,7 +2505,7 @@ The tangled file will be compiled."
     (define-key Man-mode-map (kbd "C-j") 'push-button)))
 
 ;; eos-docs-map docs actions prefix map
-(define-key eos-docs-map (kbd "m") 'man)))
+(define-key eos-docs-map (kbd "m") 'manual-entry)
 
 (require 'woman nil t)
 
@@ -2738,7 +2522,10 @@ The tangled file will be compiled."
  (concat (expand-file-name user-emacs-directory) "docsets"))
 
 ;; minimum length to start searching in docsets
-(customize-set-variable 'dash-docs-min-length 2)
+(customize-set-variable 'dash-docs-min-length 0)
+
+;; format of the displayed candidates
+(customize-set-variable 'dash-docs-candidate-format "%n")
 
 (defun eos/icomplete/dash-docs-search ()
   "Provide dash-docs candidates to `icomplete."
@@ -2778,19 +2565,71 @@ The tangled file will be compiled."
 
 (require 'rfc-docs nil t)
 
-;; bind
-(define-key eos-docs-map (kbd "r") 'rfc-docs-search)
-
-;; change color from section title to match theme
-(custom-set-faces
-  '(rfc-mode-document-section-title-face ((t (:inherit nil :foreground "indian red")))))
-
 ;; the directory where RFC documents are stored
 (customize-set-variable
-  'rfc-mode-directory
-  (concat (expand-file-name user-emacs-directory) "rfc/"))
+ 'rfc-docs-directory
+ (concat (expand-file-name user-emacs-directory) "rfc/"))
+
+(when (and (require 'google-translate nil t)
+           (require 'google-translate-smooth-ui nil t))
+  (progn
+
+;; alist of translation directions
+;; each of direction could be selected directly in
+;; the minibuffer during translation.
+(customize-set-variable
+ 'google-translate-translation-directions-alist
+ '(("pt" . "en") ("en" . "pt")))
+
+;; default target language
+(customize-set-variable
+ 'google-translate-default-target-language "pt")
+
+;; default source language
+;; "auto" if you want Google Translate to always detect the source language
+(customize-set-variable 'google-translate-default-source-language
+                        "auto")
+
+;; determines where translation output will be displayed, if
+;; `nil' the translation output will be displayed in the pop up
+;; buffer (default).
+(customize-set-variable 'google-translate-output-destination nil)))
+
+(require 'dabbrev nil t)
+
+;; non-nil means case sensitive search.
+(customize-set-variable 'dabbrev-upcase-means-case-search t)
+
+;; whether dabbrev treats expansions as the same if they differ in case
+;; a value of nil means treat them as different.
+(customize-set-variable 'dabbrev-case-distinction t)
+
+(require 'hippie-exp nil t)
+
+(global-set-key (kbd "M-\\") 'hippie-expand)
+
+(require 'yasnippet nil t)
+
+;; binds eos-completion-map
+(define-key eos-completion-map (kbd "e") 'yas-expand)
+(define-key eos-completion-map (kbd "i") 'yas-insert-snippet)
+(define-key eos-completion-map (kbd "v") 'yas-visit-snippet-file)
+
+;; binds yas-keymap
+(add-hook 'yas-minor-mode-hook
+          (lambda ()
+            (when (boundp 'yas-keymap)
+              (define-key yas-keymap (kbd "TAB") nil)
+              (define-key yas-keymap (kbd "<tab>") nil)
+              (define-key yas-keymap (kbd "M-TAB") 'yas-next-field))))
+
+;; enable yasnippet after emacs startup
+(add-hook 'window-setup-hook
+          (lambda ()
+            (safe-funcall 'yas-global-mode 1)))
 
 (require 'company nil t)
+(require 'company-etags nil t)
 
 ;; set echo delay
 (customize-set-variable 'company-echo-delay 0.1)
@@ -2880,72 +2719,38 @@ The tangled file will be compiled."
     (define-key company-active-map (kbd "C-p") 'company-select-previous)))
 
 ;; eos-complete map
-(define-key eos-complete-map (kbd "TAB") 'company-ispell)
-(define-key eos-complete-map (kbd "f") 'company-files)
-(define-key eos-complete-map (kbd "g") 'company-gtags)
+(define-key eos-completion-map (kbd "TAB") 'company-ispell)
+(define-key eos-completion-map (kbd "f") 'company-files)
+(define-key eos-completion-map (kbd "t") 'company-etags)
 
 ;; global
 (global-set-key (kbd "TAB") 'eos/complete-in-buffer-or-indent)
 
 ;; enable globally
-(eos-call-func 'global-company-mode 1)
+(add-hook 'window-setup-hook
+          (lambda() (safe-funcall 'global-company-mode 1)))
 
-(when (require 'company-statistics nil t)
-  (progn
+(require 'company-statistics nil t)
 
 ;; set company-statistics cache location
 (customize-set-variable
   'company-statistics-file
   (concat user-emacs-directory "cache/company-statistics-cache.el"))
 
-(add-hook 'company-mode-hook 'company-statistics-mode)))
+(add-hook 'company-mode-hook 'company-statistics-mode)
 
-(require 'yasnippet nil t)
-
-;; binds eos-complete-map
-(define-key eos-complete-map (kbd "e") 'yas-expand)
-(define-key eos-complete-map (kbd "i") 'yas-insert-snippet)
-(define-key eos-complete-map (kbd "v") 'yas-visit-snippet-file)
-
-;; binds yas-keymap
-(add-hook 'yas-minor-mode-hook
-          (lambda ()
-            (when (boundp 'yas-keymap)
-              (define-key yas-keymap (kbd "TAB") nil)
-              (define-key yas-keymap (kbd "<tab>") nil)
-              (define-key yas-keymap (kbd "M-TAB") 'yas-next-field))))
-
-;; enable yasnippet after emacs startup
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (eos-call-func 'yas-global-mode 1)))
-
-(require 'dabbrev nil t)
-
-;; non-nil means case sensitive search.
-(customize-set-variable 'dabbrev-upcase-means-case-search t)
-
-;; whether dabbrev treats expansions as the same if they differ in case
-;; a value of nil means treat them as different.
-(customize-set-variable 'dabbrev-case-distinction t)
-
-(require 'hippie-exp nil t)
-
-(global-set-key (kbd "M-\\") 'hippie-expand)
-
-(when (require 'imenu nil t)
-  (progn
+(require 'imenu nil t)
 
 ;; use a popup menu rather than a minibuffer prompt (no)
 (customize-set-variable 'imenu-use-popup-menu nil)
 
-(define-key eos-tags-map (kbd "i") 'imenu)))
+(define-key eos-tags-map (kbd "i") 'imenu)
 
 (require 'etags nil t)
 
 ;; control whether to add a new tags table to the current list
 ;; t means do; nil means don’t (always start a new list)
-(customize-set-variable 'tags-add-tables t)
+(customize-set-variable 'tags-add-tables nil)
 
 ;; if non-nil, print the name of the tags file in the *Tags List* buffer.
 (customize-set-variable 'tags-apropos-verbose t)
@@ -2955,14 +2760,12 @@ The tangled file will be compiled."
 (customize-set-variable 'tags-case-fold-search t)
 
 (define-key eos-tags-map (kbd "s") 'tags-search)
+(define-key eos-tags-map (kbd "r") 'tags-query-replace)
 (define-key eos-tags-map (kbd "f") 'find-tag)
 (define-key eos-tags-map (kbd "l") 'list-tags)
 (define-key eos-tags-map (kbd "v") 'visit-tags-table)
-(define-key eos-tags-map (kbd "c") 'tags-reset-tags-tables)
-(define-key eos-tags-map (kbd "R") 'tags-query-replace)
-(define-key eos-tags-map (kbd "r") 'xref-find-references)
-(define-key eos-tags-map (kbd "g") 'xref-goto-xref)
-(define-key eos-tags-map (kbd "C-n") 'tags-loop-continue)
+(define-key eos-tags-map (kbd "d") 'tags-reset-tags-tables)
+(define-key eos-tags-map (kbd "c") 'select-tags-table)
 
 (require 'xref nil t)
 
@@ -2980,8 +2783,10 @@ The tangled file will be compiled."
 
 (require 'gud nil t)
 
-(when (require 'rmsbolt nil t)
-  (progn
+(require 'rmsbolt nil t)
+
+;; bind
+(define-key eos-docs-map (kbd "r") 'rfc-docs-search)
 
 ;; which output assembly format to use.
 (customize-set-variable 'rmsbolt-asm-format "att")
@@ -2990,13 +2795,12 @@ The tangled file will be compiled."
 (customize-set-variable 'rmsbolt-disassemble t)
 
 ;; rmsbolt mode lighter
-(customize-set-variable 'rmsbolt-mode-lighter "RMS")))
+(customize-set-variable 'rmsbolt-mode-lighter "RMS")
 
-;; (when (require 'cmake-ide nil t)
-;;   (progn
+;; (require 'cmake-ide nil t)
 
 ;; (add-hook 'c-mode-hook 'cmake-ide-setup)
-;; (add-hook 'c++-mode-hook 'cmake-ide-setup)))
+;; (add-hook 'c++-mode-hook 'cmake-ide-setup)
 
 (require 'compile nil t)
 
@@ -3014,13 +2818,15 @@ Just a `compile` function wrapper."
     (compile
      (completing-read "Compile command: " candidates nil t))))
 
+(customize-set-variable 'compilation-always-kill t)
+
 ;; don't truncate lines
 (add-hook 'compilation-mode-hook
           (lambda ()
             (setq truncate-lines nil)))
 
 ;; fix compilation buffer colors
-(add-hook 'compilation-filter-hook
+(add-hook 'compilation-filter-hook nil
           (lambda ()
             (when (eq major-mode 'compilation-mode)
               (ansi-color-apply-on-region
@@ -3068,7 +2874,198 @@ Just a `compile` function wrapper."
 (define-key eos-pm-map (kbd "k") 'projectile-kill-buffers)
 (define-key eos-pm-map (kbd "D") 'projectile-remove-known-project)
 
-(eos-call-func 'projectile-mode 1)
+(add-hook 'window-setup-hook
+          (lambda ()
+            (safe-funcall 'projectile-mode 1)))
+
+(require 'prog-mode nil t)
+
+(require 'hideshow nil t)
+
+(add-hook 'prog-mode-hook 'hs-minor-mode)
+
+;; ctl-x-map
+(define-key ctl-x-map (kbd "[") 'hs-toggle-hiding)
+
+(require 'conf-mode nil t)
+
+(add-to-list 'auto-mode-alist '("\\.compose\\'" . conf-mode))
+(add-to-list 'auto-mode-alist '("\\.dockerfile\\'" . conf-mode))
+
+(require 'text-mode nil t)
+
+(defun eos/text/set-company-backends ()
+  "Set `text-mode' company backends."
+  (interactive)
+  (eos-set-company-backends
+   '((company-ispell :with
+                     company-dabbrev)
+     (company-files))))
+
+(add-hook 'text-mode-hook
+          (lambda ()
+            ;; turn on auto fill mode
+            (turn-on-auto-fill)
+
+            ;; set company backends
+            (eos/text/set-company-backends)))
+
+(define-key text-mode-map (kbd "C-c C-g") 'keyboard-quit)
+(define-key text-mode-map (kbd "TAB") 'eos/complete-in-buffer-or-indent)
+
+(define-key text-mode-map (kbd "C-c C-k") 'with-editor-cancel)
+(define-key text-mode-map (kbd "C-c C-c") 'with-editor-finish)
+
+(require 'subword nil t)
+
+(safe-funcall 'global-subword-mode 1)
+
+(require 'paren nil t)
+
+;; visualization of matching parens
+(safe-funcall 'show-paren-mode 1)
+
+(require 'make-mode nil t)
+
+;; if non-nil, automatically clean up continuation lines when saving
+(customize-set-variable 'makefile-cleanup-continuations t)
+
+;; if non-nil, insert a TAB after a target colon
+(customize-set-variable 'makefile-tab-after-target-colon t)
+
+(require 'cmake-mode nil t)
+
+(require 'lisp-mode nil t)
+
+;; number of columns to indent the second line of a (def...) form
+(customize-set-variable 'lisp-body-indent 2)
+
+(require 'elisp-mode nil t)
+
+(defun eos/elisp/set-company-backends ()
+  "Set elisp company backends."
+  (interactive)
+  (eos-set-company-backends
+   '((company-elisp :with
+                    company-capf
+                    company-yasnippet
+                    company-dabbrev-code)
+     (company-dabbrev)
+     (company-files))))
+
+;; enable minor modes
+(add-hook 'emacs-lisp-mode-hook
+          (lambda()
+            (safe-funcall 'eldoc-mode 1)))
+
+(add-hook 'lisp-interaction-mode-hook
+          (lambda()
+            (safe-funcall 'eldoc-mode 1)))
+
+;; set backends (company, flychecker, dash-docs)
+(add-hook 'emacs-lisp-mode-hook
+          (lambda ()
+            ;; set company backends
+            (eos/elisp/set-company-backends)
+
+            ;; set flycheck checker
+            (eos/set-flycheck-checker 'emacs-lisp)
+
+            ;; activate dash docset (emacs)
+            (eos-set-dash-docset "Emacs Lisp")))
+
+;; emacs-lisp-mode-map
+(when (boundp 'emacs-lisp-mode-map)
+  (progn
+    ;; eval
+    (define-key emacs-lisp-mode-map (kbd "C-c C-f") 'eval-defun)
+    (define-key emacs-lisp-mode-map (kbd "C-c C-r") 'eval-region)
+    (define-key emacs-lisp-mode-map (kbd "C-c C-c") 'eval-buffer)
+
+    ;; complete
+    (define-key emacs-lisp-mode-map (kbd "<tab>") 'eos/complete-in-buffer-or-indent)
+
+    ;; quality of life (unbind)
+    (define-key emacs-lisp-mode-map (kbd "DEL") 'nil)
+    (define-key emacs-lisp-mode-map (kbd "ESC") 'nil)
+    (define-key emacs-lisp-mode-map (kbd "C-x") 'nil)
+    (define-key emacs-lisp-mode-map (kbd "C-M-x") 'nil)
+    (define-key emacs-lisp-mode-map (kbd "C-M-q") 'nil)))
+
+(require 'haskell nil t)
+
+;; default function to use for completion
+(customize-set-variable 'haskell-completing-read-function 'completing-read)
+
+;; whether to add a "declarations" menu entry to menu bar
+(customize-set-variable 'haskell-decl-scan-bindings-as-variables t)
+
+;; whether to put top-level value bindings into a "variables" category
+(customize-set-variable 'haskell-decl-scan-bindings-as-variables t)
+
+(defun eos/haskell/set-company-backends ()
+  "Set haskell company backends."
+  (interactive)
+  (eos-set-company-backends
+   '((company-capf
+      company-yasnippet
+      company-dabbrev-code)
+     (company-files))))
+
+(add-hook 'haskell-mode-hook
+  (lambda ()
+    ;; set company backends
+    (eos/haskell/set-company-backends)
+
+    ;; set flycheck checker
+    (eos/set-flycheck-checker 'haskell-ghc)
+
+    ;; haskell indentation mode that deals with the layout rule.
+    ;; it rebinds RET, DEL and BACKSPACE, so that indentations can be
+    ;; set and deleted as if they were real tabs.
+    (safe-funcall 'haskell-indentation-mode 1)
+
+    ;; minor mode for enabling haskell-process interaction
+    ;; non-nil if Interactive-Haskell mode is enabled.
+    (safe-funcall 'interactive-haskell-mode 1)))
+
+  ;; activate dash docset (emacs) (not working)
+  ;; (eos-set-dash-docset "Haskell")))
+
+(require 'inf-haskell nil t)
+
+(require 'haskell-doc nil t)
+
+;; if non-nil use inf-haskell.el to get type and kind information
+(customize-set-variable 'haskell-doc-use-inf-haskell t)
+
+(require 'elixir-mode nil t)
+
+;; additional arguments to `mix format`'
+;; (customize-set-variable 'elixir-format-arguments nil)
+
+(add-hook 'elixir-mode-hook
+          (lambda ()
+            ;; set company backends
+            (eos-set-company-backends
+             '(company-yasnippet
+               company-dabbrev
+               company-dabbrev-code
+               (company-files)))
+
+            ;; set syntax checker
+            ;; eos/flycheck/set-cheker '<elixir-checker>)
+
+            ;; set dash docsets
+            (eos-set-dash-docset '"Elixir")))
+
+(require 'ess-r-mode nil t)
+
+;; non-nil means shrink the *Macroexpansion* window to fit its contents
+(customize-set-variable 'c-macro-shrink-window-flag t)
+
+;; non-nil makes `c-macro-expand' prompt for preprocessor arguments
+(customize-set-variable 'c-macro-prompt-flag t)
 
 (require 'rtags nil t)
 
@@ -3114,6 +3111,9 @@ Just a `compile` function wrapper."
      company-dabbrev)
      (company-files))))
 
+;; TODO research
+;; (customize-set-variable 'c-default-style nil)
+
 (add-hook 'c-mode-hook
           (lambda ()
             ;; set cc common company backends
@@ -3137,87 +3137,64 @@ Just a `compile` function wrapper."
             (eos-set-dash-docset '"C++")))
 
 ;; c-mode-map
-(when (boundp 'c-mode-map)
-  (progn
-    ;; set rtags prefix map in c-mode map (C-c r)
-    (define-key c-mode-map (kbd "C-c r") 'eos-rtags-map)
+;; set rtags prefix map in c-mode map (C-c r)
+(define-key c-mode-map (kbd "C-c r") 'eos-rtags-map)
 
-    ;; complete or indent
-    (define-key c-mode-map (kbd "TAB") 'eos/complete-in-buffer-or-indent)))
+;; complete or indent
+(define-key c-mode-map (kbd "TAB") 'eos/complete-in-buffer-or-indent)
+
+;; compilation keybind
+(define-key c-mode-map (kbd "C-c C-c")
+  (lambda ()
+    (interactive)
+    (compile compile-command)))
 
 ;; c++-mode-map
-(when (boundp 'c++-mode-map)
-  (progn
-    ;; set rtags prefix map in c-mode map (C-c r)
-    (define-key c++-mode-map (kbd "C-c r") 'eos-rtags-map)
+;; set rtags prefix map in c-mode map (C-c r)
+(define-key c++-mode-map (kbd "C-c r") 'eos-rtags-map)
 
-    ;; complete or indent
-    (define-key c++-mode-map (kbd "TAB") 'eos/complete-in-buffer-or-indent)))
+;; complete or indent
+(define-key c++-mode-map (kbd "TAB") 'eos/complete-in-buffer-or-indent)
+
+;; compilation keybind
+(define-key c++-mode-map (kbd "C-c C-c")
+  (lambda ()
+    (interactive)
+    (compile compile-command)))
 
 (require 'company-c-headers nil t)
 
-(when (require 'lisp-mode nil t)
-  (progn
+(require 'csharp-mode nil t)
 
-;; number of columns to indent the second line of a (def...) form
-(customize-set-variable 'lisp-body-indent 2)))
+(require 'go-mode nil t)
 
-(require 'elisp-mode nil t)
-
-(defun eos/elisp/set-company-backends ()
-  "Set elisp company backends."
+(defun eos/go/set-company-backends ()
+  "Set go company backends."
   (interactive)
   (eos-set-company-backends
-   '((company-elisp :with
-                    company-capf
-                    company-yasnippet
-                    company-dabbrev-code)
-     (company-dabbrev)
+   '((company-yasnippet :with
+                        company-dabbrev
+                        company-dabbrev-code)
      (company-files))))
 
-;; enable minor modes
-(add-hook 'emacs-lisp-mode-hook
-          (lambda()
-            (eos-call-func 'eldoc-mode 1)))
-
-(add-hook 'lisp-interaction-mode-hook
-          (lambda()
-            (eos-call-func 'eldoc-mode 1)))
-
-;; set backends (company, flychecker, dash-docs)
-(add-hook 'emacs-lisp-mode-hook
+(add-hook 'go-mode-hook
           (lambda ()
             ;; set company backends
-            (eos/elisp/set-company-backends)
+            (eos/go/set-company-backends)
 
-            ;; set flycheck checker
-            (eos/set-flycheck-checker 'emacs-lisp)
+            ;; set flycheck checker (go lint)
+            (eos/set-flycheck-checker 'go-golint)
 
-            ;; activate dash docset (emacs)
-            (eos-set-dash-docset "Emacs Lisp")))
+            ;; set dash docsets
+            (eos-set-dash-docset '"Go")))
 
-;; emacs-lisp-mode-map
-(when (boundp 'emacs-lisp-mode-map)
-  (progn
-    ;; eval
-    (define-key emacs-lisp-mode-map (kbd "C-c C-f") 'eval-defun)
-    (define-key emacs-lisp-mode-map (kbd "C-c C-r") 'eval-region)
-    (define-key emacs-lisp-mode-map (kbd "C-c C-c") 'eval-buffer)
-
-    ;; complete
-    (define-key emacs-lisp-mode-map (kbd "<tab>") 'eos/complete-in-buffer-or-indent)
-
-    ;; quality of life (unbind)
-    (define-key emacs-lisp-mode-map (kbd "DEL") 'nil)
-    (define-key emacs-lisp-mode-map (kbd "ESC") 'nil)
-    (define-key emacs-lisp-mode-map (kbd "C-x") 'nil)
-    (define-key emacs-lisp-mode-map (kbd "C-M-x") 'nil)
-    (define-key emacs-lisp-mode-map (kbd "C-M-q") 'nil)))
+;; add (*.go . go-mode) to auto-mode-alist
+;; init go-mode when a file with the extersion .go is opened
+(add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
 
 (require 'company-shell nil t)
 
-(when (require 'sh-script nil t)
-  (progn
+(require 'sh-script nil t)
 
 (add-hook 'sh-mode-hook
           (lambda ()
@@ -3231,7 +3208,7 @@ Just a `compile` function wrapper."
                (company-files)))
 
             ;; set flycheck backends
-            (eos/set-flycheck-checker 'sh-shellcheck)))))
+            (eos/set-flycheck-checker 'sh-shellcheck)))
 
 (require 'fish-mode nil t)
 
@@ -3324,7 +3301,7 @@ Just a `compile` function wrapper."
 (add-hook 'python-mode-hook
           (lambda()
             ;; enable eldoc mode
-            (eos-call-func 'eldoc-mode 1)))
+            (safe-funcall 'eldoc-mode 1)))
 
 ;; set backends
 (add-hook 'python-mode-hook
@@ -3338,75 +3315,21 @@ Just a `compile` function wrapper."
             ;; set dash docsets
             (eos-set-dash-docset '"Python 3")))
 
-(require 'go-mode nil t)
-
-(defun eos/go/set-company-backends ()
-  "Set go company backends."
-  (interactive)
-  (eos-set-company-backends
-   '((company-yasnippet :with
-                        company-dabbrev
-                        company-dabbrev-code)
-     (company-files))))
-
-(add-hook 'go-mode-hook
-          (lambda ()
-            ;; set company backends
-            (eos/go/set-company-backends)
-
-            ;; set flycheck checker (go lint)
-            (eos/set-flycheck-checker 'go-golint)
-
-            ;; set dash docsets
-            (eos-set-dash-docset '"Go")))
-
-;; add (*.go . go-mode) to auto-mode-alist
-;; init go-mode when a file with the extersion .go is opened
-(add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
-
-(require 'ess-r-mode nil t)
-
 (require 'julia-mode nil t)
 
 (require 'ess-julia nil t)
-
-(require 'csharp-mode nil t)
-
-(when (require 'elixir-mode nil t)
-  (progn
-
-;; additional arguments to `mix format`'
-;; (customize-set-variable 'elixir-format-arguments nil)
-
-(add-hook 'elixir-mode-hook
-          (lambda ()
-            ;; set company backends
-            (eos-set-company-backends
-             '(company-yasnippet
-               company-dabbrev
-               company-dabbrev-code
-               (company-files)))
-
-            ;; set syntax checker
-            ;; eos/flycheck/set-cheker '<elixir-checker>)
-
-            ;; set dash docsets
-            (eos-set-dash-docset '"Elixir")))))
 
 (require 'vhdl-mode nil t)
 
 (require 'verilog nil t)
 
-(require 'cmake-mode nil t)
-
-(when (require 'mql-mode nil t)
-  (progn
+(require 'mql-mode nil t)
 
 (add-hook 'mql-mode-hook
           (lambda ()
             ;; set company backends
             (eos-set-company-backends
-             '((company-gtags
+             '((company-etags
                 company-yasnippet
                 company-dabbrev
                 company-dabbrev-code)
@@ -3416,10 +3339,9 @@ Just a `compile` function wrapper."
             (eos/set-flycheck-checker 'c/c++-gcc)
 
             ;; activate mql5 docset
-            (eos-set-dash-docset '"mql5")))))
+            (eos-set-dash-docset '"mql5")))
 
-(when (require 'web-mode nil t)
-  (progn
+(require 'web-mode nil t)
 
 ;; add files extensions to web-mode
 (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
@@ -3428,14 +3350,13 @@ Just a `compile` function wrapper."
 (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))))
+(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
 
 (when (boundp 'web-mode-engines-alist)
-  (progn
-    (add-to-list 'web-mode-engines-alist '(("php" . "\\.phtml\\'")))))
+    (add-to-list 'web-mode-engines-alist '(("php" . "\\.phtml\\'"))))
 
 ;; clean esc map
-(define-key esc-map (kbd "ESC") nil)
+;; (define-key esc-map (kbd "ESC") nil)
 (define-key esc-map (kbd "<f10>") nil)
 
 ;; unbind
@@ -3454,7 +3375,6 @@ Just a `compile` function wrapper."
 (define-key ctl-x-map (kbd "<right>") nil)
 (define-key ctl-x-map (kbd "<left>") nil)
 
-(define-key ctl-x-map (kbd "C-o") nil)
 (define-key ctl-x-map (kbd "C-d") nil)
 (define-key ctl-x-map (kbd "C-c") nil)
 (define-key ctl-x-map (kbd "C-j") nil)
@@ -3469,7 +3389,6 @@ Just a `compile` function wrapper."
 (define-key ctl-x-map (kbd "C-\@") nil)
 (define-key ctl-x-map (kbd "M-:") nil)
 
-(define-key ctl-x-map (kbd "RET") nil)
 (define-key ctl-x-map (kbd "`") nil)
 (define-key ctl-x-map (kbd "]") nil)
 ;; (define-key ctl-x-map (kbd "[") nil)
@@ -3582,13 +3501,4 @@ Just a `compile` function wrapper."
 (global-unset-key (kbd "<f18>"))
 (global-unset-key (kbd "<f20>"))
 
-;; set term to eterm-color
-;; (setenv "TERM" "eterm-color")
-
-;; the full name of the user logged in
-(customize-set-variable 'user-login-name (getenv "USER"))
-
-;; the email address of the current user
-(customize-set-variable 'user-mail-address (getenv "EMAIL"))
-
-(eos-load-file (expand-file-name "adapt.el" user-emacs-directory))
+(safe-load-file (expand-file-name "trash.el" user-emacs-directory))

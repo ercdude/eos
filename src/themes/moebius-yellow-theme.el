@@ -18,28 +18,29 @@
 ;; the transparent windows (like on i3) maybe this theme can help.
 ;;
 ;; The name is a humble homage to a great artist called
-;; Jean "moebius" Giraud, thank you for you priceless
+;; Jean "moebius-yellow" Giraud, thank you for you priceless
 ;; work, may you rest in peace...
 ;;
 ;;; Code:
 ;;
 (require 'color nil t)
 
-;; defines moebius theme
-(deftheme moebius
+;; defines moebius-yellow theme
+(deftheme moebius-yellow
   "Simple emacs minimal dark theme.")
 
 ;; Define colours pallets.
 (let ((class '((class color) (min-colors 89)))
        ;; all colors has to have a tuple (background . foreground)
        ;; special colors
-       (bg-default   "#000000") (fg-default   "#bfbfbf")
-       (bg-bright    "#3d3d3d") (fg-bright    "#ededed")
-       (bg-dim       "#262626") (fg-dim       "#969696")
+       (bg-default   "#ffffe0") (fg-default   "#696969")
+       (bg-dim       "#eeeed1") (fg-dim       "#969696")
+       (bg-bright    "#cdcdb4") (fg-bright    "#ededed")
+       (bg-shadow    "#cdc9a5") (fg-shadow    "#f5f5f5")
 
        ;; basic colors
-       (bg-black     "#141414") (fg-black     "#666666")
-       (bg-white     "#d3d3d3") (fg-white     "#bfbfbf")
+       (bg-black     "#8b8b83") (fg-black     "#323232")
+       (bg-white     "#bfbfbf") (fg-white     "#d3d3d3")
        (bg-red       "#8b6969") (fg-red       "#a85454")
        (bg-gray      "#696969") (fg-gray      "#a9a9a9")
        (bg-orange    "#3f321f") (fg-orange    "#a88654")
@@ -48,13 +49,13 @@
        (bg-green     "#548b54") (fg-green     "#65a854")
        (bg-cyan      "#1f3f3f") (fg-cyan      "#54a8a8")
        (bg-blue      "#005f87") (fg-blue      "#5476a8")
-       (bg-purple    "#2f2a3f") (fg-purple    "#7d71a8")
+       (bg-purple    "#d9d9d9") (fg-purple    "#7d71a8")
        (bg-magenta   "#8787af") (fg-magenta   "#9754a8")
        (bg-pink      "#3f1f32") (fg-pink      "#cd6889"))
 
   ;; set faces
   (custom-theme-set-faces
-    'moebius
+    'moebius-yellow
     ;; custom-set-faces was added by Custom.
     ;; If you edit it by hand, you could mess it up, so be careful.
     ;; Your init file should contain only one such instance.
@@ -74,12 +75,12 @@
     `(region ((t (:background ,bg-blue :foreground ,bg-white))))
     `(shadow ((t (:foreground ,fg-dim))))
     `(success ((t (:foreground ,fg-green :weight bold))))
-    `(trailing-whitespace ((t (:background ,fg-red))))
+    `(trailing-whitespace ((t (:background ,bg-red :foreground ,fg-default))))
     `(info-node ((t (:foreground ,fg-orange :slant italic :weight bold))))
     `(lazy-highlight ((t (:background ,bg-blue :foreground ,bg-white))))
     `(line-number ((t (:inherit (shadow black) :back))))
     `(line-number-current-line ((t (:inherit line-number))))
-    `(secondary-selection ((t (:background ,bg-yellow :foreground ,fg-black))))
+    `(secondary-selection ((t (:background ,bg-dim :foreground ,fg-default))))
     `(escape-glyph ((t (:foreground ,fg-red))))
 
     ;; Font
@@ -99,34 +100,19 @@
     `(font-lock-variable-name-face ((t (:foreground ,fg-yellow))))
     `(font-lock-warning-face ((t (:foreground ,fg-orange :inherit unspecified :weight bold))))
 
-    ;; `(font-lock-comment-delimiter-face ((t (:foreground ,fg-gray))))
-    ;; `(font-lock-comment-face ((t (:foreground ,fg-gray))))
-    ;; `(font-lock-doc-face ((t (:foreground ,fg-green))))
-    ;; `(font-lock-type-face ((t (:foreground ,fg-yellow))))
-    ;; `(font-lock-string-face ((t (:foreground ,fg-pink))))
-    ;; `(font-lock-keyword-face ((t (:foreground ,fg-orange))))
-    ;; `(font-lock-builtin-face ((t (:foreground ,fg-blue))))
-    ;; `(font-lock-constant-face ((t (:foreground ,fg-purple))))
-    ;; `(font-lock-function-name-face ((t (:foreground ,fg-blue))))
-    ;; `(font-lock-variable-name-face ((t (:foreground ,fg-yellow))))
-    ;; `(font-lock-negation-char-face ((t (:foreground ,fg-red))))
-    ;; `(font-lock-regexp-grouping-backslash ((t (:foreground ,fg-red))))
-    ;; `(font-lock-regexp-grouping-construct ((t (:foreground ,fg-pink))))
-    ;; `(font-lock-warning-face ((t (:foreground ,fg-red :weight bold))))
-
     ;; Fringe
     `(fringe ((t nil)))
     ;;`(fringe ((t (:background unspecified :inherit default))))
 
     ;; Mode-line
-    `(mode-line ((t (:background ,bg-dim :foreground ,fg-white
-                      :box (:color ,bg-dim :line-width 2 :style nil)))))
-    `(mode-line-inactive ((t (:background ,bg-dim :foreground ,bg-gray
-                               :box (:line-width 2 :color ,bg-dim :style nil)))))
-    `(mode-line-buffer-id ((t (:foreground ,fg-blue :weight normal))))
+    `(mode-line ((t (:background ,bg-dim :foreground ,bg-black
+                      :box (:color ,bg-dim :line-width 2)))))
+    `(mode-line-inactive ((t (:background ,bg-dim :foreground ,fg-gray
+                               :box (:color ,bg-dim :line-width 2)))))
+    `(mode-line-buffer-id ((t (:foreground ,fg-cyan :weight normal))))
 
     ;; Highlight
-    `(highlight ((t (:background ,bg-gray))))
+    `(highlight ((t (:background ,bg-dim))))
     `(highlight-numbers-number ((t (:foreground ,fg-cyan :inherit unspecified))))
     `(highlight-80+ ((t (:underline (:color ,fg-red :style wave) :background unspecified))))
 
@@ -143,7 +129,7 @@
     `(hl-indent-face ((t (:inherit unspecified :background ,bg-dim))))
 
     ;; Holiday
-    `(holiday ((t (:background ,fg-red))))
+    `(holiday ((t (:background ,fg-red :foreground ,bg-white))))
 
     ;; Homoglyph
     `(homoglyph ((t (:foreground ,fg-red))))
@@ -188,11 +174,11 @@
     `(css-selector ((t (:foreground ,fg-blue))))
 
     ;; Custom
-    `(custom-button ((t (:background ,bg-white :foreground ,bg-black
+    `(custom-button ((t (:background ,bg-white :foreground ,fg-black
                           :box (:line-width 1 :color ,bg-white)
                           :weight ultra-light :height 1.1 :width ultra-condensed))))
     `(custom-button-pressed-unraised ((t (:inherit custom-button-unraised :foreground ,fg-red))))
-    `(custom-changed ((t (:background ,bg-blue :foreground ,fg-white))))
+    `(custom-changed ((t (:background ,bg-blue :foreground ,fg-black))))
     `(custom-comment-tag ((t (:foreground ,fg-blue))))
     `(custom-group-tag ((t (:inherit variable-pitch :foreground ,fg-blue :weight bold :height 1.2))))
     `(custom-invalid ((t (:background ,bg-red :foreground ,fg-black))))
@@ -205,30 +191,30 @@
     `(company-preview ((t (:background nil :foreground ,fg-blue))))
     `(company-preview-common ((t (:inherit nil :background ,bg-dim
                                    :foreground ,fg-blue :weight normal))))
-    `(company-echo-common ((t (:background ,bg-dim :foreground ,fg-blue))))
-    `(company-scrollbar-bg ((nil (:background ,bg-black))))
-    `(company-scrollbar-fg ((nil (:background ,bg-dim))))
-    `(company-tooltip ((t (:background ,bg-black :foreground ,fg-default))))
+    `(company-echo-common ((t (:background ,bg-shadow :foreground ,fg-blue))))
+    `(company-scrollbar-bg ((t (:background ,bg-bright))))
+    `(company-scrollbar-fg ((t (:background ,bg-dim))))
+    `(company-tooltip ((t (:background ,bg-dim :foreground ,fg-default))))
     `(company-tooltip-common ((t (:foreground ,fg-blue))))
-    `(company-tooltip-selection ((t (:background ,bg-dim))))
+    `(company-tooltip-selection ((t (:background ,bg-bright))))
     `(company-tooltip-annotation ((t (:foreground ,fg-blue))))
     `(company-tooltip-search ((t (:background ,bg-yellow :inherit unspecified))))
     `(company-tooltip-search-selection ((t (:background ,bg-yellow :inherit unspecified))))
     `(company-template-field ((t (:background ,bg-dim :foreground ,fg-yellow))))
 
     ;; Dashboard
-    `(dashboard-footer ((t (:foreground ,fg-black))))
+    `(dashboard-footer ((t (:foreground ,fg-red))))
     `(dashboard-heading ((t (:foreground ,fg-blue))))
-    `(dashboard-text-banner ((t (:foreground ,fg-black))))
+    `(dashboard-text-banner ((t (:foreground ,fg-dim))))
 
     ;; Diff
-    `(diff-added ((t (:background ,bg-green :foreground ,fg-bright))))
-    `(diff-refine-changed ((t (:background ,bg-yellow :foreground ,fg-bright))))
-    `(diff-removed ((t (:background ,bg-red :foreground ,fg-bright))))
-    `(diff-changed ((t (:background ,bg-orange))))
-    `(diff-file-header ((t (:foreground ,bg-white :background unspecified))))
+    `(diff-header ((t (:background ,bg-shadow))))
+    `(diff-added ((t (:background ,bg-green :foreground ,fg-black))))
+    `(diff-removed ((t (:background ,bg-red :foreground ,fg-black))))
+    `(diff-changed ((t (:background ,bg-red :foreground ,fg-black))))
     `(diff-function ((t (:inherit unspecified :foreground ,fg-orange))))
-    `(diff-header ((t (:background ,bg-bright))))
+    `(diff-file-header ((t (:foreground ,fg-default :background unspecified))))
+    `(diff-refine-changed ((t (:background ,bg-yellow :foreground ,fg-white))))
     `(diff-hl-change ((t (:foreground ,bg-yellow :background unspecified :inherit diff-changed))))
     `(diff-hl-delete ((t (:foreground ,bg-red :inherit diff-removed))))
     `(diff-hl-insert ((t (:foreground ,bg-green :inherit diff-added))))
@@ -246,12 +232,12 @@
     `(dired-marked ((t (:inherit nil :background ,bg-magenta :foreground ,fg-bright))))
 
     ;; Dictionary
-    ;; diary                                     yellow
     ;; dictionary-button-face                    white
     ;; dictionary-reference-face                 yellow
-    `(dictionary-reference-face ((t (:inherit nil :background nil :foreground ,fg-orange))))
     ;; dictionary-word-definition-face           gray (another font) (italic)
     ;; dictionary-word-entry-face                gray (italic)
+    `(diary ((t (:inherit nil :background nil :foreground ,fg-red))))
+    `(dictionary-reference-face ((t (:inherit nil :background nil :foreground ,fg-orange))))
 
     ;; Ediff
     `(ediff-current-diff-A ((t (:inherit diff-removed))))
@@ -358,7 +344,7 @@
     `(ido-indicator ((t (:background ,bg-bright :foreground ,fg-white :width condensed))))
 
     ;; Iedit
-    `(iedit-occurrence ((t (:background ,bg-yellow :foreground ,fg-default))))
+    `(iedit-occurrence ((t (:background ,bg-blue :foreground ,fg-white))))
 
     ;; Man
     `(Man-overstrike ((t (:foreground ,fg-blue :weight bold))))
@@ -376,9 +362,9 @@
     `(message-separator ((t (:foreground ,fg-blue))))
 
     ;; Magit
-    `(magit-branch-current ((t (:inherit nil :background ,bg-blue :foreground ,bg-white))))
-    `(magit-branch-local ((t (:background ,bg-magenta :foreground ,bg-white))))
-    `(magit-branch-remote ((t (:background ,bg-green :foreground ,fg-white))))
+    `(magit-branch-current ((t (:inherit nil :background ,bg-blue :foreground ,fg-bright))))
+    `(magit-branch-local ((t (:background ,bg-magenta :foreground ,fg-bright))))
+    `(magit-branch-remote ((t (:background ,fg-green :foreground ,fg-bright))))
     `(magit-log-author ((t (:foreground ,fg-red :slant normal :weight normal))))
     `(magit-signature-expired ((t (:foreground ,fg-yellow))))
     `(magit-signature-revoked ((t (:foreground ,fg-magenta))))
@@ -396,7 +382,11 @@
     `(magit-diff-added ((t (:foreground unspecified :background unspecified :inherit diff-added))))
     `(magit-diff-added-highlight ((t (:foreground unspecified :background unspecified
                                        :inherit magit-diff-added))))
+
     `(magit-diff-context ((t (:foreground unspecified :inherit shadow))))
+
+    `(magit-diff-whitespace-warning ((t (:background ,bg-dim :foreground ,fg-red unspecified :inherit shadow))))
+
     `(magit-diff-context-highlight ((t (:foreground unspecified :background ,bg-dim
                                          :inherit magit-diff-context))))
     `(magit-diff-file-heading ((t (:foreground unspecified :underline unspecified
@@ -422,6 +412,17 @@
     `(magit-log-sha1 ((t (:foreground ,fg-default :background ,bg-blue
                            :box (:color ,bg-blue :line-width 2 :style nil)))))
 
+    `(magit-reflog-merge ((t (:foreground ,fg-green :inherit unspecified))))
+    `(magit-reflog-amend ((t (:foreground ,fg-pink :inherit unspecified))))
+    `(magit-reflog-reset ((t (:foreground ,fg-red :inherit unspecified))))
+    `(magit-reflog-rebase ((t (:foreground ,fg-pink :inherit unspecified))))
+    `(magit-reflog-commit ((t (:foreground ,fg-green :inherit unspecified))))
+    `(magit-reflog-checkout ((t (:foreground ,fg-green :inherit unspecified))))
+    `(magit-reflog-cherry-pick ((t (:foreground ,fg-green :inherit unspecified))))
+
+    `(magit-reflog-other ((t (:foreground ,fg-cyan :inherit unspecified))))
+    `(magit-reflog-remote ((t (:foreground ,fg-cyan :inherit unspecified))))
+
     `(magit-process-ng ((t (:foreground ,fg-red :inherit unspecified))))
     `(magit-process-ok ((t (:foreground ,fg-green :inherit unspecified))))
     `(magit-section-heading ((t (:foreground ,fg-turquoise :weight unspecified))))
@@ -434,7 +435,7 @@
     `(transient-separator ((t (:background ,bg-dim :foreground ,fg-white))))
 
     ;; Tooltip
-    `(tooltip ((t (:foreground ,fg-default :background ,bg-gray))))
+    `(tooltip ((t (:background ,bg-default :foreground ,fg-default))))
 
     ;; Org-agenda
     `(org-agenda-restriction-lock ((t (:background ,bg-white :foreground ,fg-gray))))
@@ -447,19 +448,21 @@
     `(org-agenda-structure ((t (:foreground ,fg-blue))))
 
     ;; Org-block
-    `(org-block ((t (:background ,bg-black))))
-    `(org-block-begin-line ((t (:background ,bg-bright :foreground ,fg-default))))
-    `(org-block-end-line ((t (:background ,bg-bright :foreground ,fg-default))))
+    `(org-block ((t (:background ,bg-shadow))))
+    `(org-block-begin-line ((t (:background ,bg-purple :foreground ,fg-default))))
+    `(org-block-end-line ((t (:background ,bg-purple :foreground ,fg-default))))
 
     ;; Org-column
-    `(org-column ((t (:background ,bg-gray :strike-through nil :underline nil :slant normal :weight normal))))
-    `(org-column-title ((t (:background ,bg-gray :underline t :weight bold))))
+    `(org-column ((t (:background ,bg-dim :strike-through nil :underline nil
+                       :slant normal :weight normal))))
+    `(org-column-title ((t (:background ,bg-dim :underline t :weight bold))))
 
     ;; Org-document
     `(org-document-info ((t (:foreground ,fg-blue))))
     `(org-document-title ((t (:foreground ,fg-green))))
 
     ;; Org
+    `(org-todo ((t (:foreground ,fg-red :weight bold))))
     `(org-done ((t (:foreground ,fg-green :weight bold))))
     `(org-drawer ((t (:foreground ,fg-blue))))
     `(org-footnote ((t (:foreground ,fg-magenta :underline t))))
@@ -471,6 +474,8 @@
     `(org-checkbox-statistics-done ((t (:foreground ,bg-cyan))))
     `(org-checkbox-statistics-todo ((t (:foreground ,fg-cyan))))
     `(org-date ((t (:foreground ,fg-pink :underline unspecified))))
+    `(org-date-selected ((t (:background ,bg-dim :foreground ,fg-pink :underline unspecified))))
+    `(org-hide ((t (:foreground ,fg-dim))))
     `(org-headline-done ((t (:foreground ,fg-dim))))
     `(org-level-1 ((t (:foreground ,fg-green))))
     `(org-level-2 ((t (:foreground ,fg-cyan))))
@@ -484,6 +489,7 @@
     `(org-scheduled-previously ((t (:weight bold))))
     `(org-scheduled-today ((t (:foreground ,fg-default))))
     `(org-time-grid ((t (:foreground ,fg-orange))))
+    `(org-mode-line-clock-overrun ((t (:foreground ,fg-orange))))
 
     ;; Outline
     `(outline-1 ((t (:inherit org-level-1))))
@@ -570,7 +576,7 @@
     `(tty-menu-selected-face ((t (:background ,bg-red :foreground ,bg-white))))
 
     ;; Term
-    `(term-color-black ((t (:background ,bg-default :foreground ,fg-bright))))
+    `(term-color-black ((t (:background ,bg-default :foreground ,fg-default))))
     `(term-color-blue ((t (:background ,bg-blue :foreground ,fg-blue))))
     `(term-color-cyan ((t (:background ,bg-cyan :foreground ,fg-cyan))))
     `(term-color-green ((t (:background ,bg-green :foreground ,fg-green))))
@@ -593,7 +599,7 @@
     `(whitespace-tab ((t (:background unspecified :underline ,bg-bright))))
     `(whitespace-trailing ((t (:background ,bg-orange :foreground unspecified))))
     `(whitespace-big-indent ((t (:background ,bg-red :foreground ,fg-gray))))
-    `(whitespace-line ((t (:background ,fg-red :foreground ,fg-bright))))
+    `(whitespace-line ((t (:background ,bg-red :foreground ,fg-black))))
 
     ;; yas
     ;; yas--field-debug-face
@@ -603,7 +609,7 @@
     `(widget-button ((t (:inherit button))))
     `(widget-button-pressed ((t (:inherit widget-button :weight bold))))
     `(widget-documentation ((t (:inherit font-lock-doc-face))))
-    `(widget-field ((t (:background ,bg-blue :box (:color ,bg-blue :line-width 2)))))
+    `(widget-field ((t (:background ,bg-blue :foreground ,fg-white :box (:color ,bg-blue :line-width 2)))))
 
     ;; Rpm-spec-mode
     `(rpm-spec-tag-face ((t (:foreground ,fg-blue))))
@@ -614,7 +620,7 @@
     `(rpm-spec-dir-face ((t (:foreground ,fg-turquoise))))
     `(rpm-spec-package-face ((t (:foreground ,fg-red))))
     `(rpm-spec-ghost-face ((t (:foreground ,fg-red))))
-    `(rpm-spec-section-face ((t (:foreground ,fg-yellow :underline t))))
+    `(rpm-spec-stion-face ((t (:foreground ,fg-yellow :underline t))))
 
     ;; Window dividers
     `(window-divider ((t (:foreground ,bg-dim))))
@@ -629,5 +635,5 @@
   (add-to-list 'custom-theme-load-path
     (file-name-as-directory (file-name-directory load-file-name))))
 
-(provide-theme 'moebius)
+(provide-theme 'moebius-yellow)
 ;; moebius-theme.el ends here
