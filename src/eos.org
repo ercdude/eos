@@ -2949,7 +2949,7 @@
        #+BEGIN_SRC emacs-lisp
 
       ;; set exwm workspaces number
-      (customize-set-variable 'exwm-workspace-number 0)
+      (customize-set-variable 'exwm-workspace-number 3)
 
       ;; show workspaces in all buffers
       (customize-set-variable 'exwm-workspace-show-all-buffers t)
@@ -3129,16 +3129,17 @@
       PulseAudio is a network-capable sound server program distributed
       via the freedesktop.org project.
 
-      Start Pulse server after emacs initialize.
+      Start Pulse server after emacs initialize. If you are not using
+      emacs as the window manager, this is not the place to start it.
 
 ****** Hooks
 
        #+BEGIN_SRC emacs-lisp
 
        ;; start compton after emacs initialize
-       (add-hook 'after-init-hook
-                 (lambda ()
-                   (safe-start-process "pulse" "pulseaudio" "-D")))
+;;       (add-hook 'after-init-hook
+;;                 (lambda ()
+;;                   (safe-start-process "pulse" "pulseaudio" "-D")))
 
        #+END_SRC
 **** Packages
@@ -3632,7 +3633,7 @@
                    (concat user-emacs-directory "themes"))
 
      ;; load theme
-     (load-theme 'moebius t)
+     (load-theme 'moebius-glass t)
 
       #+END_SRC
 
@@ -4310,10 +4311,10 @@
       #+BEGIN_SRC emacs-lisp
 
       ;; the name of the browser program used by ‘browse-url-generic’.
-      (customize-set-variable 'browse-url-generic-program "eww")
+      (customize-set-variable 'browse-url-generic-program "chrome")
 
       ;; function to display the current buffer in a WWW browser: eww
-      (customize-set-variable 'browse-url-browser-function 'eww-browse-url)
+      (customize-set-variable 'browse-url-browser-function 'browse-url-default-browser)
 
       #+END_SRC
 
@@ -4747,7 +4748,7 @@
                 (lambda ()
                   (when (boundp 'verb-mode)
                     (if verb-mode
-                        (eos-call-func 'verb-send-request-on-point 'this-window)))))
+                        (safe-funcall 'verb-send-request-on-point 'this-window)))))
 
       #+END_SRC
 
@@ -4904,9 +4905,9 @@
       #+BEGIN_SRC emacs-lisp
 
       ;; start compton after emacs initialize
-      (add-hook 'after-init-hook
-                (lambda ()
-                  (safe-start-process "compton" "compton" "-b")))
+      ;;(add-hook 'after-init-hook
+      ;;          (lambda ()
+      ;;            (safe-start-process "compton" "compton" "-b")))
 
       #+END_SRC
 
@@ -5375,7 +5376,7 @@ a link to the org document if the org-mode is active."
       #+BEGIN_SRC emacs-lisp
 
       ;; the files to be used for agenda display, should be a list of them.
-      (customize-set-variable 'org-agenda-files '("~/org/agenda.org"))
+      (customize-set-variable 'org-agenda-files '("~/work/org/agenda.org"))
 
       ;; the separator between blocks in the agenda
       (customize-set-variable 'org-agenda-block-separator "=")
@@ -7402,7 +7403,7 @@ a link to the org document if the org-mode is active."
 
       #+BEGIN_SRC emacs-lisp
 
-      (require 'lua-mode nil t)
+      ;; (require 'lua-mode nil t)
 
       #+END_SRC
 
@@ -7411,25 +7412,25 @@ a link to the org document if the org-mode is active."
       #+BEGIN_SRC emacs-lisp
 
       ;; non-nil means display lua-process-buffer after sending a command.
-      (customize-set-variable 'lua-process-buffer t)
+      ;; (customize-set-variable 'lua-process-buffer t)
 
       ;; default application to run in Lua process
-      (customize-set-variable 'lua-default-application "lua")
+      ;; (customize-set-variable 'lua-default-application "lua")
 
       ;; command switches for lua-default-application
-      (customize-set-variable 'lua-default-command-switches "-i")
+      ;; (customize-set-variable 'lua-default-command-switches "-i")
 
       ;; amount by which Lua subexpressions are indented
-      (customize-set-variable 'lua-indent-level 4)
+      ;; (customize-set-variable 'lua-indent-level 4)
 
       ;; if non-nil, contents of multiline string will be indented
-      (customize-set-variable 'lua-indent-string-contents t)
+      ;; (customize-set-variable 'lua-indent-string-contents t)
 
       ;; jump to innermost traceback location in *lua* buffer
       ;; when this variable is non-nil and a traceback occurs
       ;; when running Lua code in a process, jump immediately
       ;; to the source code of the innermost traceback location
-      (customize-set-variable 'lua-jump-on-traceback t)
+      ;; (customize-set-variable 'lua-jump-on-traceback t)
 
       #+END_SRC
 
@@ -7796,6 +7797,7 @@ a link to the org document if the org-mode is active."
      #+END_SRC
 
 **** Global
+
 
       Clean/unbind keys from global-map.
 

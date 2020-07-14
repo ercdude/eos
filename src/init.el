@@ -87,12 +87,12 @@
 ;; (define-prefix-command 'eos-filter-map)
 
 ;; eos prefixs
-(define-key ctl-x-map (kbd "a") 'eos-filter-map)
+(define-key ctl-x-map (kbd "f") 'eos-files-map)
+;; (define-key ctl-x-map (kbd "a") 'eos-filter-map) ; not used yet
 (define-key ctl-x-map (kbd "p") 'eos-pm-map)
 (define-key ctl-x-map (kbd "t") 'eos-tags-map)
 (define-key ctl-x-map (kbd "c") 'eos-utils-map)
 (define-key ctl-x-map (kbd "e") 'eos-sc-map)
-(define-key ctl-x-map (kbd "f") 'eos-file-map)
 (define-key ctl-x-map (kbd "l") 'eos-docs-map)
 (define-key ctl-x-map (kbd "<tab>") 'eos-completion-map)
 
@@ -139,6 +139,7 @@
     (message "user-mail updated"))
   (when (stringp user-name)
     (customize-set-variable 'user-login-name user-name)
+    (customize-set-variable 'user-full-name user-name)
     (message "user-name updated")))
 
 (require 'simple nil t)
@@ -200,6 +201,7 @@
 (global-set-key (kbd "M-j") 'clone-line-or-region)
 (global-set-key (kbd "M-n") 'transpose-lines-up)
 (global-set-key (kbd "M-p") 'transpose-lines-down)
+(global-set-key (kbd "M-l") 'downcase-word)
 
 ;; kill
 (define-key ctl-x-map (kbd "k") 'kill-buffer)
@@ -210,7 +212,7 @@
 (define-key eos-utils-map (kbd "p") 'mark-paragraph)
 (define-key eos-utils-map (kbd "w") 'mark-word)
 
-;;  (require 'tramp nil t)
+;; (require 'tramp nil t)
 
 ;; set tramp default method
 (customize-set-variable 'tramp-default-method "ssh")
@@ -288,7 +290,7 @@
 ;; people would not find useful.
 ;; `paranoid': On this level, the user is queried for
 ;; most new connections
-(customize-set-variable 'network-security-level 'paranoid)
+(customize-set-variable 'network-security-level 'high)
 
 ;; the file the security manager settings will be stored in.
 (customize-set-variable 'nsm-settings-file
@@ -547,7 +549,7 @@ The user's $HOME directory is abbreviated as a tilde."
 (global-set-key (kbd "C-x C-o") 'other-frame)
 
 ;; set font
-(safe-set-frame-font "Hermit Light:pixelsize=16")
+(safe-set-frame-font "Hermit Light:pixelsize=17")
 
 ;; enable window divider
 (window-divider-mode)
@@ -783,7 +785,8 @@ instead."
 (customize-set-variable 'completion-auto-help 'lazy)
 
 ;; list of completion styles to use: see `completion-styles-alist variable
-(customize-set-variable 'completion-styles '(partial-completion substring initials))
+(customize-set-variable 'completion-styles
+                        '(partial-completion substring flex initials))
 
 ;; list of category-specific user overrides for completion styles.
 (customize-set-variable 'completion-category-overrides
@@ -1074,18 +1077,18 @@ These styles are described in `completion-styles-alist'."
     ;; toogle styles
     (define-key icomplete-minibuffer-map (kbd "C-,") 'eos/icomplete/toggle-completion-styles)
 
-    ;; basic
-    (define-key icomplete-minibuffer-map (kbd "C-.")
-      (lambda ()
-        (interactive)
-        (let ((current-prefix-arg t))
-          (funcall 'eos/icomplete/toggle-completion-styles))))))
+     ;; basic
+     (define-key icomplete-minibuffer-map (kbd "C-.")
+       (lambda ()
+         (interactive)
+         (let ((current-prefix-arg t))
+           (funcall 'eos/icomplete/toggle-completion-styles))))))
 
-;; eos-utils-map
-(define-key eos-utils-map (kbd "m") 'eos/icomplete/mark-ring)
+ ;; eos-utils-map
+ (define-key eos-utils-map (kbd "m") 'eos/icomplete/mark-ring)
 
-;; global-map
-(global-set-key (kbd "M-y") 'eos/icomplete/kill-ring)
+ ;; global-map
+ (global-set-key (kbd "M-y") 'eos/icomplete/kill-ring)
 
 ;; enable (global)
 (icomplete-mode 1)
@@ -1238,6 +1241,17 @@ These styles are described in `completion-styles-alist'."
           (lambda ()
             (safe-funcall 'server-start)))
 
+;; TODO: setup parameter for color
+(defun eos/mode-line-blink ()
+"Blink the modeline with color #FFAAAA"
+(let ((orig-fg (face-foreground 'mode-line)))
+  (set-face-foreground 'mode-line "#FFAAAA")
+  (run-with-idle-timer 0.1 nil
+                       (lambda (fg) (set-face-foreground 'mode-line fg))
+                       orig-fg)))
+
+(setq ring-bell-function 'eos/mode-line-blink)
+
 (require 'shell nil t)
 
 ;; hook
@@ -1261,7 +1275,7 @@ These styles are described in `completion-styles-alist'."
 (require 'exwm-workspace nil t)
 
 ;; set exwm workspaces number
-(customize-set-variable 'exwm-workspace-number 0)
+(customize-set-variable 'exwm-workspace-number 3)
 
 ;; show workspaces in all buffers
 (customize-set-variable 'exwm-workspace-show-all-buffers t)
@@ -1376,32 +1390,32 @@ These styles are described in `completion-styles-alist'."
 (require 'exwm-randr nil t)
 
 ;; monitors: check the xrandr(1) output and use the same name/order
-;; TODO: create a func that retrieves these values from xrandr
+ ;; TODO: create a func that retrieves these values from xrandr
 
 (customize-set-variable
   'exwm-randr-workspace-monitor-plist '(0 "eDP-1"
                                         1 "HDMI-1"
                                         2 "HDMI-1"))
 
-(customize-set-variable 'exwm-workspace-number
-                        (if (boundp 'exwm-randr-workspace-monitor-plist)
-                            (progn
-                              (/ (safe-length exwm-randr-workspace-monitor-plist) 2))
-                          1))
+ (customize-set-variable 'exwm-workspace-number
+                         (if (boundp 'exwm-randr-workspace-monitor-plist)
+                             (progn
+                               (/ (safe-length exwm-randr-workspace-monitor-plist) 2))
+                           1))
 
 (exwm-randr-enable)
 
 ;; start compton after emacs initialize
-(add-hook 'after-init-hook
-          (lambda ()
-            (safe-start-process "pulse" "pulseaudio" "-D")))
+;;       (add-hook 'after-init-hook
+;;                 (lambda ()
+;;                   (safe-start-process "pulse" "pulseaudio" "-D")))
 
 ;; (require 'package nil t)
 
 (customize-set-variable
-  'package-archives
-  '(("gnu" . "https://elpa.gnu.org/packages/")
-    ("melpa" . "https://melpa.org/packages/")))
+ 'package-archives
+ '(("gnu" . "https://elpa.gnu.org/packages/")
+   ("melpa" . "https://melpa.org/packages/")))
 
 ;; enable (manually only)
 ;; (package-initialize)
@@ -1458,7 +1472,7 @@ These styles are described in `completion-styles-alist'."
 
 ;; regexp to recognize prompts in the inferior process
 ;; (customize-set-variable 'term-prompt-regexp "^\\(>\\|\\(->\\)+\\) *")
-(customize-set-variable 'term-prompt-regexp ".*:.*>.*? ")
+(customize-set-variable 'term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
 
 ;; if non-nil, automatically list possibilities on partial completion.
 (customize-set-variable 'term-completion-autolist t)
@@ -1471,8 +1485,8 @@ These styles are described in `completion-styles-alist'."
   "Kill line in multi-term mode with the possibility to paste it like in a normal shell."
   (interactive)
   (when (fboundp 'term-send-raw-string)
-      (kill-line)
-      (term-send-raw-string "\C-k")))
+    (kill-line)
+    (term-send-raw-string "\C-k")))
 
 (defun eos/run-term ()
   "Exec \\[term] but asks for the `term-mode' buffer name."
@@ -1569,11 +1583,11 @@ These styles are described in `completion-styles-alist'."
 (customize-set-variable 'all-the-icons-scale-factor 1.0)
 
 ;; add eos-theme-dir to theme load path
-(add-to-list 'custom-theme-load-path
-             (concat user-emacs-directory "themes"))
+ (add-to-list 'custom-theme-load-path
+              (concat user-emacs-directory "themes"))
 
 ;; load theme
-(load-theme 'moebius t)
+(load-theme 'moebius-glass t)
 
 ;; (require 'buffer-move nil t)
 
@@ -1590,7 +1604,86 @@ These styles are described in `completion-styles-alist'."
 ;; if non-nil, display the current Ibuffer buffer itself
 (customize-set-variable 'ibuffer-view-ibuffer nil)
 
+;; if non-nil, then show the names of filter groups which are empty
+(customize-set-variable 'ibuffer-show-empty-filter-groups nil)
 
+;; an alist of filtering groups to switch between.
+(customize-set-variable
+ 'ibuffer-saved-filter-groups
+ (quote (("default"
+          ("Emacs" (or
+                    (name . "^\\*scratch\\*$")
+                    (name . "^\\*Warnings\\*$")
+                    (name . "^\\*Completions\\*$")
+                    (name . "^\\*Messages\\*$")))
+
+          ("Comint" (or
+                     (mode . comint-mode)
+                     (name . "^\\*Async Shell Command\\*$")
+                     (name . "^\\*dashboard\\*$")
+                     (name . "^\\*tramp")
+                     (name . "^\\*make\\*$")))
+
+          ("Custom" (mode . Custom-mode))
+
+          ("Info"  (or
+                    (mode . Info-mode)
+                    (mode . dictionary-mode)
+                    (mode . help-mode)
+                    (mode . Man-mode)))
+
+          ("Tags" (or
+                   (mode . tags-table-mode)
+                   (mode . xref--xref-buffer-mode)))
+
+          ("Compilation" (or
+                          (mode . compilation-mode)
+                          (name . "^\\*compilation\\*$")))
+
+          ("Debug"  (mode . debugger-mode))
+
+          ("Flycheck" (or
+                       (mode . flycheck-mode)
+                       (mode . flycheck-error-list-mode)
+                       (name . "^\\*Flycheck error messages\\*$")))
+
+          ("Grep" (or
+                   (mode . ag-mode)
+                   (mode . occur-mode)
+                   (mode . locate-mode)))
+
+          ("Term" (mode . term-mode))
+          ("Shell" (mode . shell-mode))
+          ("Exwm" (mode . exwm-mode))
+          ("Dired" (mode . dired-mode))
+          ("Magit" (or
+                    (mode . magit-mode)
+                    (mode . magit-status-mode)
+                    (mode . magit-diff-mode)
+                    (mode . magit-process-mode)))
+
+          ("Planner" (or
+                      (name . "^\\*Calendar\\*$")
+                      (name . "^diary$")
+                      (mode . muse-mode)))
+
+          ("Gnus" (or
+                   (mode . message-mode)
+                   (mode . bbdb-mode)
+                   (mode . mail-mode)
+                   (mode . gnus-group-mode)
+                   (mode . gnus-summary-mode)
+                   (mode . gnus-article-mode)
+                   (name . "^\\.bbdb$")
+                   (name . "^\\.newsrc-dribble")))))))
+
+
+
+;; hook run upon entry into `ibuffer-mode'
+(add-hook 'ibuffer-mode-hook
+          '(lambda ()
+             (ibuffer-auto-mode 1)
+             (ibuffer-switch-to-saved-filter-groups "default")))
 
 (define-key ctl-x-map (kbd "b") 'ibuffer)
 
@@ -1703,7 +1796,7 @@ These styles are described in `completion-styles-alist'."
 
 ;; the format specification of the lines in the summary buffer.
 (customize-set-variable
-  'gnus-summary-line-format " %U %R %d %-5,5L %-12,12n %B%-80,80S\n")
+ 'gnus-summary-line-format " %U %R %d %-5,5L %-12,12n %B%-80,80S\n")
 
 ;; specifies date format depending on age of article
 (customize-set-variable
@@ -1827,15 +1920,15 @@ These styles are described in `completion-styles-alist'."
             (setq truncate-lines nil)))
 
 (when (boundp 'eww-mode-map)
-    (define-key eww-mode-map (kbd "C-j") 'eww-follow-link))
+  (define-key eww-mode-map (kbd "C-j") 'eww-follow-link))
 
 (require 'browse-url nil t)
 
 ;; the name of the browser program used by ‘browse-url-generic’.
-(customize-set-variable 'browse-url-generic-program "eww")
+(customize-set-variable 'browse-url-generic-program "chrome")
 
 ;; function to display the current buffer in a WWW browser: eww
-(customize-set-variable 'browse-url-browser-function 'eww-browse-url)
+(customize-set-variable 'browse-url-browser-function 'browse-url-default-browser)
 
 (require 'ag nil t)
 
@@ -2018,7 +2111,7 @@ sent. Add this function to `message-header-setup-hook'."
           (lambda ()
             (when (boundp 'verb-mode)
               (if verb-mode
-                  (eos-call-func 'verb-send-request-on-point 'this-window)))))
+                  (safe-funcall 'verb-send-request-on-point 'this-window)))))
 
 (require 'tramp nil t)
 
@@ -2082,9 +2175,9 @@ sent. Add this function to `message-header-setup-hook'."
 (customize-set-variable 'sql-product "sqlite")
 
 ;; start compton after emacs initialize
-(add-hook 'after-init-hook
-          (lambda ()
-            (safe-start-process "compton" "compton" "-b")))
+;;(add-hook 'after-init-hook
+;;          (lambda ()
+;;            (safe-start-process "compton" "compton" "-b")))
 
 (defvar eos-lock-command
   "my.lock"
@@ -2124,36 +2217,53 @@ sent. Add this function to `message-header-setup-hook'."
   :group 'screenshot)
 
 ;; TODO: get a list of arguments, not a string
-(defun eos--printscreen (filename)
-  "Takes a screenshot using printscreen-program."
-  (async-shell-command (format "%s %s %s"
-                               printscreen-program
-                               filename
-                               printscreen-params)))
+     (defun eos--printscreen (filename)
+       "Takes a screenshot using printscreen-program."
+       (when (shell-command (format "%s %s %s"
+                                    printscreen-program
+                                    filename
+                                    printscreen-params))
+         (format "%s" filename)))
 
-(defun eos/print-mouse-region (&optional image-path)
-  "Saves a printscreen of a region selected with the mouse."
-  (interactive)
-  (let ((image-path
-          (or image-path
-            (concat
-              (read-directory-name "Save to dir:"
-                printscreen-dir)
-              printscreen-file-pattern))))
-    (eos--printscreen (concat (format "'%s' %s"
-                                      (expand-file-name image-path)
-                                      "--select")))))
+     (defun eos/print-mouse-region (&optional image-path)
+       "Saves a printscreen of a region selected with the mouse."
+       (interactive)
+       (let ((image-path
+               (or image-path
+                 (concat
+                   (read-directory-name "Save to dir:"
+                     printscreen-dir)
+                   printscreen-file-pattern))))
+         (eos--printscreen (concat (format "'%s' %s"
+                                           (expand-file-name image-path)
+                                           "--select")))))
 
-(defun eos/printscreen (&optional image-path)
-  "Saves a printscreen of all screen."
-  (interactive)
-  (let ((image-path
-          (or image-path
-            (concat
-              (read-directory-name "Save to dir:"
-                printscreen-dir)
-              printscreen-file-pattern))))
-    (eos--printscreen (format "'%s'" (expand-file-name image-path)))))
+     (defun eos/printscreen (&optional image-path)
+       "Saves a printscreen of all screen."
+       (interactive)
+       (let ((image-path
+               (or image-path
+                 (concat
+                   (read-file-name "Save to dir:"
+                     printscreen-dir)
+                   printscreen-file-pattern))))
+         (eos--printscreen (format "'%s'" (expand-file-name image-path)))))
+
+      (defun eos/org-link-print-mouse-region(&optional image-path)
+       "Saves a printscreen of a region selected with the mouse and adds
+a link to the org document if the org-mode is active."
+       (interactive)
+       (let ((image-path
+               (or image-path
+                 (concat
+                   (read-file-name "File name:"
+                     printscreen-dir)
+                   printscreen-file-pattern))))
+         (eos/print-mouse-region image-path)
+         ;; unfortunately it does not work since image-path
+         ;; may be a format
+         (org-insert-link nil (format "file:%s" image-path)
+                              "printscreen")))
 
 ;; global-map
 (global-set-key (kbd "<print>") 'eos/printscreen)
@@ -2177,6 +2287,12 @@ sent. Add this function to `message-header-setup-hook'."
 (global-set-key (kbd "s-0") 'eos/toggle-audio)
 (global-set-key (kbd "s--") 'eos/reduce-volume)
 (global-set-key (kbd "s-=") 'eos/raise-volume)
+
+(require 'calendar nil t)
+
+;; name of the file in which one’s personal diary of dates is kept
+(customize-set-variable
+ 'diary-file (expand-file-name "cache/diary" user-emacs-directory))
 
 (require 'dashboard nil t)
 
@@ -2260,6 +2376,8 @@ Only I will remain.")
             (interactive)
             (eos-dashboard-insert-footer)))
 
+;; (require 'outline nil t)
+
 (require 'org nil t)
 
 ;; custom
@@ -2342,6 +2460,33 @@ The tangled file will be compiled."
 
 (define-key org-mode-map (kbd "C-M-i") 'eos/complete-in-buffer-or-indent)
 
+;; the files to be used for agenda display, should be a list of them.
+(customize-set-variable 'org-agenda-files '("~/work/org/agenda.org"))
+
+;; the separator between blocks in the agenda
+(customize-set-variable 'org-agenda-block-separator "=")
+
+;; a single-character string to be used as the bulk mark
+(customize-set-variable 'org-agenda-buld-mark-char ">")
+
+;; non-nil means make the block agenda more compact
+(customize-set-variable 'org-agenda-compact-blocks t)
+
+;; when t, a confirmation is always needed.
+;; when a number N, confirmation is only needed when the text
+;; to be killed contains more than N non-white lines
+(customize-set-variable 'org-agenda-confirm-kill t)
+
+;; if non-nil, include in the agenda entries from
+;; the Emacs Calendar’s diary
+(customize-set-variable 'org-agenda-include-diary t)
+
+;; inhibit startup when preparing agenda buffers
+;; when this variable is t, the initialization of the Org agenda
+;; buffers is inhibited: e.g. the visibility state is not set, the
+;; tables are not re-aligned, etc.
+(customize-set-variable 'org-agenda-inhibit-startup t)
+
 (require 'tex-mode nil t)
 
 (require 'markdown-mode nil t)
@@ -2384,47 +2529,25 @@ The tangled file will be compiled."
 ;; binds
 (define-key eos-docs-map (kbd ".") 'eos/dictionary-search-at-point)
 
+(require 'remember nil t)
+
+
+
 (require 'org-static-blog nil t)
 
 (defun eos/blog/insert-html (html-file)
   "Insert HTML-FILE when file exists."
   (if (file-exists-p html-file)
       (with-temp-buffer
-        (insert-file-contents html-file)
+        (insert-file-contents (expand-file-name html-file))
         (buffer-string))
     ""))
-
-(defun eos/blog/update-html ()
-  "Update pages (header, preamble and postamble) themes."
-  (interactive)
-  ;; update page header
-  (customize-set-variable
-   'org-static-blog-page-header
-   (eos/blog/insert-html
-    (expand-file-name
-     (concat user-emacs-directory "blog/html/header.html"))))
-
-  ;; update preamble
-  (customize-set-variable
-   'org-static-blog-page-preamble
-   (eos/blog/insert-html
-    (expand-file-name
-     (concat user-emacs-directory "blog/html/preamble.html"))))
-
-  ;; update postamble
-  (customize-set-variable
-   'org-static-blog-page-postamble
-   (format
-    (eos/blog/insert-html
-     (expand-file-name
-      (concat user-emacs-directory "blog/html/postamble.html")))
-    (org-version))))
 
 (defun eos/blog/publish ()
   "Update htmls and call `org-static-blog-publish'."
   (interactive)
-  (eos/blog/update-html)
-  (safe-funcall 'org-static-blog-publish))
+  ;; (eos/blog/update-html)
+  (safe-funcall 'org-static-blog-publish t))
 
 ;; title of the blog
 (customize-set-variable
@@ -2436,50 +2559,38 @@ The tangled file will be compiled."
 
 ;; directory where published HTML files are stored
 (customize-set-variable
- 'org-static-blog-publish-directory
- (expand-file-name
-  (concat user-emacs-directory "blog/blog/")))
+ 'org-static-blog-publish-directory "~/core/dev/hidden-ones/site/preview/")
 
 ;; directory where published ORG files are stored
 (customize-set-variable
- 'org-static-blog-posts-directory
- (expand-file-name
-  (concat user-emacs-directory "blog/posts/")))
+ 'org-static-blog-posts-directory "~/core/dev/hidden-ones/posts/")
 
 ;; directory where unpublished ORG files are stored.
 (customize-set-variable
- 'org-static-blog-drafts-directory
- (expand-file-name
-  (concat user-emacs-directory "blog/drafts/")))
+ 'org-static-blog-drafts-directory "~/core/dev/hidden-ones/posts/drafts/")
 
 ;; html to put in the <head> of each page.
 (customize-set-variable
  'org-static-blog-page-header
- (eos/blog/insert-html
-  (expand-file-name
-   (concat user-emacs-directory "blog/html/header.html"))))
+ (eos/blog/insert-html "~/core/dev/hidden-ones/html/header.html"))
 
 ;; html to put before the content of each page.
 (customize-set-variable
  'org-static-blog-page-preamble
- (eos/blog/insert-html
-  (expand-file-name
-   (concat user-emacs-directory "blog/html/preamble.html"))))
+ (eos/blog/insert-html "~/core/dev/hidden-ones/html/preamble.html"))
 
 ;; html to put after the content of each page.
 (customize-set-variable
  'org-static-blog-page-postamble
  (format
-  (eos/blog/insert-html
-   (expand-file-name
-    (concat user-emacs-directory "blog/html/postamble.html")))
+  (eos/blog/insert-html "~/core/dev/hidden-ones/html/postamble.html")
   (org-version)))
 
 ;; use preview versions of posts on multipost pages
 (customize-set-variable 'org-static-blog-use-preview t)
 
 ;; when preview is enabled, convert <h1> to <h2> for the previews
-(customize-set-variable 'org-static-blog-preview-convert-titles t)
+(customize-set-variable 'org-static-blog-preview-convert-titles nil)
 
 ;; the HTML appended to the preview if some part of the post is hidden
 (customize-set-variable 'org-static-blog-preview-ellipsis "(...)")
@@ -2491,7 +2602,7 @@ The tangled file will be compiled."
 (customize-set-variable 'org-export-with-toc t)
 
 ;; non-nil means add section numbers to headlines when exporting
-(customize-set-variable 'org-export-with-section-numbers nil)
+(customize-set-variable 'org-export-with-section-numbers t)
 
 (require 'man nil t)
 
@@ -2677,20 +2788,20 @@ The tangled file will be compiled."
    company-dabbrev))
 
 (defun eos/icomplete/company ()
-   "Insert the selected company candidate directly at point."
-   (interactive)
-   (unless company-candidates
-     (company-complete-common))
-   (unless (= (length company-candidates) 0)
-     (let ((candidate (completing-read "Complete: " company-candidates nil nil)))
-       (delete-char (- (length company-common)))
-       (insert candidate))))
+  "Insert the selected company candidate directly at point."
+  (interactive)
+  (unless company-candidates
+    (company-complete-common))
+  (unless (= (length company-candidates) 0)
+    (let ((candidate (completing-read "Complete: " company-candidates nil nil)))
+      (delete-char (- (length company-common)))
+      (insert candidate))))
 
- (defun eos-set-company-backends (backends)
-   "Set company back ends with BACKENDS."
-   (make-local-variable 'company-backends)
-   (when (boundp 'company-backends)
-     (setq company-backends backends)))
+(defun eos-set-company-backends (backends)
+  "Set company back ends with BACKENDS."
+  (make-local-variable 'company-backends)
+  (when (boundp 'company-backends)
+    (setq company-backends backends)))
 
 (defun eos/company-complete-or-indent ()
   "Company (complete anything (in-buffer)) or indent."
@@ -2701,14 +2812,14 @@ The tangled file will be compiled."
           (funcall 'company-complete)))
     (indent-according-to-mode)))
 
- (defun eos/complete-in-buffer-or-indent ()
-   "Company (complete anything (in-buffer)) or indent."
-   (interactive)
-   (if (looking-at "\\_>")
-       (progn
-         (when (fboundp 'company-complete-common)
-           (funcall 'company-complete-common)))
-     (indent-according-to-mode)))
+(defun eos/complete-in-buffer-or-indent ()
+  "Company (complete anything (in-buffer)) or indent."
+  (interactive)
+  (if (looking-at "\\_>")
+      (progn
+        (when (fboundp 'company-complete-common)
+          (funcall 'company-complete-common)))
+    (indent-according-to-mode)))
 
 ;; company-active-map
 (when (boundp 'company-active-map)
@@ -2734,8 +2845,8 @@ The tangled file will be compiled."
 
 ;; set company-statistics cache location
 (customize-set-variable
-  'company-statistics-file
-  (concat user-emacs-directory "cache/company-statistics-cache.el"))
+ 'company-statistics-file
+ (concat user-emacs-directory "cache/company-statistics-cache.el"))
 
 (add-hook 'company-mode-hook 'company-statistics-mode)
 
@@ -2802,6 +2913,10 @@ The tangled file will be compiled."
 ;; (add-hook 'c-mode-hook 'cmake-ide-setup)
 ;; (add-hook 'c++-mode-hook 'cmake-ide-setup)
 
+(require 'auto-compile nil t)
+
+
+
 (require 'compile nil t)
 
 (defun eos-compile (dir command)
@@ -2816,7 +2931,7 @@ Just a `compile` function wrapper."
   (interactive)
   (let ((candidates compile-history))
     (compile
-     (completing-read "Compile command: " candidates nil t))))
+     (completing-read "Compile command: " candidates nil 'confirm))))
 
 (customize-set-variable 'compilation-always-kill t)
 
@@ -2826,7 +2941,7 @@ Just a `compile` function wrapper."
             (setq truncate-lines nil)))
 
 ;; fix compilation buffer colors
-(add-hook 'compilation-filter-hook nil
+(add-hook 'compilation-filter-hook
           (lambda ()
             (when (eq major-mode 'compilation-mode)
               (ansi-color-apply-on-region
@@ -3013,24 +3128,24 @@ Just a `compile` function wrapper."
      (company-files))))
 
 (add-hook 'haskell-mode-hook
-  (lambda ()
-    ;; set company backends
-    (eos/haskell/set-company-backends)
+          (lambda ()
+            ;; set company backends
+            (eos/haskell/set-company-backends)
 
-    ;; set flycheck checker
-    (eos/set-flycheck-checker 'haskell-ghc)
+            ;; set flycheck checker
+            (eos/set-flycheck-checker 'haskell-ghc)
 
-    ;; haskell indentation mode that deals with the layout rule.
-    ;; it rebinds RET, DEL and BACKSPACE, so that indentations can be
-    ;; set and deleted as if they were real tabs.
-    (safe-funcall 'haskell-indentation-mode 1)
+            ;; haskell indentation mode that deals with the layout rule.
+            ;; it rebinds RET, DEL and BACKSPACE, so that indentations can be
+            ;; set and deleted as if they were real tabs.
+            (safe-funcall 'haskell-indentation-mode 1)
 
-    ;; minor mode for enabling haskell-process interaction
-    ;; non-nil if Interactive-Haskell mode is enabled.
-    (safe-funcall 'interactive-haskell-mode 1)))
+            ;; minor mode for enabling haskell-process interaction
+            ;; non-nil if Interactive-Haskell mode is enabled.
+            (safe-funcall 'interactive-haskell-mode 1)))
 
-  ;; activate dash docset (emacs) (not working)
-  ;; (eos-set-dash-docset "Haskell")))
+;; activate dash docset (emacs) (not working)
+;; (eos-set-dash-docset "Haskell")))
 
 (require 'inf-haskell nil t)
 
@@ -3105,10 +3220,10 @@ Just a `compile` function wrapper."
   (eos-set-company-backends
    '((company-c-headers)
      (company-keywords :with
-      company-rtags
-     company-yasnippet
-     company-dabbrev-code
-     company-dabbrev)
+                       ;; company-rtags
+                       company-yasnippet
+                       company-dabbrev-code
+                       company-dabbrev)
      (company-files))))
 
 ;; TODO research
@@ -3227,28 +3342,28 @@ Just a `compile` function wrapper."
             ;; set company backends
             (eos/fish/set-company-backends)))
 
-(require 'lua-mode nil t)
+;; (require 'lua-mode nil t)
 
 ;; non-nil means display lua-process-buffer after sending a command.
-(customize-set-variable 'lua-process-buffer t)
+;; (customize-set-variable 'lua-process-buffer t)
 
 ;; default application to run in Lua process
-(customize-set-variable 'lua-default-application "lua")
+;; (customize-set-variable 'lua-default-application "lua")
 
 ;; command switches for lua-default-application
-(customize-set-variable 'lua-default-command-switches "-i")
+;; (customize-set-variable 'lua-default-command-switches "-i")
 
 ;; amount by which Lua subexpressions are indented
-(customize-set-variable 'lua-indent-level 4)
+;; (customize-set-variable 'lua-indent-level 4)
 
 ;; if non-nil, contents of multiline string will be indented
-(customize-set-variable 'lua-indent-string-contents t)
+;; (customize-set-variable 'lua-indent-string-contents t)
 
 ;; jump to innermost traceback location in *lua* buffer
 ;; when this variable is non-nil and a traceback occurs
 ;; when running Lua code in a process, jump immediately
 ;; to the source code of the innermost traceback location
-(customize-set-variable 'lua-jump-on-traceback t)
+;; (customize-set-variable 'lua-jump-on-traceback t)
 
 (defun eos/lua/set-company-backends ()
   "Set lua company backends."
@@ -3353,7 +3468,7 @@ Just a `compile` function wrapper."
 (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
 
 (when (boundp 'web-mode-engines-alist)
-    (add-to-list 'web-mode-engines-alist '(("php" . "\\.phtml\\'"))))
+  (add-to-list 'web-mode-engines-alist '(("php" . "\\.phtml\\'"))))
 
 ;; clean esc map
 ;; (define-key esc-map (kbd "ESC") nil)
