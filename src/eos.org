@@ -2803,6 +2803,32 @@
 
      #+END_SRC
 
+*** Beep
+
+    During a normal editing session Emacs gives a warning signal quite
+    often. Every time you type Ctrl-G, to stop searching, or stop what
+    you were typing and do something else, and so on… you will get the
+    bell. To avoid this annoying beep, I prefer to blink the modeline.
+
+**** Function
+
+     #+BEGIN_SRC emacs-lisp
+     ;; TODO: setup parameter for color
+     (defun eos/mode-line-blink ()
+     "Blink the modeline with color #FFAAAA"
+     (let ((orig-fg (face-foreground 'mode-line)))
+       (set-face-foreground 'mode-line "#FFAAAA")
+       (run-with-idle-timer 0.1 nil
+                            (lambda (fg) (set-face-foreground 'mode-line fg))
+                            orig-fg)))
+     #+END_SRC
+
+**** Customize
+
+     #+BEGIN_SRC emacs-lisp
+     (setq ring-bell-function 'eos/mode-line-blink)
+     #+END_SRC
+
 ** Applications
 *** CLI
 
@@ -4852,37 +4878,54 @@
 ***** Functions
 
      #+BEGIN_SRC emacs-lisp
-      ;; TODO: get a list of arguments, not a string
-      (defun eos--printscreen (filename)
-        "Takes a screenshot using printscreen-program."
-        (async-shell-command (format "%s %s %s"
-                                     printscreen-program
-                                     filename
-                                     printscreen-params)))
+     ;; TODO: get a list of arguments, not a string
+     (defun eos--printscreen (filename)
+       "Takes a screenshot using printscreen-program."
+       (when (shell-command (format "%s %s %s"
+                                    printscreen-program
+                                    filename
+                                    printscreen-params))
+         (format "%s" filename)))
 
-      (defun eos/print-mouse-region (&optional image-path)
-        "Saves a printscreen of a region selected with the mouse."
-        (interactive)
-        (let ((image-path
-                (or image-path
-                  (concat
-                    (read-directory-name "Save to dir:"
-                      printscreen-dir)
-                    printscreen-file-pattern))))
-          (eos--printscreen (concat (format "'%s' %s"
-                                            (expand-file-name image-path)
-                                            "--select")))))
+     (defun eos/print-mouse-region (&optional image-path)
+       "Saves a printscreen of a region selected with the mouse."
+       (interactive)
+       (let ((image-path
+               (or image-path
+                 (concat
+                   (read-directory-name "Save to dir:"
+                     printscreen-dir)
+                   printscreen-file-pattern))))
+         (eos--printscreen (concat (format "'%s' %s"
+                                           (expand-file-name image-path)
+                                           "--select")))))
 
-      (defun eos/printscreen (&optional image-path)
-        "Saves a printscreen of all screen."
-        (interactive)
-        (let ((image-path
-                (or image-path
-                  (concat
-                    (read-directory-name "Save to dir:"
-                      printscreen-dir)
-                    printscreen-file-pattern))))
-          (eos--printscreen (format "'%s'" (expand-file-name image-path)))))
+     (defun eos/printscreen (&optional image-path)
+       "Saves a printscreen of all screen."
+       (interactive)
+       (let ((image-path
+               (or image-path
+                 (concat
+                   (read-file-name "Save to dir:"
+                     printscreen-dir)
+                   printscreen-file-pattern))))
+         (eos--printscreen (format "'%s'" (expand-file-name image-path)))))
+
+      (defun eos/org-link-print-mouse-region(&optional image-path)
+       "Saves a printscreen of a region selected with the mouse and adds
+a link to the org document if the org-mode is active."
+       (interactive)
+       (let ((image-path
+               (or image-path
+                 (concat
+                   (read-file-name "File name:"
+                     printscreen-dir)
+                   printscreen-file-pattern))))
+         (eos/print-mouse-region image-path)
+         ;; unfortunately it does not work since image-path
+         ;; may be a format
+         (org-insert-link nil (format "file:%s" image-path)
+                              "printscreen")))
 #+END_SRC
 
 ***** Binds
