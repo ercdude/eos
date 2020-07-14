@@ -31,7 +31,6 @@
 ;; office
 (depends-on "dictionary")
 (depends-on "markdown-mode")
-;; (depends-on "nov")
 
 ;; blog
 (depends-on "htmlize")

@@ -4,23 +4,44 @@
 
 * EOS
 
-  Just another org-mode based Emacs configuration,
-  or a elisp interpreter desktop distribution.
+  A simple literate programmed Emacs configuration
+  that relies on =org-mode=, or a =Elisp= interpreter
+  desktop distribution.
   | Wait... What!? |
+
+  In other words, an =Emacs= configuration well designed
+  and integrated that provides a generic computer environment
+  for everyday use.
 
 * Disclaimer
 
-  I don't recommend anyone to install or use this
-  configuration directly as there is no support for it
-  and changes quite often, although this is probably
-  the final structure it's advisable to view this
-  =README= only as a reference/guide for the author himself.
+  I don't recommend anyone to install or use this directly,
+  due its lack of support and high volatility, although
+  this is probably the final structure it's advisable to
+  view this =README= only as a reference/guide for the
+  author himself (and some crazy friends, thanks guys,
+  I really appreciate all the suggestions and criticism,
+  much love and freedom upon your lives)!
 
-  So, here goes a little bit of advice: READ Emacs/Elisp manual! (RTFM)!
+  So, here goes a little bit of advice, for everyone: read
+  =Emacs/Elisp= manual (RTFM), and use as an exercise writing
+  your own ~init.el~, but feel free to fork or copy
+  anything from ~src/eos.org~ that you like or find useful.
 
-  And write your own ~init.el~, but feel free
-  to fork or copy anything from ~/src/eos.org~
-  that attends your needs :)
+  Learning =Elisp= may be trick at first, compared to other languages,
+  but once you understated the [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Evaluation.html][evaluation]] process, everything
+  else turns out to be a piece of cake.
+
+  d(-_-)b, nice song!
+
+  It's better to understand, once for all, that as an =Emacs=
+  user you automatically become a developer of it,
+  =the user developer concept=, that's no way around it,
+  unfortunately some people find this overwhelm, others
+  find it formidable - myself included!
+
+  Knowing that, maybe you should consider that =Emacs= isn't for you,
+  no problem, just move on :)
 
 ** Screenshot
 
@@ -33,97 +54,123 @@
 
 * Introduction
 
-  Using Emacs (Elisp interpreter) as the only IO bridge
-  between human and machine. In another words, an Emacs
-  configuration well designed and integrated that provides
-  a generic computer environment for everyday use.
+  The definition of Emacs given by its official manual can be a
+  little bit misleading, after years of experience using it and being
+  frustrated to not fully understand its true nature, I decided that
+  was time for a good old research, lets say most of the
+  studies were not conclusive.
 
-  Org-mode is used to write/organize the configuration
+  But as soon as I started to write some =Elisp= code to extend it,
+  the answer came to me and the frustration was completely removed.
+
+  So, IMHO =Emacs= should be explained in the following terms:
+
+  A =lisp= interpreter with builtin libraries that provides
+  editing and data visualization functionalities.
+  The core - the interpreter and basic features -
+  are written using the =C= programming language,
+  and all the other packages in a =lisp= dialect called
+  =Emacs Lisp= generally abbreviated to =Elisp=.
+
+  And now in a =conceptual level= it's easy to see why
+  admiration is the only thing left.
+
+  #+BEGIN_SRC
+  Don't be fooled by appearances, if you are using Emacs you are
+  'inside' the Elisp interpreter, and everything you do is evaluating
+  lists, one after another!
+  #+END_SRC
+
+  That way it's more clear to the reader that Emacs is not
+  a mere text editor and offers a much more richer environment,
+  a huge organic ecosystem capable to interact in a very dynamic
+  way with any resource of interest.
+
+  =Org-mode= is used to write and organize the configuration
   (~src/eos.org~) in a literate programming format,
-  so it contains documentation plus source code blocks
-  that will be tangled generating the ~src/init.el~ final
-  Elisp script.
+  so it contains =Elisp= source code blocks - that will be tangled
+  generating the ~src/init.el~ final script - and the
+  referent documentation.
 
   * Note: Throughout this document the word =application=
     refers to any =elisp package= or =external program=.
 
   It's important to understand that all applications with
-  different purposes, made in Elisp or not, passes in a way or
-  another through the Elisp interpreter.
+  different purposes, made in =Elisp= or not, passes in a
+  way or another through the interpreter.
 
-  So again, =application(s)= implies =Emacs/Elisp packages=
+  So again, =application(s)= implies =Elisp packages=
   or =external programs=.
 
-** Features (overview):
+** Goal
 
-   - Just one major language (=ELISP=) to conquer them all!
+   The aim of this project is to provide a generic =IO= bridge
+   between the human mind and the machine resources, that are
+   managed by the operation system.
+
+** Features:
+
+   - Just one major language (=Elisp=) to conquer them all!
    - Information comes to you as required and not the other way around.
-   - Use the same keybinds everywhere (learn once, use forever and ever).
+   - The same keybinds are used everywhere (learn once, use forever and ever).
+   - The same editing capabilities are used for all applications.
+   - The same =GUI Interface= (frames/window/buffers) are used for all applications.
 
-   - Use the same editor capabilities for all applications
-     (or at least try to).
-
-   - Use the same =GUI Interface= (frames/window/buffers) for all
-     applications.
-
-   - Just one development environment for all languages:
+   - Just one integrated development environment for all projects
+     (independent of the programming language and tools needed
+     to construct it):
      - Apparence
      - Editing
      - Documentation
      - Communication
      - Navigation
      - Completion
-     - Syntax/Spell Check
+     - Syntax/Spell Checking
      - Interpretation
      - Compilation
      - Debugging
      - Testing
      - Rationalization
      - Versioning
-     - Measurement
-     - Etc...
+     - And more, much more ...
 
    - Understand that data is generic (in computer science we deal
-     with idealize components) and can be manipulated (transformed)
+     with idealize components) and can be manipulated, i.e, transformed
      through different paths.
 
-   - Huge improvements in productivity:
-     - Stay focused, surfing in the same pleasant/comfortable
-       flow (my preferred kind of mood).
-     - No useless/annoying distractions.
-     - Just do what was asked and nothing more.
+   - Huge productivity improvements by:
+     - Staying focused, surfing all the time in the same pleasant/comfortable mood.
+     - Avoiding useless/annoying distractions.
+     - Being precise: Just do what was asked and nothing more.
+     - Decreasing the gap between a =prof of concept= and the =final= release.
+     - Providing tools to easily investigate any process/procedure of
+       interest.
 
-   - Decrease the gap between: =a prof of concept= and the ="final"= release=!
-
-   - Provide tools to easily investigate any process/procedure of
-     interest.
-
-   - Communication (=pipes/ipcs/streams of data=) between peers are
-     transparent, proving a very easy and convenient integration for
-     all modules:
+   - Intern communication (=pipes, IPCs, data streams, sockets, you
+     name it=) between peers are transparent, resulting in a very
+     practical, very convenient integration for all modules and
+     resources available:
      - Packages
      - Applications
      - Buffers/Windows/Frames
-     - Etc...
+     - Processes
+     - Sockets
+     - Files
+     - Etc ...
 
 * Dependencies
 
   1. Cask
   2. Emacs >= 26.3
-  3. Packages
-     - Listed on: ~default/default.Cask~
-
-** Optional
-
-   Some =emacs packages= uses external (non-elisp) programs, like:
-
-   1. Ag - The Silver Searcher
-   2. Global
-   3. Etags
-   4. Aspell/Ispell
-   5. Compton
-   6. Transset
-   7. Rtags Server
+  3. Elisp Packages
+     - Listed on: ~.gitmodules~
+  4. Non-elisp Packages
+     - Ag, The Silver Searcher
+     - Global
+     - Etags
+     - Aspell (or Ispell)
+     - Compton
+     - Transset
 
 * Tested on
 
@@ -132,30 +179,32 @@
 
 * Installation
 
-  NOTE: The installation script was made to speed up
-        the deploy process on my new machines.
+  * NOTE: The installation script it's incomplete and broken do not
+    use it!
 
-  Download and execute (curl required):
+  Download and execute the installation shell script (SH POSIX), the
+  example below uses curl.
 
   #+BEGIN_SRC
      sh -c "$(curl -fsSL https://raw.githubusercontent.com/esac-io/eos/master/scripts/install.sh)"
   #+END_SRC
 
-  Script steps:
+  Steps performed by the script:
 
-  1) Check dependencies
-  2) Clone =cask= and =eos= repositories
-  3) Backup ~.emacs.d~ directory
-  4) Install third-party packages listed in ~/src/default/default.Cask~ file
-  5) Tangle source code from ~src/eos.org~ to ~init.el~
-  6) Byte compile ~init.el~ script
+  1. Check dependencies
+  2. Clone =eos= and sub-module repositories (TODO!)
+  3. Backup ~.emacs.d~ directory
+  4. Byte compile third-party =Elisp= packages (TODO!)
+  5. Tangle source code from ~src/eos.org~ to ~init.el~
+  6. Byte compile ~init.el~ script
+     - Call make passing the right =Makefile= to it.
 
 * Usage
 
   Using this Emacs configuration isn't different of using
-  Emacs vanilla itself with a "few" reforms.
-  As such, the official Emacs tutorial is a great way to understanding
-  a little bit of its universe.
+  vanilla Emacs itself with a "few" reforms.
+  As such, the official Emacs tutorial is a great way
+  to understanding a little bit of its universe.
 
   So, open Emacs and press =C-h= (the help map prefix) and
   press =t= to evaluate ~help-with-tutorial~ function that will
@@ -164,8 +213,8 @@
   - Enjoy your late nights :)
 
   - Note: The main purpose of the Emacs tutorial is teach you
-    the most important standard Emacs commands (or functions)
-    and the mapped keybinds used to trigger then.
+  the most important standard Emacs commands (or functions)
+  and the mapped keybinds used to trigger then.
 
 * Keybinds
 
@@ -173,23 +222,24 @@
   used minor modes and their functions are mapped within
   their respective maps.
 
-  After that, the prefix maps will be placed in the Ctl-x-map prefix
-  map, resulting in the standardization of commands (functions)
-  access sequences (keybinds or chords).
+  After that, the prefix maps will be placed in the =Ctl-x-map=
+  prefix, resulting in the standardization of commands (functions)
+  access sequences - =keybinds= or =chords=.
 
   For the sake of sanity a lot of keybinds have been cleaned up,
-  it's preferable (in my opinion) a small set of keybinds
-  (only the most used ones) providing that way a more stable (less
-  error prone) overall usability.
+  it's preferable (IMHO) a small set of keybinds,
+  only the most used ones, providing that way a more stable, less
+  error prone, overall usability.
 
-  When 'exotic' functions are needed to be called, just use
-  =`execute-extended-command'= binded to =M-x=.
+  When 'exotic' functions needed to be called, just use
+  =execute-extended-command= binded to =M-x=, also know as the
+  =minibuffer=.
 
-  Note: The =`minor-mode-map-alist'= as completely cleaned, this was
+  Note: The =minor-mode-map-alist= was completely erased, this was
   proven to be a huge pain relief resulting in a considerable
-  productivity gains.
+  productivity gain.
 
-  For more information checkout the =Epilogue/Clean= section at
+  For more information checkout the =Cleanup= section at
   ~src/eos.org~.
 
 ** Basic
@@ -275,114 +325,25 @@
 
 * Packages
 
-  Cask is a project management tool for Emacs that helps automate the
-  package development cycle; development, dependencies, testing,
-  building, packaging and more.
-
-  Cask can also be used to manage dependencies for your
-  local Emacs configuration.
-
-  It’s based on a ~Cask~ file, which identifies an Emacs Lisp package,
-  provides meta information about the package and
-  declares its contents and dependencies.
-
-** Configure
-
-   To add more packages just edit the ~/.emacs.d/Cask~ file, generated
-   by installation script, e.g, to add 'function-args' package,
-   put the code snippet below inside the ~Cask~ file.
-
-   #+BEGIN_SRC sh
-
-   (depends-on "function-args")
-
-   #+END_SRC
-
-   Using different source then Melpa is possible thanks
-   to =`depends-on'= and acceptable fetcher keywords like =:git=:
-
-   #+BEGIN_SRC sh
-
-   (depends-on "undo-tree"
-    :git "http://www.dr-qubit.org/git/undo-tree.git")
-
-   #+END_SRC
-
-   In the first variant, install the package from a package archive,
-   optionally requiring a minimum-version. In the second variant,
-   install the package from a VCS repository.
-
-   Fetcher keywords:
-
-   - =(:git :bzr :hg :darcs :svn :cvs=)
-
-   The argument is the package's repository URL
-   source.
-
-   For more details see [[https://cask.readthedocs.io/en/latest/guide/usage.html][cask's manual]].
-
-** Install
-
-   To install all packages listed on the ~Cask~ file, use `cask
-   install` inside the same directory the ~Cask~ file resides, e.g:
-
-   #+BEGIN_SRC sh
-
-   $ cd ~/emacs.d; cask install
-
-   #+END_SRC
-
-   - Tip: When problems with missing dependencies are encountered
-     (usually happens when using fetcher keyword like :git),
-     put the dependency code snippet ~(depends-on "missing-dep-package-name")
-     above the target package and give `cask install` command another shot.
-
-** Remove
-
-   You have to manually remove target package directory.
-   To find out where the packages were installed, use:
-
-   #+BEGIN_SRC sh
-
-   $ find ~/.emacs.d/.cask -type d -name <package-name>*
-
-   #+END_SRC
-
-   To avoid package re-installation remove (depends-on
-   <package-name>) before `cask install` calls.
-
-   Delete package's folder:
-
-   #+BEGIN_SRC emacs-lisp
-
-   $ rm -rf ~/.emacs.d/.cask/26.3/elpa/dashboard-20200225.745
-
-   #+END_SRC
-
-   In this example, dashboard package files will be deleted,
-   its configuration will be skipped.
-
-   - IMPORTANT: Don't forgot to remove both: package's folder and
-     repository entry, otherwise the package will continue to be
-     installed when =cask install= is executed and
-     loaded by ~src/init.el~.
+  Packages are installed as git sub-modules (see gitsubmodules(7) - man
+  pages for more information) and they are listed on ~.gitmodules~ file.
 
 * Adapt
 
   If you want to modify any aspects (or extend) this configuration
-  without touching the ~/src/eos.org~, just edit/add your own Elisp
+  without touching the ~/src/eos.org~, just edit/add your own =Elisp=
   code inside ~/src/trash.el~.
 
   Note: ~src/trash.el~ will be the last script loaded by ~/src/trash.el~.
 
-* Advices
+* Advises
 
-  0. Do one thing and do it well (KISS).
+  0. Do one thing and do it well (Unix philosophy).
   1. If something is bothering you, fix it!
   2. Global behavior aways available and static.
   3. Few keybinds sets.
 
-  4. Repeat keybinds for mode-specific commands
+  4. Repeat keybinds postfix for mode-specific commands
      according to their logical classification.
 
   5. Use the same action flow logic, for the same
@@ -392,7 +353,7 @@
      modules already installed on Emacs to meet your needs.
      If you can withdraw a module, do so! Most of the time it
      takes little or no effort, and the gain is considerable.
-     So be alert to identify these situations!
+     So, be alert to identify these situations!
 
   7. Prioritize Emacs's native packages (builtin) over third-party
      ones. If any demand comes to light try to resolve
@@ -403,7 +364,7 @@
      resolve a issue.
 
   8. Successive refinements: in constant refactoring!
-     Always improve, do not fear the winds of change!
+     Always improve, never fear the winds of change!
 
   9. Have fun!
 
@@ -412,26 +373,37 @@
   - Q: Mac/Windows will be supported any time soon?
   - A: Nope.
 
-  - Q: Why don't you use evil/hydra/which-key/use-package/etc?
+  - Q: Why don't you use =evil/hydra/which-key/use-package/etc=?
   - A: It is not just a matter of taste, it is simply because
     they get in the way disturbing the desired transformation to
     occur, and I prefer a more direct/effective approach.
-    Remember that’s the way I think, you can add these modules
-    on your own and make your life a little more miserable, be my guess!
+    Remember that's the way I think, you can add these modules
+    on your own and make your life a little more miserable,
+    be my guess!
 
-  - Q: And what about helm/ivy/counsel/swiper?
+  - Q: And what about =helm/ivy/counsel/swiper=?
   - A: Well, Icomplete its minimal (works very similar to the beloved
     dmenu), builtin, generic, fast, less intrusive, and fulfill
     all my needs, thanks Prot, to bring this forgotten package to light!
 
-  - Q: Why won't just use Doom/Centaur/Spacemacs or any other
-    distribution?
-  - A: Because they are bloated with a lot of (useless) packages,
-    its more easy (IMHO) to adapt Emacs Vanilla and learn
-    Elisp: once for all (in progress)!
+  - Q: Do you think Emacs has a future?
+  - A: Maybe, as was already said the =concept= of the lisp
+    machine as the main interface to be used for any task is great,
+    however the =execution= side of it is a complete mess,
+    open the =info buffer= and you will see what I mean.
+    This lack of organization makes everything more difficult that
+    has to be, and one day - if we don't do anything - the whole
+    project may become unmanageable - sad, dudes! :/, let's do
+    SOMETHING about it! :D
 
-  - Q: Do you think that everyone who uses Emacs should make their own
-    configuration ~init.el~?
+  - Q: Why won't just use =Doom/Centaur/Spacemacs= or any other
+    distribution?
+  - A: Because they are bloated with a lot of useless packages,
+    its more easy IMHO to adapt vanilla Emacs and learn
+    =Elisp= - once for all (working in progress)!
+
+  - Q: Do you think that everyone who uses Emacs should write their own
+    configuration file =(init.el)=?
   - A: For sure! It's fun like explore mystical dungeons and slay
     some fearless dragons. The reward? Walk over the rotten and stinky
     carrion of your enemies, who were defeated by your will,
