@@ -26,7 +26,7 @@
 (require 'color)
 
 ;; defines moebius theme
-(deftheme moebius-moon
+(deftheme moebius
   "Simple and minimal Emacs dark theme.")
 
 ;; Define colours pallets.
@@ -617,5 +617,5 @@
   (add-to-list 'custom-theme-load-path
                (file-name-as-directory (file-name-directory load-file-name))))
 
-(provide-theme 'moebius-moon)
+(provide-theme 'moebius)
 ;;; moebius-theme.el ends here

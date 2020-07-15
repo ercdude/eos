@@ -2964,7 +2964,7 @@
       (customize-set-variable 'exwm-input-global-keys
                               `(([?\s-r] . exwm-reset)
                                 ([?\s-q] . exwm-input-toggle-keyboard)
-                                ([?\s-d] . exwm-layout-toggle-floating)
+                                ([?\s-d] . exwm-floating-toggle-floating)
                                 ([?\s-m] . exwm-layout-toggle-fullscreen)
                                 ;; ([?\s-w] . exwm-workspace-switch)
                                 ;; ([?\s-k] . exwm-workspace-delete)
@@ -3632,8 +3632,8 @@
       (add-to-list 'custom-theme-load-path
                    (concat user-emacs-directory "themes"))
 
-     ;; load theme
-     (load-theme 'moebius-glass t)
+      ;; load theme
+      (load-theme 'moebius t)
 
       #+END_SRC
 

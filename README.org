@@ -43,12 +43,17 @@
   Knowing that, maybe you should consider that =Emacs= isn't for you,
   no problem, just move on :)
 
-** Screenshot
+* Screenshot
 
    #+CAPTION: EMACS OS
    #+NAME:   fig:EOS-screenshot
 
    [[./assets/eos.png]]
+
+   #+CAPTION: EMACS OS, dual monitor
+   #+NAME:   fig:EOS-screenshot2
+
+   [[./assets/eos2.png]]
 
    | Present Day, heh... Present Time |
 
