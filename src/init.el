@@ -1290,7 +1290,7 @@ These styles are described in `completion-styles-alist'."
 (customize-set-variable 'exwm-input-global-keys
                         `(([?\s-r] . exwm-reset)
                           ([?\s-q] . exwm-input-toggle-keyboard)
-                          ([?\s-d] . exwm-layout-toggle-floating)
+                          ([?\s-d] . exwm-floating-toggle-floating)
                           ([?\s-m] . exwm-layout-toggle-fullscreen)
                           ;; ([?\s-w] . exwm-workspace-switch)
                           ;; ([?\s-k] . exwm-workspace-delete)
@@ -1583,8 +1583,8 @@ These styles are described in `completion-styles-alist'."
 (customize-set-variable 'all-the-icons-scale-factor 1.0)
 
 ;; add eos-theme-dir to theme load path
- (add-to-list 'custom-theme-load-path
-              (concat user-emacs-directory "themes"))
+(add-to-list 'custom-theme-load-path
+             (concat user-emacs-directory "themes"))
 
 ;; load theme
 (load-theme 'moebius-glass t)
@@ -1675,7 +1675,18 @@ These styles are described in `completion-styles-alist'."
                    (mode . gnus-summary-mode)
                    (mode . gnus-article-mode)
                    (name . "^\\.bbdb$")
-                   (name . "^\\.newsrc-dribble")))))))
+                   (name . "^\\.newsrc-dribble")))
+
+          ("Dev" (or
+                      (mode . prog-mode)
+                      (mode . c-mode)
+                      (mode . c++-mode)
+                      (mode . emacs-lisp-mode)
+                      (mode . web-mode)
+                      (mode . js-mode)))
+
+          ("IRC" (or
+                      (mode . erc-mode)))))))
 
 
 
@@ -1925,7 +1936,7 @@ These styles are described in `completion-styles-alist'."
 (require 'browse-url nil t)
 
 ;; the name of the browser program used by ‘browse-url-generic’.
-(customize-set-variable 'browse-url-generic-program "chrome")
+(customize-set-variable 'browse-url-generic-program "vimb")
 
 ;; function to display the current buffer in a WWW browser: eww
 (customize-set-variable 'browse-url-browser-function 'browse-url-default-browser)
@@ -3221,6 +3232,7 @@ Just a `compile` function wrapper."
    '((company-c-headers)
      (company-keywords :with
                        ;; company-rtags
+                       company-etags
                        company-yasnippet
                        company-dabbrev-code
                        company-dabbrev)
@@ -3617,3 +3629,5 @@ Just a `compile` function wrapper."
 (global-unset-key (kbd "<f20>"))
 
 (safe-load-file (expand-file-name "trash.el" user-emacs-directory))
+(put 'list-timers 'disabled nil)
+(put 'erase-buffer 'disabled nil)
