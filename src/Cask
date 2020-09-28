@@ -1,0 +1,120 @@
+(source melpa)
+
+;; misc
+(depends-on "lex"
+            :git "https://github.com/esac-io/lex")
+(depends-on "gcmh"
+            :git "https://gitlab.com/koral/gcmh")
+;; could not install "cant read whole string"
+;; (depends-on "lazy"
+;;             :git "https://github.com/esac-io/lazy.git")
+
+;; launcher
+(depends-on "cannon"
+            :git "https://github.com/esac-io/cannon")
+
+;; project management
+(depends-on "projectile"
+            :git "https://github.com/bbatsov/projectile")
+
+;; version control
+;; could not install using git
+(depends-on "magit")
+
+;; filter
+(depends-on "ag"
+            :git "https://github.com/Wilfred/ag.el")
+
+;; syntax check
+(depends-on "flycheck"
+            :git "https://github.com/flycheck/flycheck")
+
+;; completion
+;; failed to install with git
+(depends-on "yasnippet")
+(depends-on "company")
+(depends-on "company-statistics")
+(depends-on "company-shell"
+            :git "https://github.com/Alexander-Miller/company-shell")
+
+;; fuzzy match
+;; (depends-on "flx")
+
+;; office
+(depends-on "dictionary"
+            :git "https://github.com/myrkr/dictionary-el")
+(depends-on "markdown-mode"
+            :git "https://github.com/jrblevin/markdown-mode")
+
+;; blog
+;; (depends-on "htmlize")
+;; (depends-on "org-static-blog")
+
+;; translate
+(depends-on "google-translate"
+            :git "https://github.com/atykhonov/google-translate")
+
+;; documentation
+(depends-on "dash-docs"
+            :git "https://github.com/dash-docs-el/dash-docs")
+(depends-on "rfc-docs"
+            :git "https://github.com/esac-io/rfc-docs")
+
+;; multimedia
+(depends-on "emms"
+            :git "https://github.com/emacsmirror/emms")
+
+;; file
+;; could not find git
+(depends-on "dired-subtree")
+
+;; edit
+(depends-on "editorconfig"
+            :git "https://github.com/editorconfig/editorconfig-emacs")
+(depends-on "iedit"
+            :git "https://github.com/victorhge/iedit")
+(depends-on "undo-tree"
+            :git "http://www.dr-qubit.org/git/undo-tree.git")
+
+;; development
+;;(depends-on "ess")
+(depends-on "go-mode"
+            :git "https://github.com/dominikh/go-mode.el")
+(depends-on "fish-mode"
+            :git "https://github.com/wwwjfy/emacs-fish")
+(depends-on "web-mode"
+            :git "https://github.com/fxbois/web-mode")
+(depends-on "lua-mode"
+            :git "https://github.com/immerrr/lua-mode")
+
+;; .el belongs to the cmake directory, so it's not at root directory.
+;; Cask may complain about it, so keeping it with melpa
+(depends-on "cmake-mode")
+
+(depends-on "rmsbolt"
+            git: "https://gitlab.com/jgkamat/rmsbolt")
+
+
+;; window manager
+;; depends on xelb
+(depends-on "exwm"
+            :git "https://github.com/ch11ng/exwm")
+(depends-on "xelb"
+            :git "https://github.com/ch11ng/xelb")
+(depends-on "cl-generic")
+
+;; dashboard
+(depends-on "dashboard"
+            :git "https://github.com/emacs-dashboard/emacs-dashboard")
+
+;; term & shell
+;; could not find git
+(depends-on "multi-term")
+;; before enable it, please read the VTerm section of init.org
+;;(depends-on "vterm")
+
+;; network
+(depends-on "rsync"
+            :git "https://github.com/esac-io/rsync.el")
+;; (depends-on "request")
+;; (depends-on "verb")

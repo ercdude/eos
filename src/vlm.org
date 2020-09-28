@@ -639,7 +639,7 @@ to this definition.
        'tramp-histfile-override "~/.tramp_history")
 
       ;; connection timeout in seconds
-      (customize-set-variable 'tramp-connection-timeout 60)
+      (customize-set-variable 'tramp-connection-timeout 10)
 
       #+END_SRC
 
@@ -1373,7 +1373,7 @@ to this definition.
 
       #+END_SRC
 
-**** Dired
+q**** Dired
 
      This is a major mode for file management operations.
 
@@ -1414,7 +1414,6 @@ to this definition.
             (define-key dired-mode-map (kbd "C-j") 'dired-find-alternate-file))))
 
       #+END_SRC
-
 *** Frames
 
     When Emacs is started on a graphical display, e.g., on the X Window
@@ -1466,9 +1465,9 @@ to this definition.
      #+BEGIN_SRC emacs-lisp
 
      ;; set transparency after a frame is created
-     (add-hook 'after-make-frame-functions
-               (lambda (frame)
-                 (set-frame-transparency .8)))
+     ;; (add-hook 'after-make-frame-functions
+     ;;           (lambda (frame)
+     ;;             (set-frame-transparency .8)))
 
      #+END_SRC
 
@@ -2107,7 +2106,7 @@ to this definition.
       #+BEGIN_SRC emacs-lisp
 
       (add-to-list 'display-buffer-alist
-                   '("\\*Completions\\*"
+                   '("\\*completions\\*"
                      (display-buffer-below-selected display-buffer-at-bottom)
                      (window-height . fit-window-to-buffer)))
 
@@ -2203,8 +2202,8 @@ to this definition.
 
             ;; bind
             (define-key icomplete-minibuffer-map (kbd "C-j") 'icomplete-force-complete-and-exit)
-            (define-key icomplete-minibuffer-map (kbd "M-SPC") 'icomplete-forward-completions)
-            (define-key icomplete-minibuffer-map (kbd "M-DEL") 'icomplete-backward-completions)
+            (define-key icomplete-minibuffer-map (kbd "C-n") 'icomplete-forward-completions)
+            (define-key icomplete-minibuffer-map (kbd "C-p") 'icomplete-backward-completions)
             (define-key icomplete-minibuffer-map (kbd "M-p") 'previous-line-or-history-element)
             (define-key icomplete-minibuffer-map (kbd "M-n") 'next-line-or-history-element)
             (define-key icomplete-minibuffer-map (kbd "M-i") 'minibuffer-insert-top-candidate)
@@ -2410,11 +2409,11 @@ to this definition.
       #+BEGIN_SRC emacs-lisp
 
       ;; set wallpaper
-      (add-hook 'window-setup-hook
-                (lambda()
-                  (set-wallpaper
-                   "~/media/images/wallpapers/studio-ghibli/ghibli-7.jpg"
-                   "-g -0-0")))
+      ;; (add-hook 'window-setup-hook
+      ;;           (lambda()
+      ;;             (set-wallpaper
+      ;;              "~/media/images/wallpapers/studio-ghibli/ghibli-7.jpg"
+      ;;              "-g -0-0")))
 
       #+END_SRC
 
@@ -2658,7 +2657,6 @@ to this definition.
          newline-mark missing-newline-at-eof))
 
       #+END_SRC
-
 
 ***** Hooks
 
@@ -3117,12 +3115,44 @@ to this definition.
 
        #+END_SRC
 
+****** Defines
+
+       #+BEGIN_SRC emacs-lisp
+
+   (defvar eos-xrandr-right-screen "eDP-1"
+     "Defines the screen located at right side")
+
+   (defvar eos-xrandr-left-screen "HDMI-1"
+     "Defines the screen located at right side")
+
+   (defvar eos-xrandr-command
+     (format "xrandr --output %s --right-of %s"
+             eos-xrandr-right-screen
+             eos-xrandr-left-screen)
+     "Defines the screen located at right side")
+
+
+       #+END_SRC
+
 ****** Customize
 
        #+BEGIN_SRC emacs-lisp
 
+       ;; monitors: check the xrandr(1) output and use the same name/order
+       ;; TODO: create a func that retrieves these values from xrandr
+
+       (customize-set-variable
+        'exwm-randr-workspace-monitor-plist '(0 "eDP-1"
+                                              1 "HDMI-1"
+                                              2 "HDMI-1"))
+
+       (customize-set-variable 'exwm-workspace-number
+                               (if (boundp 'exwm-randr-workspace-monitor-plist)
+                                   (/ (safe-length exwm-randr-workspace-monitor-plist) 2)
+                                 1))
+
        ;; set exwm workspaces number
-       (customize-set-variable 'exwm-workspace-number 0)
+       (customize-set-variable 'exwm-workspace-number 3)
 
        ;; show workspaces in all buffers
        (customize-set-variable 'exwm-workspace-show-all-buffers t)
@@ -3137,9 +3167,8 @@ to this definition.
        (customize-set-variable 'exwm-input-global-keys
                                `(([?\s-r] . exwm-reset)
                                  ([?\s-q] . exwm-input-toggle-keyboard)
-                                 ;; ([?\s-w] . exwm-workspace-switch)
-                                 ;; ([?\s-k] . exwm-workspace-delete)
-                                 ;; ([?\s-a] . exwm-workspace-swap)
+                                 ([?\s-d] . exwm-floating-toggle-floating)
+                                 ([?\s-m] . exwm-layout-toggle-fullscreen)
 
                                  ;; create and switch to workspaces
                                  ,@(mapcar (lambda (i)
@@ -3235,6 +3264,10 @@ to this definition.
                       (truncate-string-to-width
                        (concat exwm-class-name "|" exwm-title) 32)))))
 
+        (add-hook 'exwm-randr-screen-change-hook
+                  (lambda ()
+                    (start-process-shell-command
+                     "randr" nil eos-xrandr-command)))
        #+END_SRC
 
 ****** Enable
@@ -3242,50 +3275,12 @@ to this definition.
        #+BEGIN_SRC emacs-lisp
 
        ;; enable exwm if graphic display is non-nil
-       ;; (add-hook 'after-init-hook
-       ;;                 (lambda ()
-       ;;                   (when (display-graphic-p)
-       ;;                     (safe-funcall 'exwm-enable))))
-
-       #+END_SRC
-
-***** Exwm-randr
-
-      This module adds Randr support for EXWM.
-      Currently it requires external tools such as xrandr(1)
-      to properly configure Randr first.
-
-****** Require
-
-       #+BEGIN_SRC emacs-lisp
-
-       ;; (require 'exwm-randr nil t)
-
-       #+END_SRC
-
-****** Customize
-
-       #+BEGIN_SRC emacs-lisp
-
-       ;; monitors: check the xrandr(1) output and use the same name/order
-       ;; TODO: create a func that retrieves these values from xrandr
-
-       ;; (customize-set-variable
-       ;;  'exwm-randr-workspace-monitor-plist '(0 "eDP-1"
-       ;;                                        1 "HDMI-1"))
-
-       (customize-set-variable 'exwm-workspace-number
-                               (if (boundp 'exwm-randr-workspace-monitor-plist)
-                                   (/ (safe-length exwm-randr-workspace-monitor-plist) 2)
-                                 1))
-
-       #+END_SRC
-
-****** Enable
-
-       #+BEGIN_SRC emacs-lisp
-
-       ;; (exwm-randr-enable)
+       (when (and (display-graphic-p)
+                  (require 'exwm nil t)
+                  (require 'exwm-randr nil t))
+           (progn
+             (exwm-enable)
+             (exwm-randr-enable)))
 
        #+END_SRC
 
@@ -3584,7 +3579,7 @@ to this definition.
        #+BEGIN_SRC emacs-lisp
 
        ;; clt-x-map (C-x) prefix
-       (define-key ctl-x-map (kbd "C-x") 'multi-term-dedicated-toggle)
+       (define-key ctl-x-map (kbd "RET") 'multi-term-dedicated-toggle)
 
        #+END_SRC
 
@@ -3626,8 +3621,6 @@ to this definition.
 
       #+END_SRC
 
-*** Session
-**** Desktop
 *** Clocks
 **** Time
 
@@ -3714,34 +3707,11 @@ to this definition.
                    (concat user-emacs-directory "themes"))
 
       ;; load theme
-      (load-theme 'moebius-sun t)
+      (load-theme 'moebius-glass t)
 
       #+END_SRC
 
 *** Buffers
-**** Buffer-move
-
-     Swap windows/buffer position (layout).
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'buffer-move nil t)
-
-      #+END_SRC
-
-***** Binds
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (define-key ctl-x-map (kbd "<C-up>") 'buf-move-up)
-      ;; (define-key ctl-x-map (kbd "<C-down>") 'buf-move-down)
-      ;; (define-key ctl-x-map (kbd "<C-left>") 'buf-move-left)
-      ;; (define-key ctl-x-map (kbd "<C-right>")'buf-move-right)
-
-      #+END_SRC
-
 **** Ibuffer
 
      A major mode for viewing a list of buffers.
@@ -3856,7 +3826,18 @@ to this definition.
                 ("Planner" (or
                             (name . "^\\*Calendar\\*$")
                             (name . "^diary$")
-                            (mode . muse-mode)))))))
+                            (mode . muse-mode)))
+
+                ("Dev" (or
+                        (mode . prog-mode)
+                        (mode . c-mode)
+                        (mode . c++-mode)
+                        (mode . emacs-lisp-mode)
+                        (mode . web-mode)
+                        (mode . js-mode)))
+
+                ("IRC" (or
+                        (mode . erc-mode)))))))
 
       #+END_SRC
 
@@ -3876,7 +3857,7 @@ to this definition.
 
       #+BEGIN_SRC emacs-lisp
 
-      ;; (define-key ctl-x-map (kbd "b") 'ibuffer)
+      (define-key ctl-x-map (kbd "b") 'ibuffer)
 
       #+END_SRC
 
@@ -3968,28 +3949,6 @@ to this definition.
 
       #+END_SRC
 
-**** EditorConfig
-
-     EditorConfig helps developers define and maintain consistent
-     coding styles between different editors and IDEs.
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'editorconfig nil t)
-
-      #+END_SRC
-
-***** Enable
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (safe-funcall 'editorconfig-mode 1)
-
-      #+END_SRC
-
-**** Browse-kill-ring
 *** Graphics
 **** Artist
 
@@ -4434,7 +4393,7 @@ to this definition.
       #+BEGIN_SRC emacs-lisp
 
       ;; the name of the browser program used by ‘browse-url-generic’.
-      (customize-set-variable 'browse-url-generic-program "eww")
+      (customize-set-variable 'browse-url-generic-program "chrome")
 
       ;; function to display the current buffer in a WWW browser: eww
       (customize-set-variable 'browse-url-browser-function 'eww-browse-url)
@@ -4743,7 +4702,7 @@ to this definition.
       #+BEGIN_SRC emacs-lisp
 
       ;; clt-x-map (C-x) prefix
-      (define-key ctl-x-map (kbd "C-l") 'cannon-launch)
+      (define-key ctl-x-map (kbd "x") 'cannon-launch)
 
       #+END_SRC
 
@@ -4843,7 +4802,6 @@ to this definition.
 
       #+END_SRC
 
-**** Mentor
 *** Interpreters
 
     Generic interpreter interface configurations and customization,
@@ -4878,7 +4836,7 @@ to this definition.
       ;; (customize-set-variable 'comint-prompt-regexp ".*:.*>.*? ")
 
       ;; value to use for TERM when the system uses terminfo.
-      (customize-set-variable 'comint-terminfo-terminal "eterm-color")
+      (customize-set-variable 'comint-terminfo-terminal "xterm-color")
 
       #+END_SRC
 
@@ -4935,40 +4893,7 @@ to this definition.
 
       #+END_SRC
 
-*** Compositor
-**** Compton
-
-     Compton is a compositor based on Dana Jansens' version of xcompmgr
-     (which itself was written by Keith Packard). It includes some
-     improvements over the original xcompmgr, like window frame opacity and
-     inactive window transparency.
-
-     Start compton after emacs initialize (late time decision), put
-     this at =~/.xinitrc=.
-
-***** Hooks
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; start compton after emacs initialize
-      ;; (add-hook 'after-init-hook
-      ;;           (lambda ()
-      ;;             (safe-start-process "compton" "compton" "-b")))
-
-      #+END_SRC
-
-*** Calculators
-**** Calc
 *** Controllers
-**** Slock
-***** Binds
-
-      #+BEGIN_SRC emacs-lisp
-
-      (define-key ctl-x-map (kbd "<end>") 'lock-screen)
-
-      #+END_SRC
-
 **** Scrot
 ***** Binds
 
@@ -5516,18 +5441,18 @@ to this definition.
         ;; html to put in the <head> of each page.
         (customize-set-variable
          'org-static-blog-page-header
-         (org-static-blog--insert-html "~/core/dev/hidden-ones/html/header.html"))
+         (org-static-blog--insert-html "~/work/mine/blog/html/header.html"))
 
         ;; html to put before the content of each page.
         (customize-set-variable
          'org-static-blog-page-preamble
-         (org-static-blog--insert-html "~/core/dev/hidden-ones/html/preamble.html"))
+         (org-static-blog--insert-html "~/work/mine/blog/html/preamble.html"))
 
         ;; html to put after the content of each page.
         (customize-set-variable
          'org-static-blog-page-postamble
          (format
-          (org-static-blog--insert-html "~/core/dev/hidden-ones/html/postamble.html")
+          (org-static-blog--insert-html "~/work/mine/blog/html/postamble.html")
           (org-version))))
 
       (defun org-static-blog-update ()
@@ -6176,54 +6101,6 @@ to this definition.
       #+END_SRC
 
 *** Debugging
-**** Gud
-
-     The GUD (Grand Unified Debugger) library provides an Emacs interface to
-     a wide variety of symbolic debuggers.  It can run the GNU Debugger
-     (GDB), as well as DBX, SDB, XDB, Guile REPL debug commands, Perl’s
-     debugging mode, the Python debugger PDB, and the Java Debugger
-     JDB.
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'gud nil t)
-
-      #+END_SRC
-
-***** Customize
-
-      #+BEGIN_SRC emacs-lisp
-
-      #+END_SRC
-
-**** Gdb-mi
-
-     This mode acts as a graphical user interface to GDB.  You can interact with
-     GDB through the GUD buffer in the usual way, but there are also further
-     buffers which control the execution and describe the state of your program.
-     It separates the input/output of your program from that of GDB and displays
-     expressions and their current values in their own buffers.  It also uses
-     features such as the fringe/display margin for breakpoints, and
-     the toolbar (see the GDB Graphical Interface section in the Emacs info
-     manual).
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'gdb-mi nil t)
-
-      #+END_SRC
-
-***** Customize
-
-      #+BEGIN_SRC emacs-lisp
-
-      #+END_SRC
-
-**** Realgud
 **** Rmsbolt
 
      A compiler output viewer.
@@ -6251,41 +6128,7 @@ to this definition.
 
       #+END_SRC
 
-*** Testing
-**** Ert
-*** Building
-**** Cmake-ide
-
-     This package runs CMake and sets variables for IDE-like functionality
-     provided by other packages such as:
-     On the fly syntax checks with flycheck
-     auto-completion using auto-complete-clang or company-clang.
-     Jump to definition and refactoring with rtags.
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'cmake-ide nil t)
-
-      #+END_SRC
-
-***** Hooks
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (add-hook 'c-mode-hook 'cmake-ide-setup)
-      ;; (add-hook 'c++-mode-hook 'cmake-ide-setup)
-
-      #+END_SRC
-
 *** Compilation
-**** Auto-compile
-
-     This package provides two minor modes which automatically
-     recompile Emacs Lisp source files. Together these modes guarantee
-     that Emacs never loads outdated byte code files. (Research)
-
 **** Compile
 
      Emacs can run compilers for languages such as C and Fortran, feeding the
@@ -6370,19 +6213,6 @@ to this definition.
       #+END_SRC
 
 *** Projects
-**** Ede
-
-     EDE is the top level Lisp interface to a
-     project management scheme for Emacs.
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'ede nil t)
-
-      #+END_SRC
-
 **** Projectile
 
      This package provides easy project management and navigation.
@@ -6452,7 +6282,6 @@ to this definition.
 
       #+END_SRC
 
-*** Containers
 *** Misc
 **** Speedbar
 
@@ -6963,22 +6792,6 @@ to this definition.
       #+END_SRC
 
 **** Alchemist
-*** R
-**** Ess-r-mode
-
-     Major mode for editing R source.
-
-     This package defines all the R customizations for ESS.
-     See ess-s-lang.el for general S language customizations.
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'ess-r-mode nil t)
-
-      #+END_SRC
-
 *** C/C++
 **** Cmacexp
 
@@ -7050,15 +6863,6 @@ to this definition.
       (define-key vlm-rtags-map (kbd "c") 'rtags-compile-file)
       (define-key vlm-rtags-map (kbd "-") 'rtags-compilation-flags)
       (define-key vlm-rtags-map (kbd ".") 'rtags-find-functions-called-by-this-function)
-
-      #+END_SRC
-
-**** Company-rtags
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'company-rtags nil t)
 
       #+END_SRC
 
@@ -7163,34 +6967,6 @@ to this definition.
 
       #+END_SRC
 
-**** Company-c-headers
-
-     This library enables the completion of C/C++ header file names
-     using Company mode for Emacs.
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'company-c-headers nil t)
-
-      #+END_SRC
-
-*** C#
-**** Csharp-mode
-
-     This is a major mode for editing C# files.
-     It performs automatic indentation of C# syntax;
-     font locking; and integration with imenu.el.
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'csharp-mode nil t)
-
-      #+END_SRC
-
 *** Go
 **** Go-mode
 
@@ -7249,19 +7025,6 @@ to this definition.
       #+END_SRC
 
 *** Sh
-**** Company-shell
-
-     Backend for company mode to complete environment variables, binaries found
-     on your $PATH and fish shell functions.
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'company-shell nil t)
-
-      #+END_SRC
-
 **** Sh-script
 
      Major mode for editing shell scripts. Bourne, C and rc shells as well
@@ -7421,32 +7184,6 @@ to this definition.
 
       #+END_SRC
 
-*** Tcl
-**** Tcl
-
-     Major mode for editing Tcl files.
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'tcl nil t)
-
-      #+END_SRC
-
-*** Perl
-**** Cperl-mode
-
-     Major mode for editing Perl files.
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'cperl-mode nil t)
-
-      #+END_SRC
-
 *** Python
 **** Python
 
@@ -7517,61 +7254,6 @@ to this definition.
 
                   ;; set dash docsets
                   (vlm-set-dash-docset '"Python 3")))
-
-      #+END_SRC
-
-*** Julia
-**** Julia-mode
-
-     Major mode for editing julia code. This is the official Emacs
-     mode for editing Julia programs.
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'julia-mode nil t)
-
-      #+END_SRC
-
-**** Ess-julia
-***** Require
-
-      Major mode for editing julia files.
-
-      Customize inferior-julia-program to point to your julia binary
-      and start the inferior interpreter with M-x julia.
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'ess-julia nil t)
-
-      #+END_SRC
-
-*** Vhdl
-**** Vhdl-mode
-
-     Major mode for editing VHDL files.
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'vhdl-mode nil t)
-
-      #+END_SRC
-
-*** Verilog
-**** Verilog
-
-     A major mode for editing Verilog and SystemVerilog HDL source code (IEEE
-     1364-2005 and IEEE 1800-2012 standards).
-
-***** Require
-
-      #+BEGIN_SRC emacs-lisp
-
-      ;; (require 'verilog nil t)
 
       #+END_SRC
 
@@ -7677,64 +7359,7 @@ to this definition.
 
      #+BEGIN_SRC emacs-lisp
 
-     ;; unbind
-     ;; (define-key ctl-x-map (kbd "C-SPC") nil)
-     ;; (define-key ctl-x-map (kbd "C-=") nil)
-     ;; (define-key ctl-x-map (kbd "C-0") nil)
-     ;; (define-key ctl-x-map (kbd "C--") nil)
-     ;; (define-key ctl-x-map (kbd "ESC") nil)
-     ;; (define-key ctl-x-map (kbd ".") nil)
-     ;; (define-key ctl-x-map (kbd "C-l") nil)
-     ;; (define-key ctl-x-map (kbd "C-x") nil)
-     ;; (define-key ctl-x-map (kbd "C-<left>") nil)
-     ;; (define-key ctl-x-map (kbd "C-<right>") nil)
-     ;; (define-key ctl-x-map (kbd "C-<up>") nil)
-     ;; (define-key ctl-x-map (kbd "C-<down>") nil)
-     (define-key ctl-x-map (kbd "<right>") nil)
-     (define-key ctl-x-map (kbd "<left>") nil)
-
-     ;; (define-key ctl-x-map (kbd "C-d") nil)
      (define-key ctl-x-map (kbd "C-o") nil)
-     ;; (define-key ctl-x-map (kbd "C-c") nil)
-     (define-key ctl-x-map (kbd "C-j") nil)
-     (define-key ctl-x-map (kbd "C-+") nil)
-     (define-key ctl-x-map (kbd "C-a") nil)
-     (define-key ctl-x-map (kbd "C-r") nil)
-     (define-key ctl-x-map (kbd "C-n") nil)
-     (define-key ctl-x-map (kbd "C-z") nil)
-     (define-key ctl-x-map (kbd "C-p") nil)
-     (define-key ctl-x-map (kbd "C-h") nil)
-     ;; (define-key ctl-x-map (kbd "C-u") nil)
-     (define-key ctl-x-map (kbd "C-\@") nil)
-     (define-key ctl-x-map (kbd "M-:") nil)
-
-     (define-key ctl-x-map (kbd "RET") nil)
-     (define-key ctl-x-map (kbd "`") nil)
-     (define-key ctl-x-map (kbd "]") nil)
-     ;; (define-key ctl-x-map (kbd "[") nil)
-     (define-key ctl-x-map (kbd ")") nil)
-     (define-key ctl-x-map (kbd "(") nil)
-     (define-key ctl-x-map (kbd "<") nil)
-     (define-key ctl-x-map (kbd ">") nil)
-     (define-key ctl-x-map (kbd "\@") nil)
-     (define-key ctl-x-map (kbd "-") nil)
-     (define-key ctl-x-map (kbd ";") nil)
-     (define-key ctl-x-map (kbd "#") nil)
-     (define-key ctl-x-map (kbd "*") nil)
-     (define-key ctl-x-map (kbd "'") nil)
-     (define-key ctl-x-map (kbd "$") nil)
-     (define-key ctl-x-map (kbd "{") nil)
-     (define-key ctl-x-map (kbd "}") nil)
-     (define-key ctl-x-map (kbd "^") nil)
-     ;; (define-key ctl-x-map (kbd "n") nil)
-     ;; (define-key ctl-x-map (kbd "f") nil)
-     ;; (define-key ctl-x-map (kbd "a") nil)
-     ;; (define-key ctl-x-map (kbd "v") nil)
-     (define-key ctl-x-map (kbd "h") nil)
-     (define-key ctl-x-map (kbd "d") nil)
-     (define-key ctl-x-map (kbd "x") nil)
-     (define-key ctl-x-map (kbd "X") nil)
-     ;; (define-key ctl-x-map (kbd "8") nil)
 
      #+END_SRC
 
@@ -7758,13 +7383,11 @@ to this definition.
 
      ;; unset
      (global-unset-key (kbd "C-z"))
-     (global-unset-key (kbd "C-@"))
      (global-unset-key (kbd "C-\\"))
      (global-unset-key (kbd "C-_"))
      ;;(global-unset-key (kbd "M-l"))
      ;; (global-unset-key (kbd "M-h"))
      ;; (global-unset-key (kbd "M-\\"))
-     (global-unset-key (kbd "M-$"))
      (global-unset-key (kbd "M-("))
      (global-unset-key (kbd "M-)"))
      ;; (global-unset-key (kbd "M-r"))
@@ -7811,69 +7434,11 @@ to this definition.
      (global-unset-key (kbd "<C-f10>"))
      (global-unset-key (kbd "<M-f10>"))
 
-     (global-unset-key (kbd "<bottom-divider>"))
-     (global-unset-key (kbd "<bottom-edge>"))
-     (global-unset-key (kbd "<bottom-left-corner>"))
-     (global-unset-key (kbd "<bottom-right-corner>"))
-
-     (global-unset-key (kbd "<horizontal-scroll-bar>"))
-     (global-unset-key (kbd "<vertical-scroll-bar>"))
-
-     (global-unset-key (kbd "<left-edge>"))
-     (global-unset-key (kbd "<right-edge>"))
-
-     (global-unset-key (kbd "<undo>"))
-     (global-unset-key (kbd "<find>"))
-     (global-unset-key (kbd "<help>"))
-     (global-unset-key (kbd "<open>"))
-     (global-unset-key (kbd "<again>"))
-     (global-unset-key (kbd "<menu>"))
-     (global-unset-key (kbd "<header-line>"))
-     (global-unset-key (kbd "<mode-line>"))
-
-     (global-unset-key (kbd "<XF86Back>"))
-     (global-unset-key (kbd "<XF86Forward>"))
-     (global-unset-key (kbd "<XF86WakeUp>"))
-
-     (global-unset-key (kbd "<top-edge>"))
-     (global-unset-key (kbd "<top-left-corner>"))
-     (global-unset-key (kbd "<top-right-corner>"))
-
-     (global-unset-key (kbd "<mouse-1>"))
-     (global-unset-key (kbd "<mouse-2>"))
-     (global-unset-key (kbd "<mouse-3>"))
-     (global-unset-key (kbd "<mouse-4>"))
-     (global-unset-key (kbd "<mouse-5>"))
-     (global-unset-key (kbd "<mouse-6>"))
-     (global-unset-key (kbd "<mouse-7>"))
-
-     (global-unset-key (kbd "<right-divider>"))
-     (global-unset-key (kbd "<vertical-line>"))
-
      (global-unset-key (kbd "<f10>"))
      (global-unset-key (kbd "<f11>"))
      (global-unset-key (kbd "<f16>"))
      (global-unset-key (kbd "<f18>"))
      (global-unset-key (kbd "<f20>"))
-
-     (global-unset-key (kbd "<drag-mouse-1>"))
-     (global-unset-key (kbd "<C-mouse-4>"))
-     (global-unset-key (kbd "<C-mouse-5>"))
-     (global-unset-key (kbd "<C-mouse-6>"))
-     (global-unset-key (kbd "<C-mouse-7>"))
-     (global-unset-key (kbd "<M-mouse-1>"))
-     (global-unset-key (kbd "<M-mouse-2>"))
-     (global-unset-key (kbd "<M-mouse-3>"))
-     (global-unset-key (kbd "<S-mouse-3>"))
-     (global-unset-key (kbd "<S-mouse-4>"))
-     (global-unset-key (kbd "<S-mouse-5>"))
-     (global-unset-key (kbd "<S-mouse-6>"))
-     (global-unset-key (kbd "<S-mouse-7>"))
-     (global-unset-key (kbd "<C-down-mouse-1>"))
-     (global-unset-key (kbd "<C-down-mouse-2>"))
-     (global-unset-key (kbd "<M-down-mouse-1>"))
-     (global-unset-key (kbd "<M-drag-mouse-1>"))
-     (global-unset-key (kbd "<S-down-mouse-1>"))
 
      #+END_SRC
 
