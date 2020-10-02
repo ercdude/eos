@@ -3127,8 +3127,8 @@ q**** Dired
 
    (defvar eos-xrandr-command
      (format "xrandr --output %s --right-of %s"
-             eos-xrandr-right-screen
-             eos-xrandr-left-screen)
+             eos-xrandr-left-screen
+             eos-xrandr-right-screen)
      "Defines the screen located at right side")
 
 

@@ -1,0 +1,6 @@
+[submodule "lisp/rfc-docs"]
+	path = lisp/rfc-docs
+	url = git@github.com:esac-io/rfc-docs.git
+[submodule "lisp/dash-docs"]
+	path = lisp/dash-docs
+	url = git@github.com:esac-io/dash-docs.git
