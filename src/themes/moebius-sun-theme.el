@@ -165,6 +165,7 @@
 
     ;; Compilation
     `(compilation-info ((,class (:foreground ,fg-green :weight normal))))
+    `(compilation-mode-line-fail ((,class (:foreground ,fg-red :weight normal))))
     `(compilation-mode-line-exit ((,class (:inherit compilation-info :foreground ,fg-green :weight bold))))
 
     ;; CSS
@@ -229,6 +230,9 @@
     `(dired-header ((,class (:foreground ,fg-turquoise :weight bold :inherit unspecified))))
     `(dired-mark ((,class (:foreground ,fg-pink :inherit unspecified))))
     `(dired-marked ((,class (:inherit nil :background ,bg-magenta :foreground ,fg-bright))))
+    `(dired-async-message ((,class (:foreground ,fg-cyan))))
+    `(dired-async-failures ((,class (:foreground ,fg-red))))
+    `(dired-async-mode-message ((,class (:foreground ,fg-orange))))
 
     ;; Dictionary
     ;; dictionary-button-face                    white
@@ -237,6 +241,12 @@
     ;; dictionary-word-entry-face                gray (italic)
     `(diary ((,class (:inherit nil :background nil :foreground ,fg-red))))
     `(dictionary-reference-face ((,class (:inherit nil :background nil :foreground ,fg-orange))))
+
+    ;; Emms
+    `(emms-metaplaylist-mode-current-face ((,class (:foreground ,fg-blue))))
+    `(emms-metaplaylist-mode-face ((,class (:foreground ,fg-red))))
+    `(emms-playlist-selected-face ((,class (:foreground ,fg-blue))))
+    `(emms-playlist-track-face ((,class (:foreground ,fg-default))))
 
     ;; Ediff
     `(ediff-current-diff-A ((,class (:inherit diff-removed))))
@@ -532,6 +542,15 @@
     `(rst-level-5 ((,class (:background unspecified))))
     `(rst-level-6 ((,class (:background unspecified))))
 
+    ;; RCIRC
+    `(rcirc-my-nick ((,class (:foreground ,fg-blue))))
+    `(rcirc-nick-in-message ((,class (:foreground ,fg-orange))))
+    `(rcirc-nick-in-message-full-line ((,class (:foreground ,fg-default))))
+    `(rcirc-other-nick ((,class (:foreground ,fg-cyan))))
+    `(rcirc-prompt ((,class (:foreground ,fg-default))))
+    `(rcirc-server ((,class (:foreground ,fg-pink))))
+    `(rcirc-server-prefix ((,class (:foreground ,fg-default))))
+
     ;; Sh
     `(sh-escaped-newline ((,class (:foreground ,fg-purple :inherit unspecified :weight bold))))
     `(sh-heredoc ((,class (:foreground ,fg-green))))
@@ -600,9 +619,8 @@
     `(whitespace-big-indent ((,class (:background ,bg-red :foreground ,fg-gray))))
     `(whitespace-line ((,class (:background ,bg-red :foreground ,fg-black))))
 
-    ;; yas
-    ;; yas--field-debug-face
-    `(yas-field-highlight-face ((,class (:background ,bg-black :foreground ,fg-blue))))
+    ;; Yasnippet
+    `(yas-field-highlight-face ((,class (:background ,bg-shadow :foreground ,bg-yellow))))
 
     ;; Widget
     `(widget-button ((,class (:inherit button))))

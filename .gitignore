@@ -87,7 +87,7 @@ GTAGS
 .projectile
 
 # dir-locals
-.dir-locals.el
+# .dir-locals.el
 
 # editorconfig
 .editorconfig
@@ -99,12 +99,6 @@ history
 .demo
 .backup
 .org
-
-# Cask dir
-.cask
-
-# Cask file
-Cask
 
 # Emacs Packages directories
 tutorial
@@ -132,14 +126,13 @@ docsets
 site-lisp
 cedet-git
 todo
-lisp
+#lisp
 backup
 blog
 nsm
 
 # Emacs private/custom elisp files
+cannon
 custom.el
 private.el
-trash.el
 init.el
-eos.el

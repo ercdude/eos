@@ -1,55 +1,52 @@
 # Emacs invocation
-EMACS_COMMAND := emacs
+# Don't load an init file: -q
+# Avoid processing X resources: -Q
+# Send messages to stderr: --batch
+EMACS = emacs -Q -q --batch
 
-# do not load an init file: -q
-# avoid processing X resources: -Q
-# send messages to stderr: --batch
-EMACS := $(EMACS_COMMAND) -Q -q --batch
+# Remove command
+RM = rm -f
 
-EVAL   := $(EMACS) --eval
-SCRIPT := $(EMACS) --script
+# Define Compile Command (CC)
+# Call batch-byte-compile function: -f
+CC := -f batch-byte-compile
 
-VEX       := ~/.emacs.d/lisp/vex
-ASYNC     := ~/.emacs.d/site-lisp/async-20200113.1745
-XELB      := ~/.emacs.d/site-lisp/xelb-20190914.0
-EXWM      := ~/.emacs.d/site-lisp/exwm-20200329.0
-DASH      := ~/.emacs.d/site-lisp/dash-20200119.2310
-DASH-DOCS := ~/.emacs.d/site-lisp/dash-docs-20190516.1702
-COMPANY   := ~/.emacs.d/site-lisp/company-20200324.2145
-FLYCHECK  := ~/.emacs.d/site-lisp/flycheck-20200405.2310
+# Define eval and script commands
+EC := --eval
+SC := --script
 
-# Additional emacs loadpath
-LOADPATH := -L $(VEX) \
-		-L $(ASYNC) \
-		-L $(DASH) \
-		-L $(XELB) \
-		-L $(EXWM) \
-		-L $(DASH-DOCS) \
-		-L $(FLYCHECK) \
-		-L $(COMPANY)
+# Tangle script
+TANGLE_SCRIPT = tangle.el
 
-# Scritps to eval
-TANGLE			:= tangle.el
+# Init script
+INIT_SCRIPT = init.el
 
-# Files to compile
-INIT			:= init.el
+# Elisp auxiliary source files
+EL := tangle.el early-init.el
 
-# Compiled files
-ELC			:= $(EL:.el=.elc)
+# Source-Compiled files mapping
+ELC := $(EL:.el=.elc)
 
-.PHONY: all
+# Translate lisp (.el) in byte compiled (.elc) files
+$(ELC): $(EL)
+	${EMACS} ${CC} ${.ALLSRC}
 
+# Run tangle script (org related)
+# the script will tangle the source code blocks from vlm.org
+# to compose the init.el final script
 tangle:
-	$(SCRIPT) $(TANGLE)
+	${EMACS} ${SC} ${TANGLE_SCRIPT}
 
-# Compile all files at once
-batch-compile:
-	$(EMACS) $(LOADPATH) -f batch-byte-compile $(INIT)
+# Compile generated init.el final generated script
+init:
+	${EMACS} ${CC} ${INIT_SCRIPT}
 
-all: tangle batch-compile
+# Entry point
+all: tangle init compile
 
-$(ELC): %.elc: %.el
-	$(EMACS) $(LOADPATH) -f batch-byte-compile $<
-
-# Compile needed files
+# Compile *.el files
 compile: $(ELC)
+
+# Remove all byte compiled files
+clean:
+	${RM} *.elc
