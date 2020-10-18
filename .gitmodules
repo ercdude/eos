@@ -5,3 +5,21 @@
 [submodule "src/lisp/dash-docs"]
 	path = src/lisp/dash-docs
 	url = git@github.com:esac-io/dash-docs.git
+[submodule "src/lisp/magit"]
+	path = src/lisp/magit
+	url = https://github.com/magit/magit.git
+[submodule "src/lisp/cannon"]
+	path = src/lisp/cannon
+	url = https://github.com/esac-io/cannon
+[submodule "src/lisp/exwm"]
+	path = src/lisp/exwm
+	url = https://github.com/ch11ng/exwm
+[submodule "src/lisp/xelb"]
+	path = src/lisp/xelb
+	url = https://github.com/ch11ng/xelb
+[submodule "src/lisp/browse-kill-ring"]
+	path = src/lisp/browse-kill-ring
+	url = https://github.com/browse-kill-ring/browse-kill-ring.git
+[submodule "src/lisp/lex"]
+	path = src/lisp/lex
+	url = https://github.com/esac-io/lex

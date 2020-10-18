@@ -1914,7 +1914,7 @@ q**** Dired
 
       ;; list of category-specific user overrides for completion styles.
       (customize-set-variable 'completion-category-overrides nil)
-      ;; '((file (styles initials basic))
+      ;; '(file (styles initials basic))
       ;;   (buffer (styles initials basic))
       ;;   (info-menu (styles basic))))
 
