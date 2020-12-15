@@ -616,8 +616,8 @@ to this definition.
 
       #+BEGIN_SRC emacs-lisp
 
-      ;; set tramp default method
-      (customize-set-variable 'tramp-default-method "ssh")
+      ;; set tramp default method for file transfer
+      ;; (customize-set-variable 'tramp-default-method "ssh")
 
       ;; if non-nil, chunksize for sending input to local process.
       ;; (customize-set-variable 'tramp-chunksize 512)
@@ -1091,6 +1091,14 @@ to this definition.
 
    Basically the 'C' (core) system.
 
+*** iso-transl
+
+    Used to avoid undefined with accented characters, like tilde(~).
+
+    #+BEGIN_SRC elisp
+    (require 'iso-transl)
+    #+END_SRC
+
 *** Files
 
     A computer file is a computer resource for recording data
@@ -1373,15 +1381,15 @@ to this definition.
 
       #+END_SRC
 
-q**** Dired
+      q**** Dired
 
-     This is a major mode for file management operations.
+      This is a major mode for file management operations.
 
-     The most common operations performed on files or groups of files
-     include creating, opening (e.g. viewing, playing, editing or
-     printing), renaming, moving or copying, deleting and searching
-     for files, as well as modifying file attributes, properties and
-     file permissions.
+      The most common operations performed on files or groups of files
+      include creating, opening (e.g. viewing, playing, editing or
+      printing), renaming, moving or copying, deleting and searching
+      for files, as well as modifying file attributes, properties and
+      file permissions.
 
 ***** Require
 
@@ -2417,6 +2425,18 @@ q**** Dired
 
       #+END_SRC
 
+*** Bell
+
+    Force visible-bell to nill, avoiding anoiyng sounds. And sets
+    ring-bell-function to a lambda that inverts the face of modeline.
+
+    #+BEGIN_SRC elisp
+    (setq visible-bell nil
+          ring-bell-function '(lambda ()
+                                (invert-face 'mode-line)
+                                (run-with-timer 0.01 nil #'invert-face 'mode-line)))
+    #+END_SRC
+
 *** Editing
 **** Indent
 
@@ -3119,17 +3139,17 @@ q**** Dired
 
        #+BEGIN_SRC emacs-lisp
 
-   (defvar eos-xrandr-right-screen "eDP-1"
-     "Defines the screen located at right side")
+       (defvar eos-xrandr-right-screen "eDP-1"
+         "Defines the screen located at right side")
 
-   (defvar eos-xrandr-left-screen "HDMI-1"
-     "Defines the screen located at right side")
+       (defvar eos-xrandr-left-screen "HDMI-1"
+         "Defines the screen located at right side")
 
-   (defvar eos-xrandr-command
-     (format "xrandr --output %s --right-of %s"
-             eos-xrandr-left-screen
-             eos-xrandr-right-screen)
-     "Defines the screen located at right side")
+       (defvar eos-xrandr-command
+         (format "xrandr --output %s --right-of %s"
+                 eos-xrandr-right-screen
+                 eos-xrandr-left-screen)
+         "Defines the screen located at right side")
 
 
        #+END_SRC
@@ -3143,8 +3163,8 @@ q**** Dired
 
        (customize-set-variable
         'exwm-randr-workspace-monitor-plist '(0 "eDP-1"
-                                              1 "HDMI-1"
-                                              2 "HDMI-1"))
+                                                1 "HDMI-1"
+                                                2 "HDMI-1"))
 
        (customize-set-variable 'exwm-workspace-number
                                (if (boundp 'exwm-randr-workspace-monitor-plist)
@@ -3264,10 +3284,10 @@ q**** Dired
                       (truncate-string-to-width
                        (concat exwm-class-name "|" exwm-title) 32)))))
 
-        (add-hook 'exwm-randr-screen-change-hook
-                  (lambda ()
-                    (start-process-shell-command
-                     "randr" nil eos-xrandr-command)))
+       (add-hook 'exwm-randr-screen-change-hook
+                 (lambda ()
+                   (start-process-shell-command
+                    "randr" nil eos-xrandr-command)))
        #+END_SRC
 
 ****** Enable
@@ -3278,9 +3298,9 @@ q**** Dired
        (when (and (display-graphic-p)
                   (require 'exwm nil t)
                   (require 'exwm-randr nil t))
-           (progn
-             (exwm-enable)
-             (exwm-randr-enable)))
+         (progn
+           (exwm-enable)
+           (exwm-randr-enable)))
 
        #+END_SRC
 
@@ -5035,7 +5055,7 @@ q**** Dired
           (unless buffer
             (setq buffer (generate-new-buffer "*dashboard*")))
           (funcall 'dashboard-insert-startupify-lists)
-          (funcall 'dashboard-refresh-buffer)))
+          (safe-funcall 'dashboard-refresh-buffer)))
 
       (defun vlm-dashboard-insert-footer ()
         "Insert dashboard-footer message."
@@ -5063,7 +5083,7 @@ q**** Dired
 
       #+BEGIN_SRC emacs-lisp
 
-      (add-hook 'after-init-hook 'vlm-initialize-dashboard)
+      ;;(add-hook 'after-init-hook 'vlm-initialize-dashboard)
 
       #+END_SRC
 
@@ -5677,6 +5697,8 @@ q**** Dired
 
       #+BEGIN_SRC emacs-lisp
 
+      (define-key vlm-docs-map (kbd "r") 'rfc-docs-find-file)
+
       ;; the directory where RFC documents are stored
       (customize-set-variable
        'rfc-docs-directory
@@ -5901,7 +5923,7 @@ q**** Dired
         "Company (complete anything (in-buffer)) or indent."
         (interactive)
         (cond ((looking-at "\\_>")
-               (funcall 'company-complete-common))
+               (safe-funcall 'company-complete-common))
               (t (indent-according-to-mode))))
 
       #+END_SRC
@@ -6054,7 +6076,9 @@ q**** Dired
       #+BEGIN_SRC emacs-lisp
 
       (define-key vlm-tags-map (kbd "s") 'tags-search)
-      (define-key vlm-tags-map (kbd "r") 'tags-query-replace)
+      (define-key vlm-tags-map (kbd "r") 'xref-find-references)
+      (define-key vlm-tags-map (kbd "a") 'xref-find-apropos)
+      (define-key vlm-tags-map (kbd "R") 'tags-query-replace)
       (define-key vlm-tags-map (kbd "f") 'find-tag)
       (define-key vlm-tags-map (kbd "l") 'list-tags)
       (define-key vlm-tags-map (kbd "v") 'visit-tags-table)
@@ -6309,6 +6333,13 @@ q**** Dired
 
       #+END_SRC
 
+*** Wallpaper
+
+    #+BEGIN_SRC emacs-lisp
+    (customize-set-variable 'wall-root-dir "~/images/bg/")
+    (customize-set-variable 'wall-debug-messages-flag t)
+    #+END_SRC
+
 ** Development
 *** Generic
 
@@ -6555,6 +6586,16 @@ q**** Dired
       (customize-set-variable 'lisp-body-indent 2)
 
       #+END_SRC
+
+*** Slime
+**** Customize
+
+     Setup sbcl lisp implementation (interpreter/compiler).
+
+     #+BEGIN_SRC emacs-lisp
+     (setq slime-lisp-implementations
+           '((sbcl ("/usr/local/bin/sbcl") :coding-system utf-8-unix)))
+     #+END_SRC
 
 *** Elisp
 **** Elisp-mode

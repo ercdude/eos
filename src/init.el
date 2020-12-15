@@ -230,8 +230,8 @@
 
 ;; (require 'tramp nil t)
 
-;; set tramp default method
-(customize-set-variable 'tramp-default-method "ssh")
+;; set tramp default method for file transfer
+;; (customize-set-variable 'tramp-default-method "ssh")
 
 ;; if non-nil, chunksize for sending input to local process.
 ;; (customize-set-variable 'tramp-chunksize 512)
@@ -1220,8 +1220,8 @@
 
 (defvar eos-xrandr-command
   (format "xrandr --output %s --right-of %s"
-          eos-xrandr-left-screen
-          eos-xrandr-right-screen)
+          eos-xrandr-right-screen
+          eos-xrandr-left-screen)
   "Defines the screen located at right side")
 
 ;; monitors: check the xrandr(1) output and use the same name/order
@@ -1229,8 +1229,8 @@
 
 (customize-set-variable
  'exwm-randr-workspace-monitor-plist '(0 "eDP-1"
-                                       1 "HDMI-1"
-                                       2 "HDMI-1"))
+                                         1 "HDMI-1"
+                                         2 "HDMI-1"))
 
 (customize-set-variable 'exwm-workspace-number
                         (if (boundp 'exwm-randr-workspace-monitor-plist)
@@ -1338,18 +1338,18 @@
                (truncate-string-to-width
                 (concat exwm-class-name "|" exwm-title) 32)))))
 
- (add-hook 'exwm-randr-screen-change-hook
-           (lambda ()
-             (start-process-shell-command
-              "randr" nil eos-xrandr-command)))
+(add-hook 'exwm-randr-screen-change-hook
+          (lambda ()
+            (start-process-shell-command
+             "randr" nil eos-xrandr-command)))
 
 ;; enable exwm if graphic display is non-nil
 (when (and (display-graphic-p)
            (require 'exwm nil t)
            (require 'exwm-randr nil t))
-    (progn
-      (exwm-enable)
-      (exwm-randr-enable)))
+  (progn
+    (exwm-enable)
+    (exwm-randr-enable)))
 
 ;; (require 'package nil t)
 
@@ -2160,7 +2160,7 @@ Only I will remain.")
     (unless buffer
       (setq buffer (generate-new-buffer "*dashboard*")))
     (funcall 'dashboard-insert-startupify-lists)
-    (funcall 'dashboard-refresh-buffer)))
+    (safe-funcall 'dashboard-refresh-buffer)))
 
 (defun vlm-dashboard-insert-footer ()
   "Insert dashboard-footer message."
@@ -2176,7 +2176,7 @@ Only I will remain.")
             (interactive)
             (vlm-dashboard-insert-footer)))
 
-(add-hook 'after-init-hook 'vlm-initialize-dashboard)
+;;(add-hook 'after-init-hook 'vlm-initialize-dashboard)
 
 ;; (require 'outline nil t)
 
@@ -2458,6 +2458,8 @@ Only I will remain.")
 
 ;; (require 'rfc-docs nil t)
 
+(define-key vlm-docs-map (kbd "r") 'rfc-docs-find-file)
+
 ;; the directory where RFC documents are stored
 (customize-set-variable
  'rfc-docs-directory
@@ -2584,7 +2586,7 @@ Only I will remain.")
   "Company (complete anything (in-buffer)) or indent."
   (interactive)
   (cond ((looking-at "\\_>")
-         (funcall 'company-complete-common))
+         (safe-funcall 'company-complete-common))
         (t (indent-according-to-mode))))
 
 ;; company-active-map
@@ -2643,7 +2645,9 @@ Only I will remain.")
 (customize-set-variable 'tags-case-fold-search t)
 
 (define-key vlm-tags-map (kbd "s") 'tags-search)
-(define-key vlm-tags-map (kbd "r") 'tags-query-replace)
+(define-key vlm-tags-map (kbd "r") 'xref-find-references)
+(define-key vlm-tags-map (kbd "a") 'xref-find-apropos)
+(define-key vlm-tags-map (kbd "R") 'tags-query-replace)
 (define-key vlm-tags-map (kbd "f") 'find-tag)
 (define-key vlm-tags-map (kbd "l") 'list-tags)
 (define-key vlm-tags-map (kbd "v") 'visit-tags-table)
@@ -2751,6 +2755,9 @@ Only I will remain.")
 ;; non-nil means use imenu for file parsing, nil to use etags
 (customize-set-variable 'speedbar-use-imenu-flag t)
 
+(customize-set-variable 'wall-root-dir "~/images/bg/")
+(customize-set-variable 'wall-debug-messages-flag t)
+
 ;; (require 'prog-mode nil t)
 
 (define-key prog-mode-map (kbd "C-M-i") 'complete-at-point-or-indent)
@@ -2820,6 +2827,9 @@ Only I will remain.")
 
 ;; number of columns to indent the second line of a (def...) form
 (customize-set-variable 'lisp-body-indent 2)
+
+(setq slime-lisp-implementations
+      '((sbcl ("/usr/local/bin/sbcl") :coding-system utf-8-unix)))
 
 ;; (require 'elisp-mode nil t)
 

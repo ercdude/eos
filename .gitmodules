@@ -23,3 +23,12 @@
 [submodule "src/lisp/lex"]
 	path = src/lisp/lex
 	url = https://github.com/esac-io/lex
+[submodule "src/lisp/rsync.el"]
+	path = src/lisp/rsync.el
+	url = https://github.com/esac-io/rsync.el.git
+[submodule "src/lisp/slime"]
+	path = src/lisp/slime
+	url = https://github.com/slime/slime.git
+[submodule "src/lisp/wall-el"]
+	path = src/lisp/wall-el
+	url = https://github.com/lambdart/wall-el
