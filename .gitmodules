@@ -32,3 +32,6 @@
 [submodule "src/lisp/wall-el"]
 	path = src/lisp/wall-el
 	url = https://github.com/lambdart/wall-el
+[submodule "src/lisp/ddoc"]
+	path = src/lisp/ddoc
+	url = https://github.com/lambdart/ddoc.git
