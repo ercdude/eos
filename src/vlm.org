@@ -5912,9 +5912,9 @@
       #+BEGIN_SRC emacs-lisp
 
       ;; enable ddoc after emacs startup
-      (add-hook 'window-setup-hook
-                (lambda ()
-                  (funcall 'turn-on-ddoc-mode)))
+      ;; (add-hook 'window-setup-hook
+      ;;           (lambda ()
+      ;;             (funcall 'turn-on-ddoc-mode)))
 
       #+END_SRC
 

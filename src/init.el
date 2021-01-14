@@ -14,10 +14,7 @@
 (require 'loaddefs)
 
 ;; threshold inital value
-;; gc-cons-percentage 0.5)
 (setq gc-cons-threshold most-positive-fixnum) ; 2^61 bytes
-
-
 
 ;; yes or no
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -33,6 +30,10 @@
 (defvar vlm-tags-map
   (make-sparse-keymap)
   "Tags (navigation) commands keymap.")
+
+(defvar vlm-tabs-map
+  (make-sparse-keymap)
+  "Tabs (navigation) commands keymap.")
 
 (defvar vlm-pm-map
   (make-sparse-keymap)
@@ -71,6 +72,7 @@
   "Media commands keymap.")
 
 (dolist (prefix-map '(vlm-tags-map
+                      vlm-tabs-map
                       vlm-pm-map
                       vlm-sc-map
                       vlm-docs-map
@@ -88,7 +90,7 @@
 (define-key ctl-x-map (kbd "p") 'vlm-pm-map) ; project
 (define-key ctl-x-map (kbd "t") 'vlm-tags-map) ; tags
 (define-key ctl-x-map (kbd "c") 'vlm-utils-map) ; commands
-;; (define-key ctl-x-map (kbd "e") 'vlm-sc-map) ; errors
+(define-key ctl-x-map (kbd "e") 'vlm-sc-map) ; errors
 (define-key ctl-x-map (kbd "l") 'vlm-docs-map) ; library
 (define-key ctl-x-map (kbd "v") 'vlm-media-map) ; media
 (define-key ctl-x-map (kbd "<tab>") 'vlm-completion-map) ; tab - complete
@@ -110,7 +112,7 @@
 (customize-set-variable 'inhibit-startup-echo-area-message nil)
 
 ;; email address of the current user
-(customize-set-variable 'user-mail-address "lambdart@protonmail.com")
+(customize-set-variable 'user-mail-address "eirc.m@protonmail.com")
 
 ;; (require 'warnings nil t)
 
@@ -121,12 +123,6 @@
 (customize-set-variable 'warning-minimum-log-level :warning)
 
 (setq load-prefer-newer noninteractive)
-
-;; set term to eterm-color
-;; (setenv "TERM" "eterm-color")
-
-;; the full name of the user logged in
-;; (customize-set-variable 'user-login-name (getenv "USER"))
 
 ;; the email address of the current user
 ;; (customize-set-variable 'user-mail-address nil)
@@ -243,7 +239,7 @@
 ;; (customize-set-variable 'tramp-default-method "ssh")
 
 ;; if non-nil, chunksize for sending input to local process.
-;; (customize-set-variable 'tramp-chunksize 512)
+;; (customize-set-variable 'tramp-chunksize 64)
 
 ;; a value of t would require an immediate reread during filename completion,
 ;; nil means to use always cached values for the directory contents.
@@ -291,11 +287,6 @@
 
 ;; directory where smtpmail.el stores queued mail.
 ;; (customize-set-variable 'smtpmail-queue-dir "")
-
-;; (require 'nnimap nil t)
-
-;; limit the number of articles to look for after moving an article
-(customize-set-variable 'nnimap-request-articles-find-limit nil)
 
 ;; (require 'sendmail nil t)
 
@@ -420,10 +411,21 @@
 (customize-set-variable
  'custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
 
+;; non-nil means normalize frame before maximizing (not working)
+;; (customize-set-variable 'x-frame-normalize-before-maximize nil)
+
+;; if non-nil with a Gtk+ built Emacs, the Gtk+ tooltip is used
+(customize-set-variable 'x-gtk-use-system-tooltips t)
+
+;; if this equals the symbol ’hide’, Emacs temporarily hides the child
+;; frame during resizing (testing)
+(customize-set-variable 'x-gtk-resize-child-frames 'resize-mode)
+
 ;; (require 'files nil t)
 
 (defun vlm-kill-emacs-query-function ()
   "Asks for Emacs kill confirmation."
+  (interactive)
   (y-or-n-p "[kill-emacs]: Are you sure? "))
 
 ;; control use of version numbers for backup files.
@@ -566,11 +568,11 @@
                                    "%b"))))
 
 ;; alist of parameters for the initial minibuffer frame.
-(customize-set-variable 'minibuffer-frame-alist
-                        '((top . 1)
-                          (left . 1)
-                          (width . 80)
-                          (height . 2)))
+;; (customize-set-variable 'minibuffer-frame-alist
+;;                         '((top . 1)
+;;                           (left . 1)
+;;                           (width . 80)
+;;                           (height . 2)))
 
 ;; alist of parameters for the initial X window frame
 (add-to-list 'initial-frame-alist '(fullscreen . fullheight))
@@ -591,7 +593,7 @@
   `(cond ((find-font (font-spec :name ,font))
           (set-frame-font ,font nil t))))
 
-;; (safe-set-frame-font "Iosevka Fixed:pixelsize=24:width=regular:weight=regular")
+;; (safe-set-frame-font "Iosevka Fixed:pixelsize=22:width=regular:weight=regular")
 
 ;; enable window divider
 (add-hook 'window-setup-hook
@@ -646,15 +648,10 @@
 (define-key ctl-x-map (kbd "C-.") 'next-buffer)
 
 ;; binds (vlm-window prefix map)
-(define-key vlm-window-map (kbd "1") 'maximize-window)
-(define-key vlm-window-map (kbd "2") 'minimize-window)
-
-(define-key vlm-window-map (kbd "q") 'balance-windows)
-(define-key vlm-window-map (kbd "w") 'other-window-prefix)
-(define-key vlm-window-map (kbd "r") 'windmove-right)
-(define-key vlm-window-map (kbd "l") 'windmove-left)
-(define-key vlm-window-map (kbd "d") 'windmove-down)
-(define-key vlm-window-map (kbd "u") 'windmove-up)
+(define-key vlm-window-map (kbd "+") 'maximize-window)
+(define-key vlm-window-map (kbd "-") 'minimize-window)
+(define-key vlm-window-map (kbd "w") 'balance-windows)
+(define-key vlm-window-map (kbd "o") 'other-window-prefix)
 
 ;; binds ctl-x-map (C-x w)
 (define-key ctl-x-map (kbd "w") 'vlm-window-map)
@@ -716,10 +713,27 @@
 
 ;; (require 'linum nil t)
 
-;; format used to display line numbers.
+;; format used to display line numbers
 (customize-set-variable 'linum-format " %2d ")
 
+;; (add-hook 'prog-mode-hook 'linum-mode)
+
 ;; (require 'display-line-numbers nil t)
+
+;; the default type of line numbers to use in `display-line-numbers-mode'
+(customize-set-variable 'display-line-numbers-type t)
+
+;; if non-nil, do not shrink line number width
+(customize-set-variable 'display-line-numbers-grow-only t)
+
+;; if non-nil, count number of lines to use for line number width
+(customize-set-variable 'display-line-numbers-width-start t)
+
+;; if an integer N > 0, highlight line number of every Nth line
+(customize-set-variable 'display-line-numbers-major-tick 0)
+
+;; if an integer N > 0, highlight line number of every Nth line
+(customize-set-variable 'display-line-numbers-minor-tick 0)
 
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 
@@ -763,7 +777,7 @@
 (customize-set-variable 'read-buffer-completion-ignore-case t)
 
 ;; non-nil means when reading a file name completion ignores case
-(customize-set-variable 'read-file-name-completion-ignore-case t)
+(customize-set-variable 'read-file-name-completion-ignore-case nil)
 
 ;; number of completion candidates below which cycling is used
 (customize-set-variable 'completion-cycle-threshold nil)
@@ -772,21 +786,26 @@
 (customize-set-variable 'completion-pcm-complete-word-inserts-delimiters t)
 
 ;; a string of characters treated as word delimiters for completion
-;; (customize-set-variable 'completion-pcm-word-delimiters "-_./:| ")
+(customize-set-variable 'completion-pcm-word-delimiters "-_./:| ")
 
-;; non-nil means show help message in *Completions* buffer
-(customize-set-variable 'completion-show-help nil)
+;; if non-nil, print helpful inline messages during completion
+(customize-set-variable 'completion-show-inline-help nil)
 
 ;; non-nil means automatically provide help for invalid completion input
-(customize-set-variable 'completion-auto-help 'lazy)
+(customize-set-variable 'completion-auto-help nil)
+
+;; non-nil means don’t consider case significant in completion
+(customize-set-variable 'completion-ignore-case nil)
+
+;; non-nil if flex completion rejects spaces in search pattern.
+(customize-set-variable 'completion-flex-nospace nil)
 
 ;; list of completion styles to use: see `completion-styles-alist variable
-(customize-set-variable 'completion-styles '(basic partial-completion flex))
-;; '(basic partial-completion substring flex))
+(customize-set-variable 'completion-styles '(emacs22 basic partial-completion flex))
 
-;; list of category-specific user overrides for completion styles.
-(customize-set-variable 'completion-category-overrides nil)
-;; '(file (styles initials basic))
+;; list of category-specific user overrides for completion styles. (TODO: research)
+;; (customize-set-variable 'completion-category-overrides nil)
+;; '((file (styles initials basic))
 ;;   (buffer (styles initials basic))
 ;;   (info-menu (styles basic))))
 
@@ -798,20 +817,21 @@
 (customize-set-variable 'resize-mini-windows nil)
 
 ;; format string used to output "default" values
-(customize-set-variable 'minibuffer-default-prompt-format " [%s] ")
+(customize-set-variable 'minibuffer-default-prompt-format " (default: %s)")
 
 ;; if non-nil, shorten "(default ...)" to "[...]" in minibuffer prompts
-(customize-set-variable 'minibuffer-eldef-shorten-default nil)
+(customize-set-variable 'minibuffer-eldef-shorten-default t)
+
+;; non-nil means entering the minibuffer raises the minibuffer's frame
+(customize-set-variable 'minibuffer-auto-raise t)
 
 ;; non-nil means to delete duplicates in history
 (customize-set-variable 'history-delete-duplicates t)
 
 ;; special hook to find the completion table for the entity at point (default)
-(customize-set-variable
- 'completion-at-point-functions
- '(elisp-completion-at-point
-   lisp-completion-at-point
-   tags-completion-at-point-function t))
+(customize-set-variable 'completion-at-point-functions
+                        `(elisp-completion-at-point
+                          tags-completion-at-point-function t))
 
 ;; defer garbage collection
 ;; set `gc-cons-threshold' to most-positive-fixnum
@@ -830,19 +850,6 @@
 (define-key minibuffer-local-map (kbd "M-`") 'minibuffer-completion-help)
 (define-key minibuffer-local-map (kbd "M-w") 'minibuffer-complete-word)
 (define-key minibuffer-local-map (kbd "<tab>") 'minibuffer-complete)
-;; (define-key minibuffer-local-map (kbd "M-<tab>") 'goto-minibuffer-or-completions-window)
-
-;; goto-map
-;; (define-key goto-map (kbd "M-SPC") 'goto-minibuffer-window)
-;; (define-key goto-map (kbd "C-M-i") 'goto-completions-window)
-;; (define-key goto-map (kbd "C-M-i") 'goto-completions-window)
-;; (define-key goto-map (kbd "M-v") 'goto-minibuffer-or-completions-window)
-
-;; ctl-x-map goes to completions window
-(define-key ctl-x-map (kbd "C-o") 'goto-completions-window)
-
-;; vlm-completion-map: completion-at-point (experimental)
-;; (define-key vlm-completion-map (kbd "a") 'completion-at-point)
 
 ;; global
 (global-set-key (kbd "<C-delete>") 'quit-minibuffer)
@@ -854,14 +861,14 @@
 ;; be used to make the ignored text invisible, dim, etc.
 (add-hook 'window-setup-hook
           (lambda()
-            (funcall 'file-name-shadow-mode 1)))
+            (funcall 'file-name-shadow-mode 0)))
 
 ;; when active, any recursive use of the minibuffer will show
 ;; the recursion depth in the minibuffer prompt, this is only
 ;; useful if `enable-recursive-minibuffers' is non-nil
 (add-hook 'window-setup-hook
           (lambda()
-            (funcall 'minibuffer-depth-indicate-mode -1)))
+            (funcall 'minibuffer-depth-indicate-mode 0)))
 
 ;; when active, minibuffer prompts that show a default value only show
 ;; the default when it's applicable
@@ -891,13 +898,16 @@
 (customize-set-variable 'completion-search-distance 12000)
 
 ;; if non-nil, the next completion prompt does a cdabbrev search
-(customize-set-variable 'completion-cdabbrev-prompt-flag t)
+(customize-set-variable 'completion-cdabbrev-prompt-flag nil)
 
 ;; non-nil means show help message in *Completions* buffer
 (customize-set-variable 'completion-show-help nil)
 
+;; minimum output speed at which to display next potential completion
+(customize-set-variable 'completion-prompt-speed-threshold 2400)
+
 ;; non-nil means separator characters mark previous word as used
-(customize-set-variable 'completion-on-separator-characthfer t)
+(customize-set-variable 'completion-on-separator-character t)
 
 ;; the filename to save completions to.
 (customize-set-variable
@@ -927,7 +937,6 @@
 (define-key completion-list-mode-map (kbd "DEL") 'previous-completion)
 (define-key completion-list-mode-map (kbd "C-j") 'choose-completion)
 (define-key completion-list-mode-map (kbd "C-g") 'quit-minibuffer)
-;; (define-key completion-list-mode-map (kbd "M-<tab>") 'goto-minibuffer-or-completions-window)
 
 ;; enable dynamic completion mode
 (add-hook 'window-setup-hook
@@ -938,10 +947,10 @@
 
 ;; custom
 ;; pending-completions number over which to apply `icomplete-compute-delay
-(customize-set-variable 'icomplete-delay-completions-threshold 128)
+(customize-set-variable 'icomplete-delay-completions-threshold 512)
 
 ;; maximum number of initial chars to apply `icomplete-compute-delay
-(customize-set-variable 'icomplete-max-delay-chars 4)
+(customize-set-variable 'icomplete-max-delay-chars 2)
 
 ;; completions-computation stall, used only with large-number completions
 (customize-set-variable 'icomplete-compute-delay 0)
@@ -949,16 +958,21 @@
 ;; when non-nil, show completions when first prompting for input
 (customize-set-variable 'icomplete-show-matches-on-no-input t)
 
+;; if non-nil, automatically delete superfluous parts of file names
+(customize-set-variable 'icomplete-tidy-shadowed-file-names t)
+
 ;; when non-nil, hide common prefix from completion candidates
-(customize-set-variable 'icomplete-hide-common-prefix t)
+(customize-set-variable 'icomplete-hide-common-prefix nil)
 
 ;; maximum number of lines to use in the minibuffer
 (customize-set-variable 'icomplete-prospects-height 1)
 
 ;; string used by Icomplete to separate alternatives in the minibuffer
-(customize-set-variable 'icomplete-separator (propertize " · " 'face 'shadow))
+;; (customize-set-variable 'icomplete-separator (propertize " • " 'face 'shadow))
+;; (customize-set-variable 'icomplete-separator (propertize " · " 'face 'shadow))
+(customize-set-variable 'icomplete-separator (propertize " | " 'face 'shadow))
 
-;; specialized completion tables with which `icomplete should operate,
+;; specialized completion tables with which `icomplete' should operate,
 ;; if this is t, `icomplete operates on all tables
 (customize-set-variable 'icomplete-with-completion-tables t)
 
@@ -970,48 +984,63 @@
     (when (boundp 'icomplete-minibuffer-map)
       ;; unbind
       (define-key icomplete-minibuffer-map (kbd "SPC") nil)
-
       ;; bind
       (define-key icomplete-minibuffer-map (kbd "C-j") 'icomplete-force-complete-and-exit)
-      (define-key icomplete-minibuffer-map (kbd "C-n") 'icomplete-forward-completions)
-      (define-key icomplete-minibuffer-map (kbd "C-p") 'icomplete-backward-completions)
-      (define-key icomplete-minibuffer-map (kbd "M-p") 'previous-line-or-history-element)
-      (define-key icomplete-minibuffer-map (kbd "M-n") 'next-line-or-history-element)
-      (define-key icomplete-minibuffer-map (kbd "M-i") 'minibuffer-insert-top-candidate)
-      (define-key icomplete-minibuffer-map (kbd "M-y") 'minibuffer-yank-top-candidate)
-      (define-key icomplete-minibuffer-map (kbd "M-k") 'minibuffer-kill-top-candidate)
-      (define-key icomplete-minibuffer-map (kbd "M-h") 'minibuffer-describe-top-candidate))))
+      (define-key icomplete-minibuffer-map (kbd "RET") 'exit-minibuffer)
+      (define-key icomplete-minibuffer-map (kbd "<tab>") 'minibuffer-complete)
+      (define-key icomplete-minibuffer-map (kbd "M-<tab>") 'icomplete-forward-completions)
+      (define-key icomplete-minibuffer-map (kbd "M-DEL") 'icomplete-backward-completions)
+      (define-key icomplete-minibuffer-map (kbd "DEL") 'icomplete-fido-backward-updir)
+      (define-key icomplete-minibuffer-map (kbd "C-p") 'previous-line-or-history-element)
+      (define-key icomplete-minibuffer-map (kbd "C-n") 'next-line-or-history-element)
+      (define-key icomplete-minibuffer-map (kbd "M-i") 'minibuffer-insert-completion-in-buffer)
+      (define-key icomplete-minibuffer-map (kbd "M-y") 'minibuffer-insert-completion-at-point)
+      (define-key icomplete-minibuffer-map (kbd "M-k") 'minibuffer-kill-current-completion)
+      (define-key icomplete-minibuffer-map (kbd "M-h") 'minibuffer-describe-current-completion))))
 
 ;; enable globally
 (add-hook 'window-setup-hook
           (lambda ()
             (funcall 'icomplete-mode 1)))
 
+;; (require 'tab-bar nil t)
+
+;; defines where to show the close tab button
+(customize-set-variable 'tab-bar-close-button-show nil)
+
+;; if non-nil, show the "New tab" button in the tab bar
+(customize-set-variable 'tab-bar-new-button-show nil)
+
+;; string that delimits tabs
+(customize-set-variable 'tab-bar-separator " ")
+
+;; if the value is ‘1’, then hide the tab bar when it has only one tab
+(customize-set-variable 'tab-bar-show nil)
+
+
+
 ;; (require 'tool-bar nil t)
 
-;; disable
-;; (safe-funcall 'tool-bar-mode '0)
+(define-key vlm-tags-map (kbd "t") 'tab-switcher)
+
+;; enable
+;; (safe-funcall 'tool-bar-mode 1)
 
 ;; (require 'tooltip nil t)
 
 ;; seconds to wait before displaying a tooltip the first time.
 (customize-set-variable 'tooltip-delay 0.2)
 
-(customize-set-variable 'x-gtk-use-system-tooltips nil)
-
-;; frame parameters used for tooltips
-;; if ‘left’ or ‘top’ parameters are included, they specify the absolute
-(customize-set-variable 'tooltip-frame-parameters
-                        '((name . "tooltip")
-                          (internal-border-width . 0)
-                          (border-width . 0)
-                          (no-special-glyphs . t)))
+;; use the echo area instead of tooltip frames for help and GUD tooltips
+(customize-set-variable 'tooltip-use-echo-area t)
 
 (add-hook 'window-setup-hook
           (lambda ()
             (funcall 'tooltip-mode 1)))
 
 ;; (require 'menu-bar nil t)
+
+(define-key vlm-utils-map (kbd "o") 'menu-bar-open)
 
 ;; (safe-funcall 'menu-bar-mode 0)
 
@@ -1164,11 +1193,11 @@
 (customize-set-variable 'temp-buffer-max-height
                         (lambda (buffer)
                           (if (and (display-graphic-p) (eq (selected-window) (frame-root-window)))
-                              (/ (x-display-pixel-height) (frame-char-height) 2)
-                            (/ (- (frame-height) 2) 2))))
+                              (/ (x-display-pixel-height) (frame-char-height) 4)
+                            (/ (frame-height) 4))))
 
 ;; the minimum total height, in lines, of any window
-(customize-set-variable 'window-min-height 4)
+(customize-set-variable 'window-min-height 8)
 
 
 
@@ -1185,11 +1214,12 @@
     (when (boundp 'help-mode-map)
       (define-key help-mode-map (kbd "C-j") 'push-button))))
 
-;; help prefix map (C-h)
+;; help prefix map (C-h) (redundancy)
 (define-key help-map (kbd "C-f") 'describe-function)
 (define-key help-map (kbd "C-v") 'describe-variable)
 (define-key help-map (kbd "C-k") 'describe-key)
 (define-key help-map (kbd "C-m") 'describe-mode)
+(define-key help-map (kbd "C-o") 'describe-symbol)
 (define-key help-map (kbd "C-e") 'view-echo-area-messages)
 
 ;; (require 'info nil t)
@@ -1237,25 +1267,25 @@
 ;; generated by `update-directory-autoloads'
 (require 'site-lisp-loaddefs nil t)
 
-;; (require 'lazy)
+;; (require 'lazy-load nil t)
 
 ;; non-nil means starts to monitor the directories
-(customize-set-variable 'lazy-enable-filenotify-flag t)
+(customize-set-variable 'lazy-load-enable-filenotify-flag t)
 
 ;; non-nil means show debug messages
-(customize-set-variable 'lazy-debug-messages-flag t)
+(customize-set-variable 'lazy-load-debug-messages-flag t)
 
-;; non-nil means run `lazy-update-autoloads' when emacs is idle
-(customize-set-variable 'lazy-enable-run-idle-flag nil)
+;; non-nil means run `lazy-load-update-autoloads' when emacs is idle
+(customize-set-variable 'lazy-load-enable-run-idle-flag nil)
 
 ;; idle timer value
-(customize-set-variable 'lazy-idle-seconds 15)
+(customize-set-variable 'lazy-load-idle-seconds 15)
 
 ;; interval in seconds, used to trigger the timer callback
-(customize-set-variable 'lazy-timer-interval 8)
+(customize-set-variable 'lazy-load-timer-interval 8)
 
 ;; target files and directories
-(customize-set-variable 'lazy-files-alist
+(customize-set-variable 'lazy-load-files-alist
                         (list
                          ;; lisp directory
                          (cons "lisp-loaddefs.el"
@@ -1266,7 +1296,7 @@
 
 (add-hook 'window-setup-hook
           (lambda ()
-            (funcall 'turn-on-lazy-mode)))
+            (funcall 'turn-on-lazy-load-mode)))
 
 ;; (require 'global-so-long-mode nil t)
 
@@ -1354,7 +1384,7 @@
                           1))
 
 ;; set exwm workspaces number
-(customize-set-variable 'exwm-workspace-number 3)
+(customize-set-variable 'exwm-workspace-number 2)
 
 ;; show workspaces in all buffers
 (customize-set-variable 'exwm-workspace-show-all-buffers t)
@@ -1388,20 +1418,20 @@
 (customize-set-variable 'exwm-input-simulation-keys
                         '(
                           ;; movement
-                          ([?\C-b] . [left])
-                          ([?\M-b] . [C-left])
-                          ([?\C-f] . [right])
-                          ([?\M-f] . [C-right])
                           ([?\C-p] . [up])
+                          ([?\C-b] . [left])
+                          ([?\C-f] . [right])
                           ([?\C-n] . [down])
-                          ([?\C-a] . [home])
+                          ([?\M-b] . [C-left])
+                          ([?\M-f] . [C-right])
                           ([?\C-e] . [end])
-                          ([?\M-v] . [prior])
                           ([?\C-v] . [next])
+                          ([?\C-a] . [home])
+                          ([?\M-v] . [prior])
                           ([?\C-d] . [delete])
                           ([?\C-k] . [S-end delete])
 
-                          ;; firefox temporary
+                          ;; browser temporary
                           ([?\C-o] . [C-prior]) ; change tab mapping
                           ([?\C-k] . [C-w]) ; close tab mapping
                           ([?\C-j] . [return]) ; close tab mapping
@@ -1529,6 +1559,50 @@
 ;; list of authentication sources
 (customize-set-variable
  'auth-sources '("~/.auth/auth.gpg" "~/.auth/netrc"))
+
+;; (require 'desktop nil t)
+
+;; list of directories to search for the desktop file
+(customize-set-variable 'desktop-path
+                        (list (expand-file-name "cache" user-emacs-directory)))
+
+;; specifies whether the desktop should be saved when it is killed
+(customize-set-variable 'desktop-save 'ask)
+
+;; if t, restoring frames reuses existing frames
+(customize-set-variable 'desktop-restore-frames t)
+
+;; if t: restoring frames reuses existing frames,
+;; if nil: deletes existing frames,
+;; if keep: keeps existing frames and does not reuse them
+(customize-set-variable 'desktop-restore-reuses-frames t)
+
+;; if all, also restores frames that are partially offscreen onscreen
+(customize-set-variable 'desktop-restore-forces-onscreen 'all)
+
+;; if nil, restores frames into their original displays (if possible)
+(customize-set-variable 'desktop-restore-in-current-display nil)
+
+;; Idle delay before starting to create buffers
+(customize-set-variable 'desktop-lazy-idle-delay 4)
+
+;; number of buffers to restore immediately (max),
+;; remaining buffers are restored lazily
+(customize-set-variable 'desktop-restore-eager 16)
+
+;; when non-nil, save buffer status in desktop file
+(customize-set-variable 'desktop-save-buffer t)
+
+;; number of seconds of idle time before auto-saving the desktop
+(customize-set-variable 'desktop-auto-save-time 16)
+
+(add-hook 'desktop-after-read-hook
+          (lambda ()
+            (safe-funcall 'tab-bar-update-switch-binds)))
+
+(add-hook 'window-setup-hook
+          (lambda ()
+            (funcall 'desktop-save-mode 1)))
 
 ;; (require 'time nil t)
 
@@ -1678,6 +1752,56 @@
 
 (define-key ctl-x-map (kbd "b") 'ibuffer)
 
+;; (require 'dabbrev nil t)
+
+;; non-nil means case sensitive search.
+(customize-set-variable 'dabbrev-upcase-means-case-search t)
+
+;; whether dabbrev treats expansions as the same if they differ in case
+;; a value of nil means treat them as different.
+(customize-set-variable 'dabbrev-case-distinction t)
+
+;; (require 'hippie-exp nil t)
+
+(global-set-key (kbd "M-]") 'hippie-expand)
+
+;; (require 'yasnippet nil t)
+
+;; binds vlm-completion-map
+(define-key vlm-completion-map (kbd "e") 'yas-expand)
+(define-key vlm-completion-map (kbd "i") 'yas-insert-snippet)
+(define-key vlm-completion-map (kbd "v") 'yas-visit-snippet-file)
+
+;; binds yas-keymap
+(eval-after-load 'yasnippet
+  (lambda ()
+    (when (boundp 'yas-keymap)
+      (define-key yas-keymap (kbd "TAB") nil)
+      (define-key yas-keymap (kbd "<tab>") nil)
+      (define-key yas-keymap (kbd "M-TAB") 'yas-next-field))
+
+    ;; unbind: clean minor mode map alist
+    (setq minor-mode-map-alist nil)))
+
+;; enable yasnippet after emacs startup
+(add-hook 'window-setup-hook
+          (lambda ()
+            (funcall 'yas-global-mode 1)))
+
+;; (require 'ace nil t)
+
+;; vlm-completion-map
+(define-key vlm-completion-map (kbd "`") 'ace-complete-word)
+(define-key vlm-completion-map (kbd "f") 'ace-complete-file-name)
+(define-key vlm-completion-map (kbd "<tab>") 'ace-complete-at-point-or-indent)
+
+;; global map
+(global-set-key (kbd "M-<tab>") 'ace-complete-at-point-or-indent)
+
+;; TODO
+;; (define-key vlm-completion-map (kbd "/" 'ace-complete-dabbrev)
+;; (define-key vlm-completion-map (kbd "]") 'ace-complete-dabbrev-code)
+
 ;; (require 'iedit nil t)
 
 ;; if no-nil, the key is inserted into global-map,
@@ -1718,13 +1842,26 @@
 
 ;; directory where elfeed will store its database.
 (customize-set-variable 'elfeed-db-directory
-                        (concat (expand-file-name user-emacs-directory) "elfeed"))
+                        (expand-file-name "elfeed" user-emacs-directory))
 
 ;; default directory for saving enclosures. Hide
 (customize-set-variable 'elfeed-enclosure-default-dir
-                        (concat (expand-file-name user-emacs-directory) "cache/elfeed"))
+                        (expand-file-name "cache/elfeed" user-emacs-directory))
+
+;; (require 'nnimap nil t)
+
+;; limit the number of articles to look for after moving an article
+(customize-set-variable 'nnimap-request-articles-find-limit nil)
+
+;; (require 'mail-source nil t)
+
+;; directory where incoming mail source files (if any) will be stored
+(customize-set-variable 'mail-source-directory (expand-file-name "~/mail/"))
 
 ;; (require 'gnus nil t)
+
+;; directory variable from which all other Gnus file variables are derived
+(customize-set-variable 'gnus-directory (expand-file-name "~/news/"))
 
 ;; default method for selecting a newsgroup
 ;; nnnil is a Gnus backend that provides no groups or articles.  It's useful
@@ -1735,13 +1872,6 @@
 ;; a list of secondary methods that will be used for reading news
 (customize-set-variable
  'gnus-secondary-select-methods '((nntp "news.gwene.org")))
-;; (nnimap "gmail"
-;;         (nnimap-address "imap.gmail.com")
-;;         (nnimap-stream ssl)
-;;         (nnimap-server-port "imaps")
-;;         (nnimap-inbox "INBOX")
-;;         (nnimap-fetch-partial-articles t)
-;;         (nnimap-authinfo-file "~/.auth/auth.gpg"))))
 
 ;; if non-nil, automatically mark Gcc articles as read
 (customize-set-variable 'gnus-gcc-mark-as-read nil)
@@ -1827,10 +1957,10 @@
 ;; set timestamp
 (add-hook 'gnus-select-group-hook 'gnus-group-set-timestamp)
 
-(eval-after-load 'gnus-group
+(eval-after-load 'gnus-group-mode
   (lambda ()
     (when (boundp 'gnus-group-mode-map)
-      (define-key gnus-group-mode-map (kbd "<tab>") 'gnus-group-select-group))))
+      (define-key gnus-group-mode-map (kbd "TAB") 'gnus-group-select-group))))
 
 ;; (require 'emms nil t)
 ;; (require 'emms-setup nil t)
@@ -1867,10 +1997,12 @@
 (define-key vlm-media-map (kbd "a") 'emms-add-file)
 (define-key vlm-media-map (kbd "s") 'emms-start)
 (define-key vlm-media-map (kbd "q") 'emms-stop)
-(define-key vlm-media-map (kbd "v") 'emms-pause)
-(define-key vlm-media-map (kbd "p") 'emms-previous)
-(define-key vlm-media-map (kbd "n") 'emms-next)
-(define-key vlm-media-map (kbd "r") 'emms-random)
+
+;; my-emms.el
+(define-key vlm-media-map (kbd "v") 'pause-track)
+(define-key vlm-media-map (kbd "p") 'previous-track)
+(define-key vlm-media-map (kbd "n") 'next-track)
+(define-key vlm-media-map (kbd "r") 'random-track)
 
 ;; if emms is available, enable it
 (add-hook 'window-setup-hook
@@ -1919,8 +2051,8 @@
                            :port 6697
                            :server-alias "freenode"
                            :encryption tls
-                           :nick "lambdart"
-                           :channels ("#rcirc #lisp-br #lispgames"))))
+                           :nick "ercdude"
+                           :channels ("#lisp-br #freebsd-br"))))
 
 (add-hook 'rcirc-mode-hook
           (lambda ()
@@ -2015,7 +2147,6 @@
 ;; this is passed to the ‘ispell-change-dictionary’ when flyspell is started
 (customize-set-variable 'flyspell-default-dictionary "english")
 
-;; hooks
 (add-hook 'text-mode-hook #'flyspell-mode)
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
@@ -2023,10 +2154,9 @@
 
 
 
-;; enable flymake-mode
-(add-hook 'window-setup-hook
-          (lambda ()
-            (funcall 'flymake-mode 1)))
+(define-key vlm-sc-map (kbd "e") 'flymake-show-diagnostics-buffer)
+
+(add-hook 'prog-mode-hook #'flymake-mode)
 
 ;; (require 'cannon nil t)
 
@@ -2243,7 +2373,6 @@ Only I will remain.")
           (lambda ()
             ;; do not truncate lines
             (setq truncate-lines nil)
-
             ;; languages which can be evaluated in Org buffers.
             (org-babel-do-load-languages
              'org-babel-load-languages
@@ -2395,35 +2524,35 @@ Only I will remain.")
 
 (define-key vlm-docs-map (kbd "w") 'woman)
 
-;; (require 'dash-docs nil t)
+;; (require 'ddoc nil t)
 
 ;; default path for docsets
 (customize-set-variable
- 'dash-docs-docsets-path
+ 'ddoc-docsets-path
  (concat (expand-file-name user-emacs-directory) "docsets"))
 
 ;; minimum length to start searching in docsets
-;; (customize-set-variable 'dash-docs-min-length 0)
+;; (customize-set-variable 'ddoc-min-length 0)
 
 ;; format of the displayed candidates
-(customize-set-variable 'dash-docs-candidate-format "%d %t %n")
+(customize-set-variable 'ddoc-candidate-format "%d %t %n")
 
-(defun vlm-set-dash-docset (docset)
+(defun vlm-activate-docset (docset)
   "Activate a DOCSET, if available."
-  (when (fboundp 'dash-docs-activate-docset)
-    (funcall 'dash-docs-activate-docset docset)))
+  (when (fboundp 'ddoc-activate-docset)
+    (funcall 'ddoc-activate-docset docset)))
 
 ;; vlm-docs-map
-;; (define-key vlm-docs-map (kbd "u") 'dash-docs-update-docset)
-(define-key vlm-docs-map (kbd "i") 'dash-docs-install-docset)
-(define-key vlm-docs-map (kbd "a") 'dash-docs-activate-docset)
-(define-key vlm-docs-map (kbd "d") 'dash-docs-deactivate-docset)
-(define-key vlm-docs-map (kbd "l") 'dash-docs-find-file)
+;; (define-key vlm-docs-map (kbd "u") 'ddoc-update-docset)
+(define-key vlm-docs-map (kbd "i") 'ddoc-install-docset)
+(define-key vlm-docs-map (kbd "a") 'ddoc-activate-docset)
+(define-key vlm-docs-map (kbd "d") 'ddoc-deactivate-docset)
+(define-key vlm-docs-map (kbd "l") 'ddoc-find-file)
 
-;; enable dash-docs after emacs startup
-(add-hook 'window-setup-hook
-          (lambda ()
-            (funcall 'turn-on-dash-docs-mode)))
+;; enable ddoc after emacs startup
+;; (add-hook 'window-setup-hook
+;;           (lambda ()
+;;             (funcall 'turn-on-ddoc-mode)))
 
 ;; (require 'rfc-docs nil t)
 
@@ -2458,48 +2587,27 @@ Only I will remain.")
 ;; buffer (default).
 (customize-set-variable 'google-translate-output-destination nil)
 
-;; (require 'dabbrev nil t)
-
-;; non-nil means case sensitive search.
-(customize-set-variable 'dabbrev-upcase-means-case-search t)
-
-;; whether dabbrev treats expansions as the same if they differ in case
-;; a value of nil means treat them as different.
-(customize-set-variable 'dabbrev-case-distinction t)
-
-;; (require 'hippie-exp nil t)
-
-(global-set-key (kbd "M-\\") 'hippie-expand)
-
-;; (require 'yasnippet nil t)
-
-;; binds vlm-completion-map
-(define-key vlm-completion-map (kbd "e") 'yas-expand)
-(define-key vlm-completion-map (kbd "i") 'yas-insert-snippet)
-(define-key vlm-completion-map (kbd "v") 'yas-visit-snippet-file)
-
-;; binds yas-keymap
-(eval-after-load 'yasnippet
-  (lambda ()
-    (when (boundp 'yas-keymap)
-      (define-key yas-keymap (kbd "TAB") nil)
-      (define-key yas-keymap (kbd "<tab>") nil)
-      (define-key yas-keymap (kbd "M-TAB") 'yas-next-field))
-
-    ;; unbind: clean minor mode map alist
-    (setq minor-mode-map-alist nil)))
-
-;; enable yasnippet after emacs startup
-(add-hook 'window-setup-hook
-          (lambda ()
-            (funcall 'yas-global-mode 1)))
-
 ;; (require 'imenu nil t)
 
 ;; use a popup menu rather than a minibuffer prompt (no)
 (customize-set-variable 'imenu-use-popup-menu nil)
 
-(define-key vlm-tags-map (kbd "t") 'imenu)
+;; if non-nil, eagerly popup the completion buffer.
+(customize-set-variable 'imenu-eager-completion-buffer t)
+
+;; non-nil means Imenu should always rescan the buffers
+(customize-set-variable 'imenu-auto-rescan t)
+
+;; when non-nil, ignore text inside comments and strings
+(customize-set-variable 'imenu-generic-skip-comments-and-strings t)
+
+;; maximum number of elements in a mouse menu for Imenu
+(customize-set-variable 'imenu-max-items 128)
+
+;; if a number, truncate Imenu entries to that length
+(customize-set-variable 'imenu-max-item-length 256)
+
+(global-set-key (kbd "M-`") 'imenu)
 
 ;; (require 'etags nil t)
 
@@ -2530,11 +2638,11 @@ Only I will remain.")
 ;; when t, always prompt for the identifier name
 ;; when nil, prompt only when there’s no value at point we can use,
 ;; or when the command has been called with the prefix argument.
+(customize-set-variable 'xref-prompt-for-identifier t)
 
 ;; (not xref-find-definitions
 ;;      xref-find-definitions-other-window
 ;;      xref-find-definitions-other-frame)
-(customize-set-variable 'xref-prompt-for-identifier t)
 
 (define-key vlm-tags-map (kbd "a") 'xref-find-apropos)
 
@@ -2634,8 +2742,7 @@ Only I will remain.")
 
 ;; (require 'prog-mode nil t)
 
-(define-key prog-mode-map (kbd "C-M-i") 'complete-at-point-or-indent)
-;; (define-key prog-mode-map (kbd "C-M-i") 'complete-at-point-or-indent)
+(define-key prog-mode-map (kbd "<tab>") 'ace-complete-at-point-or-indent)
 
 ;; (require 'hideshow nil t)
 
@@ -2729,7 +2836,7 @@ Only I will remain.")
 
 ;; program name for invoking an inferior Lisp with for
 ;; inferior lisp mode
-(customize-set-variable 'inferior-lisp-program "sbcl")
+(customize-set-variable 'inferior-lisp-program "ccl")
 
 ;; (require 'geiser nil t)
 
@@ -2779,7 +2886,7 @@ Only I will remain.")
 (add-hook 'elixir-mode-hook
           (lambda ()
             ;; set dash docsets
-            (vlm-set-dash-docset '"Elixir")))
+            (vlm-activate-docset '"Elixir")))
 
 ;; non-nil means shrink the *Macroexpansion* window to fit its contents
 (customize-set-variable 'c-macro-shrink-window-flag t)
@@ -2795,12 +2902,12 @@ Only I will remain.")
 (add-hook 'c-mode-hook
           (lambda ()
             ;; set dash docset
-            (vlm-set-dash-docset '"C")))
+            (vlm-activate-docset '"C")))
 
 (add-hook 'c++-mode-hook
           (lambda ()
             ;; set dash docset
-            (vlm-set-dash-docset '"C++")))
+            (vlm-activate-docset '"C++")))
 
 (eval-after-load 'cc-mode
   (lambda ()
@@ -2826,7 +2933,7 @@ Only I will remain.")
 (add-hook 'go-mode-hook
           (lambda ()
             ;; set dash docsets
-            (vlm-set-dash-docset '"Go")))
+            (vlm-activate-docset '"Go")))
 
 ;; add (*.go . go-mode) to auto-mode-alist
 ;; init go-mode when a file with the extersion .go is opened
@@ -2868,7 +2975,7 @@ Only I will remain.")
 (add-hook 'lua-mode-hook
           (lambda ()
             ;; activate dash docset
-            (vlm-set-dash-docset "Lua")))
+            (vlm-activate-docset "Lua")))
 
 ;; add auto-mode
 (add-hook 'window-setup-hook
@@ -2894,14 +3001,14 @@ Only I will remain.")
 (add-hook 'python-mode-hook
           (lambda ()
             ;; set dash docsets
-            (vlm-set-dash-docset '"Python 3")))
+            (vlm-activate-docset '"Python 3")))
 
 ;; (require 'mql-mode nil t)
 
 (add-hook 'mql-mode-hook
           (lambda ()
             ;; activate mql5 docset
-            (vlm-set-dash-docset '"mql5")))
+            (vlm-activate-docset '"mql5")))
 
 ;; (require 'web-mode nil t)
 
@@ -2923,11 +3030,11 @@ Only I will remain.")
   '(cedet semantic chinese)
   "Libraries that are not used.")
 
-(add-hook 'window-setup-hook
-          (lambda ()
-            (let (libraries vlm-not-used-libraries)
-              (dolist (library libraries)
-                (unload-feature library '(4))))))
+;; (add-hook 'window-setup-hook
+;;           (lambda ()
+;;             (let (libraries vlm-not-used-libraries)
+;;               (dolist (library libraries)
+;;                 (unload-feature library '(4))))))
 
 ;; clean esc map
 ;; (define-key esc-map (kbd "ESC") nil)
