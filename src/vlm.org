@@ -2532,7 +2532,7 @@
     Force visible-bell to nill, avoiding anoiyng sounds. And sets
     ring-bell-function to a lambda that inverts the face of modeline.
 
-    #+BEGIN_SRC elisp
+    #+BEGIN_SRC emacs-lisp
     (setq visible-bell nil
           ring-bell-function '(lambda ()
                                 (invert-face 'mode-line)

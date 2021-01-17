@@ -988,11 +988,11 @@
       (define-key icomplete-minibuffer-map (kbd "C-j") 'icomplete-force-complete-and-exit)
       (define-key icomplete-minibuffer-map (kbd "RET") 'exit-minibuffer)
       (define-key icomplete-minibuffer-map (kbd "<tab>") 'minibuffer-complete)
-      (define-key icomplete-minibuffer-map (kbd "M-<tab>") 'icomplete-forward-completions)
-      (define-key icomplete-minibuffer-map (kbd "M-DEL") 'icomplete-backward-completions)
+      (define-key icomplete-minibuffer-map (kbd "C-n") 'icomplete-forward-completions)
+      (define-key icomplete-minibuffer-map (kbd "C-p") 'icomplete-backward-completions)
       (define-key icomplete-minibuffer-map (kbd "DEL") 'icomplete-fido-backward-updir)
-      (define-key icomplete-minibuffer-map (kbd "C-p") 'previous-line-or-history-element)
-      (define-key icomplete-minibuffer-map (kbd "C-n") 'next-line-or-history-element)
+      (define-key icomplete-minibuffer-map (kbd "M-p") 'previous-line-or-history-element)
+      (define-key icomplete-minibuffer-map (kbd "M-n") 'next-line-or-history-element)
       (define-key icomplete-minibuffer-map (kbd "M-i") 'minibuffer-insert-completion-in-buffer)
       (define-key icomplete-minibuffer-map (kbd "M-y") 'minibuffer-insert-completion-at-point)
       (define-key icomplete-minibuffer-map (kbd "M-k") 'minibuffer-kill-current-completion)
@@ -1088,6 +1088,11 @@
 ;;             (set-wallpaper
 ;;              "~/media/images/wallpapers/studio-ghibli/ghibli-7.jpg"
 ;;              "-g -0-0")))
+
+(setq visible-bell nil
+      ring-bell-function '(lambda ()
+                            (invert-face 'mode-line)
+                            (run-with-timer 0.01 nil #'invert-face 'mode-line)))
 
 ;; indentation can insert tabs if this is non-nil
 (customize-set-variable 'indent-tabs-mode nil)
