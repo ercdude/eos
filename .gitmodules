@@ -35,3 +35,6 @@
 [submodule "src/lisp/ddoc"]
 	path = src/lisp/ddoc
 	url = https://github.com/lambdart/ddoc.git
+[submodule "with-editor"]
+	path = src/lisp/with-editor
+	url = https://github.com/magit/with-editor.git
