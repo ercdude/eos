@@ -38,3 +38,9 @@
 [submodule "with-editor"]
 	path = src/lisp/with-editor
 	url = https://github.com/magit/with-editor.git
+[submodule "src/lisp/dash.el"]
+	path = src/lisp/dash.el
+	url = https://github.com/magnars/dash.el.git
+[submodule "transient"]
+	path = src/lisp/transient
+	url = https://github.com/magit/transient.git
