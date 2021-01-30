@@ -89,6 +89,7 @@
 ;; (define-key ctl-x-map (kbd "") 'vlm-filter-map)
 (define-key ctl-x-map (kbd "p") 'vlm-pm-map) ; project
 (define-key ctl-x-map (kbd "t") 'vlm-tags-map) ; tags
+(define-key ctl-x-map (kbd "C-o") 'vlm-tabs-map) ; tabs
 (define-key ctl-x-map (kbd "c") 'vlm-utils-map) ; commands
 (define-key ctl-x-map (kbd "e") 'vlm-sc-map) ; errors
 (define-key ctl-x-map (kbd "l") 'vlm-docs-map) ; library
@@ -1021,7 +1022,9 @@
 
 ;; (require 'tool-bar nil t)
 
-(define-key vlm-tags-map (kbd "t") 'tab-switcher)
+(define-key vlm-tabs-map (kbd "t") 'tab-switcher)
+(define-key vlm-tabs-map (kbd "n") 'tab-bar-new-tab)
+(define-key vlm-tabs-map (kbd "r") 'tab-bar-rename-tab)
 
 ;; enable
 ;; (safe-funcall 'tool-bar-mode 1)
@@ -1796,12 +1799,12 @@
 ;; (require 'ace nil t)
 
 ;; vlm-completion-map
-(define-key vlm-completion-map (kbd "`") 'ace-complete-word)
-(define-key vlm-completion-map (kbd "f") 'ace-complete-file-name)
-(define-key vlm-completion-map (kbd "<tab>") 'ace-complete-at-point-or-indent)
+(define-key vlm-completion-map (kbd "`") 'complete-word)
+(define-key vlm-completion-map (kbd "f") 'complete-file-name)
+(define-key vlm-completion-map (kbd "<tab>") 'complete-at-point-or-indent)
 
 ;; global map
-(global-set-key (kbd "M-<tab>") 'ace-complete-at-point-or-indent)
+(global-set-key (kbd "M-<tab>") 'complete-at-point-or-indent)
 
 ;; TODO
 ;; (define-key vlm-completion-map (kbd "/" 'ace-complete-dabbrev)
@@ -2747,7 +2750,7 @@ Only I will remain.")
 
 ;; (require 'prog-mode nil t)
 
-(define-key prog-mode-map (kbd "<tab>") 'ace-complete-at-point-or-indent)
+(define-key prog-mode-map (kbd "<tab>") 'complete-at-point-or-indent)
 
 ;; (require 'hideshow nil t)
 
