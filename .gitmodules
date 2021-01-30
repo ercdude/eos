@@ -44,3 +44,15 @@
 [submodule "transient"]
 	path = src/lisp/transient
 	url = https://github.com/magit/transient.git
+[submodule "emacs-async"]
+	path = src/lisp/emacs-async
+	url = https://github.com/jwiegley/emacs-async.git
+[submodule "s"]
+	path = src/lisp/s
+	url = https://github.com/magnars/s.el
+[submodule "dictionary"]
+	path = src/lisp/dictionary-el
+	url = https://github.com/myrkr/dictionary-el.git
+[submodule "ag"]
+	path = src/lisp/ag
+	url = https://github.com/Wilfred/ag.el.git
