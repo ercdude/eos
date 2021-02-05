@@ -215,7 +215,7 @@
 (define-key ctl-x-map (kbd "k") 'kill-buffer)
 
 ;; shell command history
-(define-key ctl-x-map (kbd "C-x") 'shell-command-history)
+(define-key ctl-x-map (kbd "C-x") 'shell-command)
 (define-key ctl-x-map (kbd "C-c") 'eval-command-history)
 
 ;; mark
@@ -587,7 +587,7 @@
 ;;             (set-frame-transparency .8)))
 
 ;; global map
-(global-set-key (kbd "C-x C-o") 'other-frame)
+;;(global-set-key (kbd "C-x C-o") 'other-frame)
 
 (defmacro safe-set-frame-font (font)
   "Set the default font to FONT."
@@ -1018,13 +1018,13 @@
 ;; if the value is ‘1’, then hide the tab bar when it has only one tab
 (customize-set-variable 'tab-bar-show nil)
 
-
-
-;; (require 'tool-bar nil t)
-
 (define-key vlm-tabs-map (kbd "t") 'tab-switcher)
 (define-key vlm-tabs-map (kbd "n") 'tab-bar-new-tab)
 (define-key vlm-tabs-map (kbd "r") 'tab-bar-rename-tab)
+
+
+
+;; (require 'tool-bar nil t)
 
 ;; enable
 ;; (safe-funcall 'tool-bar-mode 1)
@@ -1082,7 +1082,7 @@
                           "("
                           mode-name
                           ")"
-                          (:eval (when vc-mode (concat " » " (projectile-project-name) " ")))
+                          (:eval (when vc-mode (concat " » " (projectile-project-name) " »")))
                           (vc-mode vc-mode)))
 
 ;; set wallpaper
@@ -2262,9 +2262,9 @@
 (global-set-key (kbd "<print>") 'capture-screen)
 
 ;; global-map
-(global-set-key (kbd "s-<f6>") 'mute-audio)
-(global-set-key (kbd "s-<f7>") 'lower-volume)
-(global-set-key (kbd "s-<f8>") 'increase-volume)
+(global-set-key (kbd "s-_") 'mute-audio)
+(global-set-key (kbd "s--") 'lower-volume)
+(global-set-key (kbd "s-+") 'increase-volume)
 
 ;; (require 'calendar nil t)
 
@@ -3047,8 +3047,6 @@ Only I will remain.")
 ;; clean esc map
 ;; (define-key esc-map (kbd "ESC") nil)
 (define-key esc-map (kbd "<f10>") nil)
-
-(define-key ctl-x-map (kbd "C-o") nil)
 
 ;; (define-key ctl-x-map (kbd "C-c") nil)
 (define-key ctl-x-map (kbd "C-j") nil)

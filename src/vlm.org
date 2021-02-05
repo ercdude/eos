@@ -570,7 +570,7 @@
       (define-key ctl-x-map (kbd "k") 'kill-buffer)
 
       ;; shell command history
-      (define-key ctl-x-map (kbd "C-x") 'shell-command-history)
+      (define-key ctl-x-map (kbd "C-x") 'shell-command)
       (define-key ctl-x-map (kbd "C-c") 'eval-command-history)
 
       ;; mark
@@ -1388,7 +1388,7 @@
 
       #+END_SRC
 
-      q**** Dired
+**** Dired
 
       This is a major mode for file management operations.
 
@@ -1437,6 +1437,7 @@
       (define-key ctl-x-map (kbd "C-d") 'dired)
 
       #+END_SRC
+
 *** Frames
 
     When Emacs is started on a graphical display, e.g., on the X Window
@@ -1506,7 +1507,7 @@
      #+BEGIN_SRC emacs-lisp
 
      ;; global map
-     (global-set-key (kbd "C-x C-o") 'other-frame)
+     ;;(global-set-key (kbd "C-x C-o") 'other-frame)
 
      #+END_SRC
 
@@ -1774,7 +1775,6 @@
        ;; (add-hook 'prog-mode-hook 'linum-mode)
 
        #+END_SRC
-
 
 ***** Display-linum
 
@@ -2317,6 +2317,16 @@
 
       #+END_SRC
 
+***** Binds
+
+      #+BEGIN_SRC emacs-lisp
+
+      (define-key vlm-tabs-map (kbd "t") 'tab-switcher)
+      (define-key vlm-tabs-map (kbd "n") 'tab-bar-new-tab)
+      (define-key vlm-tabs-map (kbd "r") 'tab-bar-rename-tab)
+
+      #+END_SRC
+
 ***** Hooks
 
       #+BEGIN_SRC emacs-lisp
@@ -2336,16 +2346,6 @@
       #+BEGIN_SRC emacs-lisp
 
       ;; (require 'tool-bar nil t)
-
-      #+END_SRC
-
-***** Binds
-
-      #+BEGIN_SRC emacs-lisp
-
-      (define-key vlm-tabs-map (kbd "t") 'tab-switcher)
-      (define-key vlm-tabs-map (kbd "n") 'tab-bar-new-tab)
-      (define-key vlm-tabs-map (kbd "r") 'tab-bar-rename-tab)
 
       #+END_SRC
 
@@ -2508,7 +2508,7 @@
                                 "("
                                 mode-name
                                 ")"
-                                (:eval (when vc-mode (concat " » " (projectile-project-name) " ")))
+                                (:eval (when vc-mode (concat " » " (projectile-project-name) " »")))
                                 (vc-mode vc-mode)))
 
       #+END_SRC
@@ -5252,9 +5252,9 @@
       #+BEGIN_SRC emacs-lisp
 
       ;; global-map
-      (global-set-key (kbd "s-<f6>") 'mute-audio)
-      (global-set-key (kbd "s-<f7>") 'lower-volume)
-      (global-set-key (kbd "s-<f8>") 'increase-volume)
+      (global-set-key (kbd "s-_") 'mute-audio)
+      (global-set-key (kbd "s--") 'lower-volume)
+      (global-set-key (kbd "s-+") 'increase-volume)
 
       #+END_SRC
 
@@ -7235,8 +7235,6 @@
      Clean/unbind keys from ctl-x-map.
 
      #+BEGIN_SRC emacs-lisp
-
-     (define-key ctl-x-map (kbd "C-o") nil)
 
      ;; (define-key ctl-x-map (kbd "C-c") nil)
      (define-key ctl-x-map (kbd "C-j") nil)
