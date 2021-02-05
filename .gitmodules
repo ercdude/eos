@@ -56,3 +56,6 @@
 [submodule "ag"]
 	path = src/lisp/ag
 	url = https://github.com/Wilfred/ag.el.git
+[submodule "lazy"]
+	path = src/lisp/lazy
+	url = https://github.com/esac-io/lazy.git
