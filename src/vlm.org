@@ -5654,6 +5654,9 @@
       ;; should the dictionary command reuse previous dictionary buffers?
       (customize-set-variable 'dictionary-use-single-buffer t)
 
+      ;; best server found with pt-br words and some definitions
+      (customize-set-variable 'dictionary-server "dico.gnu.org.ua")
+
       #+END_SRC
 
 ***** Functions
