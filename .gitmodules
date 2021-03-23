@@ -62,3 +62,6 @@
 [submodule "yaml-mode"]
 	path = src/lisp/yaml-mode
 	url = https://github.com/yaml/yaml-mode
+[submodule "glsl-mode"]
+	path = src/lisp/glsl-mode
+	url = https://github.com/jimhourihan/glsl-mode
