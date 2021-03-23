@@ -1556,7 +1556,7 @@
 
 ;; clt-x-map (C-x) prefix
 (define-key ctl-x-map (kbd "RET") 'multi-term-dedicated-toggle)
-(define-key ctl-x-map (kbd "<C-return>") 'open-terminal)
+(define-key ctl-x-map (kbd "<C-return>") 'term-make)
 
 ;; (require 'auth-source nil t)
 
@@ -2451,6 +2451,9 @@ Only I will remain.")
 ;; should the dictionary command reuse previous dictionary buffers?
 (customize-set-variable 'dictionary-use-single-buffer t)
 
+;; best server found with pt-br words and some definitions
+(customize-set-variable 'dictionary-server "dico.gnu.org.ua")
+
 (defun vlm-dictionary-search-at-point ()
   "Search WORD in dictionary at point."
   (interactive)
@@ -3156,5 +3159,3 @@ Only I will remain.")
 (global-unset-key (kbd "<f16>"))
 (global-unset-key (kbd "<f18>"))
 (global-unset-key (kbd "<f20>"))
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)

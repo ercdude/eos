@@ -3730,7 +3730,7 @@
 
        ;; clt-x-map (C-x) prefix
        (define-key ctl-x-map (kbd "RET") 'multi-term-dedicated-toggle)
-       (define-key ctl-x-map (kbd "<C-return>") 'open-terminal)
+       (define-key ctl-x-map (kbd "<C-return>") 'term-make)
 
        #+END_SRC
 
