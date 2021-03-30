@@ -6088,7 +6088,7 @@
       (define-key vlm-tags-map (kbd "r") 'xref-find-references)
       (define-key vlm-tags-map (kbd "a") 'xref-find-apropos)
       (define-key vlm-tags-map (kbd "R") 'tags-query-replace)
-      (define-key vlm-tags-map (kbd "f") 'find-tag)
+      (define-key vlm-tags-map (kbd "f") 'xref-find-definitions)
       (define-key vlm-tags-map (kbd "l") 'list-tags)
       (define-key vlm-tags-map (kbd "v") 'visit-tags-table)
       (define-key vlm-tags-map (kbd "d") 'tags-reset-tags-tables)

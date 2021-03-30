@@ -65,3 +65,9 @@
 [submodule "glsl-mode"]
 	path = src/lisp/glsl-mode
 	url = https://github.com/jimhourihan/glsl-mode
+[submodule "src/lisp/flycheck"]
+	path = src/lisp/flycheck
+	url = https://github.com/flycheck/flycheck.git
+[submodule "src/lisp/projectile"]
+	path = src/lisp/projectile
+	url = https://github.com/bbatsov/projectile.git
