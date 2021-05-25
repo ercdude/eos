@@ -1334,6 +1334,7 @@
 
 ;; define alias for redo
 (defalias 'redo 'undo-tree-redo)
+(customize-set-variable 'undo-tree-auto-save-history nil)
 
 (define-key ctl-x-map (kbd "u") 'undo-tree-visualize)
 
@@ -2060,7 +2061,7 @@
                            :server-alias "freenode"
                            :encryption tls
                            :nick "ercdude"
-                           :channels ("#lisp-br #freebsd-br"))))
+                           :channels ("#lisp-br #freebsd-br #emacs-br"))))
 
 (add-hook 'rcirc-mode-hook
           (lambda ()
@@ -2236,7 +2237,7 @@
 ;; (customize-set-variable 'comint-prompt-regexp ".*:.*>.*? ")
 
 ;; value to use for TERM when the system uses terminfo.
-(customize-set-variable 'comint-terminfo-terminal "xterm-color")
+(customize-set-variable 'comint-terminfo-terminal "eterm-color")
 
 ;; (require 'ielm nil t)
 
@@ -2795,6 +2796,16 @@ Only I will remain.")
           (lambda ()
             (funcall 'show-paren-mode 1)))
 
+;; Set empty space
+(set-variable 'display-fill-column-indicator-character '32)
+
+;; Customize face
+(custom-set-faces
+ '(fill-column-indicator ((t (:inherit shadow :stipple nil :background "gray5" :foreground "#000000" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal)))))
+
+;; visualization of matching parens
+(add-hook 'prog-mode-hook 'display-fill-column-indicator-mode)
+
 ;; (require 'make-mode nil t)
 
 ;; if non-nil, automatically clean up continuation lines when saving
@@ -2810,8 +2821,8 @@ Only I will remain.")
 ;; number of columns to indent the second line of a (def...) form
 (customize-set-variable 'lisp-body-indent 2)
 
-(setq slime-lisp-implementations
-      '((sbcl ("/usr/local/bin/sbcl") :coding-system utf-8-unix)))
+(customize-set-variable 'slime-lisp-implementations
+                        '((sbcl ("/usr/local/bin/sbcl") :coding-system utf-8-unix)))
 
 ;; (require 'elisp-mode nil t)
 

@@ -3264,6 +3264,7 @@
 
       ;; define alias for redo
       (defalias 'redo 'undo-tree-redo)
+      (customize-set-variable 'undo-tree-auto-save-history nil)
 
       #+END_SRC
 
@@ -4705,7 +4706,7 @@
                                  :server-alias "freenode"
                                  :encryption tls
                                  :nick "ercdude"
-                                 :channels ("#lisp-br #freebsd-br"))))
+                                 :channels ("#lisp-br #freebsd-br #emacs-br"))))
 
       #+END_SRC
 
@@ -5178,7 +5179,7 @@
       ;; (customize-set-variable 'comint-prompt-regexp ".*:.*>.*? ")
 
       ;; value to use for TERM when the system uses terminfo.
-      (customize-set-variable 'comint-terminfo-terminal "xterm-color")
+      (customize-set-variable 'comint-terminfo-terminal "eterm-color")
 
       #+END_SRC
 
@@ -6523,6 +6524,28 @@
 
       #+END_SRC
 
+**** Display Fill Column
+***** Customize
+
+      #+BEGIN_SRC emacs-lisp
+
+      ;; Set empty space
+      (set-variable 'display-fill-column-indicator-character '32)
+
+      ;; Customize face
+      (custom-set-faces
+       '(fill-column-indicator ((t (:inherit shadow :stipple nil :background "gray5" :foreground "#000000" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal)))))
+
+      #+END_SRC
+
+***** Enable
+
+      #+BEGIN_SRC emacs-lisp
+
+      ;; visualization of matching parens
+      (add-hook 'prog-mode-hook 'display-fill-column-indicator-mode)
+
+      #+END_SRC
 **** Make-mode
 
      Major mode for editing standard Makefiles.
@@ -6591,8 +6614,8 @@
      Setup sbcl lisp implementation (interpreter/compiler).
 
      #+BEGIN_SRC emacs-lisp
-     (setq slime-lisp-implementations
-           '((sbcl ("/usr/local/bin/sbcl") :coding-system utf-8-unix)))
+     (customize-set-variable 'slime-lisp-implementations
+                             '((sbcl ("/usr/local/bin/sbcl") :coding-system utf-8-unix)))
      #+END_SRC
 
 *** Elisp
