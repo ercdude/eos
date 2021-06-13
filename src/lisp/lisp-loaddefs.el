@@ -369,6 +369,14 @@ Activate the minor mode." t nil)
 
 ;;;***
 
+;;;### (autoloads nil "capture-screen" "capture-screen/capture-screen.el"
+;;;;;;  (0 0 0 0))
+;;; Generated autoloads from capture-screen/capture-screen.el
+
+(register-definition-prefixes "capture-screen" '("capture-screen"))
+
+;;;***
+
 ;;;### (autoloads nil "chicken-apropos" "chicken/chicken-apropos.el"
 ;;;;;;  (0 0 0 0))
 ;;; Generated autoloads from chicken/chicken-apropos.el
