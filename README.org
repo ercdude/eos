@@ -46,12 +46,17 @@
   Unfortunately some people find this overwhelming,
   but others find it formidable - myself included!
 
-** Screenshot
+* Screenshot
 
    #+CAPTION: VIRTUAL LISP MACHINE
    #+NAME:   fig:VLM-screenshot
 
    [[./assets/vlm.png]]
+
+   #+CAPTION: EMACS OS, dual monitor
+   #+NAME:   fig:EOS-screenshot2
+
+   [[./assets/eos2.png]]
 
    | Present Day, heh... Present Time |
 
@@ -238,7 +243,7 @@
 
 * Dependencies
 
-  1. Emacs >= 26.3
+  1. Emacs >= 27
   2. Elisp Libraries
      - TODO: List Libraries!
   3. Elf Binaries

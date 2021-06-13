@@ -1,0 +1,139 @@
+
+[submodule "src/lisp/rfc-docs"]
+	path = src/lisp/rfc-docs
+	url = git@github.com:esac-io/rfc-docs.git
+[submodule "src/lisp/dash-docs"]
+	path = src/lisp/dash-docs
+	url = git@github.com:esac-io/dash-docs.git
+[submodule "src/lisp/magit"]
+	path = src/lisp/magit
+	url = https://github.com/magit/magit.git
+[submodule "src/lisp/cannon"]
+	path = src/lisp/cannon
+	url = https://github.com/esac-io/cannon
+[submodule "src/lisp/exwm"]
+	path = src/lisp/exwm
+	url = https://github.com/ch11ng/exwm
+[submodule "src/lisp/xelb"]
+	path = src/lisp/xelb
+	url = https://github.com/ch11ng/xelb
+[submodule "src/lisp/browse-kill-ring"]
+	path = src/lisp/browse-kill-ring
+	url = https://github.com/browse-kill-ring/browse-kill-ring.git
+[submodule "src/lisp/lex"]
+	path = src/lisp/lex
+	url = https://github.com/esac-io/lex
+[submodule "src/lisp/rsync.el"]
+	path = src/lisp/rsync.el
+	url = https://github.com/esac-io/rsync.el.git
+[submodule "src/lisp/slime"]
+	path = src/lisp/slime
+	url = https://github.com/slime/slime.git
+[submodule "src/lisp/wall-el"]
+	path = src/lisp/wall-el
+	url = https://github.com/lambdart/wall-el
+[submodule "src/lisp/ddoc"]
+	path = src/lisp/ddoc
+	url = https://github.com/lambdart/ddoc.git
+[submodule "with-editor"]
+	path = src/lisp/with-editor
+	url = https://github.com/magit/with-editor.git
+[submodule "src/lisp/dash.el"]
+	path = src/lisp/dash.el
+	url = https://github.com/magnars/dash.el.git
+[submodule "transient"]
+	path = src/lisp/transient
+	url = https://github.com/magit/transient.git
+[submodule "emacs-async"]
+	path = src/lisp/emacs-async
+	url = https://github.com/jwiegley/emacs-async.git
+[submodule "s"]
+	path = src/lisp/s
+	url = https://github.com/magnars/s.el
+[submodule "dictionary"]
+	path = src/lisp/dictionary-el
+	url = https://github.com/myrkr/dictionary-el.git
+[submodule "ag"]
+	path = src/lisp/ag
+	url = https://github.com/Wilfred/ag.el.git
+[submodule "lazy"]
+	path = src/lisp/lazy
+	url = https://github.com/esac-io/lazy.git
+[submodule "yaml-mode"]
+	path = src/lisp/yaml-mode
+	url = https://github.com/yaml/yaml-mode
+[submodule "glsl-mode"]
+	path = src/lisp/glsl-mode
+	url = https://github.com/jimhourihan/glsl-mode
+[submodule "src/lisp/flycheck"]
+	path = src/lisp/flycheck
+	url = https://github.com/flycheck/flycheck.git
+[submodule "src/lisp/projectile"]
+	path = src/lisp/projectile
+	url = https://github.com/bbatsov/projectile.git
+[submodule "src/lisp/chicken"]
+	path = src/lisp/chicken
+	url = https://github.com/lambdart/chicken.git
+[submodule "lisp/all-the-icons"]
+	path = lisp/all-the-icons
+	url = https://github.com/domtronn/all-the-icons.el
+[submodule "all-the-icons"]
+	path = src/lisp/all-the-icons
+	url = https://github.com/domtronn/all-the-icons.el
+[submodule "dired-hacks"]
+	path = src/lisp/dired-hacks
+	url = https://github.com/Fuco1/dired-hacks
+[submodule "editorconfig-emacs"]
+	path = src/lisp/editorconfig-emacs
+	url = https://github.com/editorconfig/editorconfig-emacs
+[submodule "emms"]
+	path = src/lisp/emms
+	url = https://github.com/emacsmirror/emms
+[submodule "gcmh"]
+	path = src/lisp/gcmh
+	url = https://github.com/emacsmirror/gcmh.git
+[submodule "iedit"]
+	path = src/lisp/iedit
+	url = https://github.com/victorhge/iedit.git
+[submodule "src/lisp/lua-mode"]
+	path = src/lisp/lua-mode
+	url = https://github.com/immerrr/lua-mode.git
+[submodule "markdown-mode"]
+	path = src/lisp/markdown-mode
+	url = https://github.com/jrblevin/markdown-mode.git
+[submodule "rmsbolt"]
+	path = src/lisp/rmsbolt
+	url = https://github.com/emacsmirror/rmsbolt.git
+[submodule "undo-tree"]
+	path = src/lisp/undo-tree
+	url = https://gitlab.com/tsc25/undo-tree
+[submodule "verb"]
+	path = src/lisp/verb
+	url = https://github.com/federicotdn/verb.git
+[submodule "web-mode"]
+	path = src/lisp/web-mode
+	url = https://github.com/fxbois/web-mode.git
+[submodule "yasnippet"]
+	path = src/lisp/yasnippet
+	url = https://github.com/joaotavora/yasnippet.git
+[submodule "forge"]
+	path = src/lisp/forge
+	url = https://github.com/magit/forge
+[submodule "closql"]
+	path = lisp/closql
+	url = https://github.com/emacscollective/closql.git
+[submodule "src/lisp/closql"]
+	path = src/lisp/closql
+	url = https://github.com/emacscollective/closql.git
+[submodule "src/lisp/emacsql"]
+	path = src/lisp/emacsql
+	url = https://github.com/skeeto/emacsql.git
+[submodule "ghub"]
+	path = src/lisp/ghub
+	url = https://github.com/magit/ghub.git
+[submodule "src/lisp/treepy"]
+	path = src/lisp/treepy
+	url = https://github.com/volrath/treepy.el.git
+[submodule "capture-screen"]
+	path = src/lisp/capture-screen
+	url = https://gitlab.com/ercdude/capture-screen.el

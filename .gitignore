@@ -126,7 +126,7 @@ docsets
 site-lisp
 cedet-git
 todo
-lisp
+#lisp
 backup
 blog
 nsm
