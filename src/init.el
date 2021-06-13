@@ -2100,7 +2100,10 @@
 (customize-set-variable 'browse-url-generic-program "chrome")
 
 ;; function to display the current buffer in a WWW browser: eww
-(customize-set-variable 'browse-url-browser-function 'eww-browse-url)
+(customize-set-variable 'browse-url-browser-function
+                        '(("wikipedia\\.org" . eww-browse-url)
+                          ("thefreedictionary\\.org" . eww-browse-url)
+                          ("." . browse-url-default-browser)))
 
 ;; (require 'ag nil t)
 
@@ -3170,3 +3173,4 @@ Only I will remain.")
 (global-unset-key (kbd "<f16>"))
 (global-unset-key (kbd "<f18>"))
 (global-unset-key (kbd "<f20>"))
+(put 'downcase-region 'disabled nil)

@@ -134,3 +134,6 @@
 [submodule "src/lisp/treepy"]
 	path = src/lisp/treepy
 	url = https://github.com/volrath/treepy.el.git
+[submodule "capture-screen"]
+	path = src/lisp/capture-screen
+	url = https://gitlab.com/ercdude/capture-screen.el

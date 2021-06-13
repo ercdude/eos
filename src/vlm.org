@@ -4799,7 +4799,10 @@
       (customize-set-variable 'browse-url-generic-program "chrome")
 
       ;; function to display the current buffer in a WWW browser: eww
-      (customize-set-variable 'browse-url-browser-function 'eww-browse-url)
+      (customize-set-variable 'browse-url-browser-function
+                              '(("wikipedia\\.org" . eww-browse-url)
+                                ("thefreedictionary\\.org" . eww-browse-url)
+                                ("." . browse-url-default-browser)))
 
       #+END_SRC
 
