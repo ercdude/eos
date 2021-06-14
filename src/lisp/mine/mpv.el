@@ -5,12 +5,6 @@
 (defvar mpv-video-options '("--osd-level=2")
   "A list with the options used for displaying video.")
 
-(defun secs-to-mm:ss (n)
-  "Force N - a number of seconds or an \"mm:ss\" string - to the mm:ss format"
-  (if (stringp n) n
-
-    (format "%d:%02d" m s)))
-
 (defun format-mpv-args (fname &optional pos &rest rest)
   "Forms the argv with the name FNAME and params POS and REST as a list of strings."
   `("mpv"
