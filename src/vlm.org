@@ -1695,7 +1695,7 @@
       (define-key ctl-x-map (kbd "C-k") 'kill-buffer-and-window)
 
       ;; other window (redundancy)
-      (define-key ctl-x-map (kbd "C-o") 'other-window)
+      ;;(define-key ctl-x-map (kbd "C-o") 'other-window)
 
       ;; switch to the last buffer in the buffer list
       (define-key ctl-x-map (kbd "C-u") 'unbury-buffer)
@@ -2405,7 +2405,7 @@
       ;; if the value is ‘1’, then hide the tab bar when it has only one tab-bar-show
       ;; if t, enable `tab-bar-mode' automatically on using the commands that
       ;; create new window configurations
-      (customize-set-variable 'tab-bar-show t)
+      (customize-set-variable 'tab-bar-show nil)
 
       ;; if 'rightmost', create as the last tab
       (customize-set-variable 'tab-bar-new-tab-to "rightmost")
@@ -2606,7 +2606,7 @@
                                 " "
                                 "»"
                                 " "
-                                (:eval (format-time-string "  %H:%M"))
+                                (:eval (format-time-string " %H:%M"))
                                 " "
                                 "¦"
                                 ;; "
@@ -4959,7 +4959,9 @@
       (customize-set-variable 'browse-url-browser-function
                               '(("wikipedia\\.org" . eww-browse-url)
                                 ("thefreedictionary\\.org" . eww-browse-url)
-                                ("." . browse-url-default-browser)))
+                                ("." . browse-url-default-browser)
+                                ("youtube\\.com" . play-url)
+                                ("*.mp3" . emms-play-url)))
 
       #+END_SRC
 

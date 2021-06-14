@@ -137,3 +137,6 @@
 [submodule "capture-screen"]
 	path = src/lisp/capture-screen
 	url = https://gitlab.com/ercdude/capture-screen.el
+[submodule "elfeed"]
+	path = src/lisp/elfeed
+	url = git@github.com:skeeto/elfeed.git
