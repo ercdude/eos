@@ -685,7 +685,7 @@
 (define-key ctl-x-map (kbd "C-k") 'kill-buffer-and-window)
 
 ;; other window (redundancy)
-(define-key ctl-x-map (kbd "C-o") 'other-window)
+;;(define-key ctl-x-map (kbd "C-o") 'other-window)
 
 ;; switch to the last buffer in the buffer list
 (define-key ctl-x-map (kbd "C-u") 'unbury-buffer)
@@ -1047,7 +1047,7 @@
 ;; if the value is ‘1’, then hide the tab bar when it has only one tab-bar-show
 ;; if t, enable `tab-bar-mode' automatically on using the commands that
 ;; create new window configurations
-(customize-set-variable 'tab-bar-show t)
+(customize-set-variable 'tab-bar-show nil)
 
 ;; if 'rightmost', create as the last tab
 (customize-set-variable 'tab-bar-new-tab-to "rightmost")
@@ -1127,9 +1127,10 @@
                           " "
                           mode-line-modified
                           mode-line-remote
-                          (:eval (format "  %d/%d"
-                                         exwm-workspace-current-index
-                                         (exwm-workspace--count)))
+                          (:eval (when (display-graphic-p)
+                                   (format "  %d/%d"
+                                           exwm-workspace-current-index
+                                           (exwm-workspace--count))))
                           " "
                           "¦"
                           " "
@@ -1862,9 +1863,9 @@
 ;; (define-key vlm-completion-map (kbd "]") 'ace-complete-dabbrev-code)
 
 ;; enable ace-mode
-(add-hook 'window-setup-hook
-          (lambda ()
-            (funcall 'turn-on-ace-mode)))
+;; (add-hook 'window-setup-hook
+;;           (lambda ()
+;;             (funcall 'turn-on-ace-mode)))
 
 ;; (require 'iedit nil t)
 
@@ -2172,6 +2173,7 @@
                         '(("wikipedia\\.org" . eww-browse-url)
                           ("thefreedictionary\\.org" . eww-browse-url)
                           ("." . browse-url-default-browser)
+                          ("^https?://www.youtube\\.com" . play-url)
                           ("*.mp3" . emms-play-url)))
 
 ;; (require 'ag nil t)

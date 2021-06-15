@@ -2614,9 +2614,10 @@
                                 " "
                                 mode-line-modified
                                 mode-line-remote
-                                (:eval (format "  %d/%d"
-                                               exwm-workspace-current-index
-                                               (exwm-workspace--count)))
+                                (:eval (when (display-graphic-p)
+                                         (format "  %d/%d"
+                                                 exwm-workspace-current-index
+                                                 (exwm-workspace--count))))
                                 " "
                                 "¦"
                                 " "
@@ -4342,9 +4343,9 @@
       #+BEGIN_SRC emacs-lisp
 
       ;; enable ace-mode
-      (add-hook 'window-setup-hook
-                (lambda ()
-                  (funcall 'turn-on-ace-mode)))
+      ;; (add-hook 'window-setup-hook
+      ;;           (lambda ()
+      ;;             (funcall 'turn-on-ace-mode)))
 
       #+END_SRC
 
@@ -4960,7 +4961,8 @@
                               '(("wikipedia\\.org" . eww-browse-url)
                                 ("thefreedictionary\\.org" . eww-browse-url)
                                 ("." . browse-url-default-browser)
-                                ("youtube\\.com" . play-url)
+                                ;; not working. why?
+                                ("^https?://www.youtube\\.com" . play-url)
                                 ("*.mp3" . emms-play-url)))
 
       #+END_SRC
