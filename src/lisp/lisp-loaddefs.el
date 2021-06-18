@@ -295,7 +295,12 @@ Same as `byte-compile-file' but asynchronous.
 ;;;### (autoloads nil "backlight" "mine/backlight.el" (0 0 0 0))
 ;;; Generated autoloads from mine/backlight.el
 
-(register-definition-prefixes "backlight" '("set-lcd-brightness" "vlm-brightness-bin"))
+(autoload 'set-lcd-brightness "backlight" "\
+Set BRIGHTNESS % value.
+
+\(fn &optional BRIGHTNESS)" t nil)
+
+(register-definition-prefixes "backlight" '("vlm-brightness-bin"))
 
 ;;;***
 
@@ -439,6 +444,136 @@ The following commands are available:
 ;;; Generated autoloads from chicken/chicken-overlay.el
 
 (register-definition-prefixes "chicken-overlay" '("chicken-overlay"))
+
+;;;***
+
+;;;### (autoloads nil "clojure-mode" "clojure-mode/clojure-mode.el"
+;;;;;;  (0 0 0 0))
+;;; Generated autoloads from clojure-mode/clojure-mode.el
+
+(autoload 'clojure-mode "clojure-mode" "\
+Major mode for editing Clojure code.
+
+\\{clojure-mode-map}
+
+\(fn)" t nil)
+
+(autoload 'clojure-unwind "clojure-mode" "\
+Unwind thread at point or above point by N levels.
+With universal argument \\[universal-argument], fully unwind thread.
+
+\(fn &optional N)" t nil)
+
+(autoload 'clojure-unwind-all "clojure-mode" "\
+Fully unwind thread at point or above point." t nil)
+
+(autoload 'clojure-thread "clojure-mode" "\
+Thread by one more level an existing threading macro." t nil)
+
+(autoload 'clojure-thread-first-all "clojure-mode" "\
+Fully thread the form at point using ->.
+
+When BUT-LAST is non-nil, the last expression is not threaded.
+Default value is `clojure-thread-all-but-last'.
+
+\(fn BUT-LAST)" t nil)
+
+(autoload 'clojure-thread-last-all "clojure-mode" "\
+Fully thread the form at point using ->>.
+
+When BUT-LAST is non-nil, the last expression is not threaded.
+Default value is `clojure-thread-all-but-last'.
+
+\(fn BUT-LAST)" t nil)
+
+(autoload 'clojure-cycle-privacy "clojure-mode" "\
+Make public the current private def, or vice-versa.
+See: https://github.com/clojure-emacs/clj-refactor.el/wiki/cljr-cycle-privacy" t nil)
+
+(autoload 'clojure-convert-collection-to-list "clojure-mode" "\
+Convert collection at (point) to list." t nil)
+
+(autoload 'clojure-convert-collection-to-quoted-list "clojure-mode" "\
+Convert collection at (point) to quoted list." t nil)
+
+(autoload 'clojure-convert-collection-to-map "clojure-mode" "\
+Convert collection at (point) to map." t nil)
+
+(autoload 'clojure-convert-collection-to-vector "clojure-mode" "\
+Convert collection at (point) to vector." t nil)
+
+(autoload 'clojure-convert-collection-to-set "clojure-mode" "\
+Convert collection at (point) to set." t nil)
+
+(autoload 'clojure-cycle-if "clojure-mode" "\
+Change a surrounding if to if-not, or vice-versa.
+
+See: https://github.com/clojure-emacs/clj-refactor.el/wiki/cljr-cycle-if" t nil)
+
+(autoload 'clojure-cycle-when "clojure-mode" "\
+Change a surrounding when to when-not, or vice-versa." t nil)
+
+(autoload 'clojure-let-backward-slurp-sexp "clojure-mode" "\
+Slurp the s-expression before the let form into the let form.
+With a numeric prefix argument slurp the previous N s-expressions
+into the let form.
+
+\(fn &optional N)" t nil)
+
+(autoload 'clojure-let-forward-slurp-sexp "clojure-mode" "\
+Slurp the next s-expression after the let form into the let form.
+With a numeric prefix argument slurp the next N s-expressions
+into the let form.
+
+\(fn &optional N)" t nil)
+
+(autoload 'clojure-introduce-let "clojure-mode" "\
+Create a let form, binding the form at point.
+With a numeric prefix argument the let is introduced N lists up.
+
+\(fn &optional N)" t nil)
+
+(autoload 'clojure-move-to-let "clojure-mode" "\
+Move the form at point to a binding in the nearest let." t nil)
+
+(autoload 'clojure-rename-ns-alias "clojure-mode" "\
+Rename a namespace alias.
+If a region is active, only pick up and rename aliases within the region." t nil)
+
+(autoload 'clojure-add-arity "clojure-mode" "\
+Add an arity to a function." t nil)
+
+(autoload 'clojurescript-mode "clojure-mode" "\
+Major mode for editing ClojureScript code.
+
+\\{clojurescript-mode-map}
+
+\(fn)" t nil)
+
+(autoload 'clojurec-mode "clojure-mode" "\
+Major mode for editing ClojureC code.
+
+\\{clojurec-mode-map}
+
+\(fn)" t nil)
+
+(add-to-list 'auto-mode-alist '("\\.\\(clj\\|dtm\\|edn\\)\\'" . clojure-mode))
+
+(add-to-list 'auto-mode-alist '("\\.cljc\\'" . clojurec-mode))
+
+(add-to-list 'auto-mode-alist '("\\.cljs\\'" . clojurescript-mode))
+
+(add-to-list 'auto-mode-alist '("\\(?:build\\|profile\\)\\.boot\\'" . clojure-mode))
+
+(register-definition-prefixes "clojure-mode" '("add-custom-clojure-indents" "clojure" "define-clojure-indent" "put-clojure-indent"))
+
+;;;***
+
+;;;### (autoloads nil "clojure-mode-extra-font-locking" "clojure-mode/clojure-mode-extra-font-locking.el"
+;;;;;;  (0 0 0 0))
+;;; Generated autoloads from clojure-mode/clojure-mode-extra-font-locking.el
+
+(register-definition-prefixes "clojure-mode-extra-font-locking" '("clojure-built-in-"))
 
 ;;;***
 
@@ -2889,6 +3024,126 @@ and call `auth-source-forget+'." t nil)
 
 ;;;***
 
+;;;### (autoloads nil "iclj-apropos" "iclj/iclj-apropos.el" (0 0
+;;;;;;  0 0))
+;;; Generated autoloads from iclj/iclj-apropos.el
+
+(register-definition-prefixes "iclj-apropos" '("iclj-apropos-"))
+
+;;;***
+
+;;;### (autoloads nil "iclj-comint" "iclj/iclj-comint.el" (0 0 0
+;;;;;;  0))
+;;; Generated autoloads from iclj/iclj-comint.el
+
+(autoload 'iclj-comint-remote-run "iclj-comint" "\
+Run an inferior instance of Clojure REPL Server (HOST PORT) inside Emacs.
+
+\(fn HOST PORT)" t nil)
+
+(autoload 'iclj-comint-run "iclj-comint" "\
+Run an inferior instance of Clojure REPL PROGRAM inside Emacs.
+If SWITCHES are supplied, they are passed to PROGRAM.  With prefix argument
+\\[universal-argument] prompt for SWITCHES as well as PROGRAM.
+
+\(fn PROGRAM &optional SWITCHES)" t nil)
+
+(add-hook 'iclj-comint-mode-hook 'iclj-comint-setup)
+
+(register-definition-prefixes "iclj-comint" '("iclj-comint-"))
+
+;;;***
+
+;;;### (autoloads nil "iclj-completion" "iclj/iclj-completion.el"
+;;;;;;  (0 0 0 0))
+;;; Generated autoloads from iclj/iclj-completion.el
+
+(register-definition-prefixes "iclj-completion" '("iclj-completion-"))
+
+;;;***
+
+;;;### (autoloads nil "iclj-eldoc" "iclj/iclj-eldoc.el" (0 0 0 0))
+;;; Generated autoloads from iclj/iclj-eldoc.el
+
+(autoload 'iclj-eldoc-disable "iclj-eldoc" "\
+Disable eldoc operation." t nil)
+
+(register-definition-prefixes "iclj-eldoc" '("iclj-eldoc-"))
+
+;;;***
+
+;;;### (autoloads nil "iclj-eval" "iclj/iclj-eval.el" (0 0 0 0))
+;;; Generated autoloads from iclj/iclj-eval.el
+
+(autoload 'iclj-eval-handler "iclj-eval" "\
+Default CURRENT-BUFFER overlay handler.
+
+\(fn CURRENT-BUFFER)" nil nil)
+
+(register-definition-prefixes "iclj-eval" '("iclj-eval-display-overlay-flag"))
+
+;;;***
+
+;;;### (autoloads nil "iclj-mode" "iclj/iclj-mode.el" (0 0 0 0))
+;;; Generated autoloads from iclj/iclj-mode.el
+
+(autoload 'iclj-mode-state "iclj-mode" "\
+Show \\{iclj-mode} state, i.e: on or off." t nil)
+
+(autoload 'iclj-mode "iclj-mode" "\
+Minor mode for interacting with the Clojure REPL.
+
+If called interactively, toggle \\[iclj-mode].  If the
+prefix argument is positive, enable the mode, and if it is zero
+or negative, disable the mode.
+
+If called from Lisp, toggle the mode. Enable the mode if ARG is nil,
+omitted, or is a positive number. Disable the mode if
+ARG is a negative number.
+
+The mode's hook is called both when the mode is enabled and when
+it is disabled.
+
+The following commands are available:
+
+\\{iclj-mode-map}
+
+\(fn &optional ARG)" t nil)
+
+(register-definition-prefixes "iclj-mode" '("iclj-"))
+
+;;;***
+
+;;;### (autoloads nil "iclj-op" "iclj/iclj-op.el" (0 0 0 0))
+;;; Generated autoloads from iclj/iclj-op.el
+
+(register-definition-prefixes "iclj-op" '("iclj-"))
+
+;;;***
+
+;;;### (autoloads nil "iclj-op-table" "iclj/iclj-op-table.el" (0
+;;;;;;  0 0 0))
+;;; Generated autoloads from iclj/iclj-op-table.el
+
+(register-definition-prefixes "iclj-op-table" '("iclj-op-"))
+
+;;;***
+
+;;;### (autoloads nil "iclj-overlay" "iclj/iclj-overlay.el" (0 0
+;;;;;;  0 0))
+;;; Generated autoloads from iclj/iclj-overlay.el
+
+(register-definition-prefixes "iclj-overlay" '("iclj-overlay"))
+
+;;;***
+
+;;;### (autoloads nil "iclj-util" "iclj/iclj-util.el" (0 0 0 0))
+;;; Generated autoloads from iclj/iclj-util.el
+
+(register-definition-prefixes "iclj-util" '("iclj-util-"))
+
+;;;***
+
 ;;;### (autoloads nil "iedit" "iedit/iedit.el" (0 0 0 0))
 ;;; Generated autoloads from iedit/iedit.el
 
@@ -3222,6 +3477,16 @@ Byte compile a library, 'el' files from an arbitrary DIR.
 \(fn DIR)" t nil)
 
 (autoload 'byte-compile-libraries "lex-compile" "\
+Recompile all libraries under the root DIR.
+
+\(fn DIR)" t nil)
+
+(autoload 'native-compile-library "lex-compile" "\
+Byte compile a library, 'el' files from an arbitrary DIR.
+
+\(fn DIR)" t nil)
+
+(autoload 'native-compile-libraries "lex-compile" "\
 Recompile all libraries under the root DIR.
 
 \(fn DIR)" t nil)
@@ -6079,6 +6344,13 @@ it is disabled.
 
 ;;;***
 
+;;;### (autoloads nil "mpv" "mine/mpv.el" (0 0 0 0))
+;;; Generated autoloads from mine/mpv.el
+
+(register-definition-prefixes "mpv" '("format-mpv-args" "mpv-video-options" "play-"))
+
+;;;***
+
 ;;;### (autoloads nil "ob-verb" "verb/ob-verb.el" (0 0 0 0))
 ;;; Generated autoloads from verb/ob-verb.el
 
@@ -7562,11 +7834,12 @@ See `yas-minor-mode' for more information on Yas minor mode.
 ;;;***
 
 ;;;### (autoloads nil nil ("all-the-icons/all-the-icons-faces.el"
-;;;;;;  "cmake-mode-20190710.1319/cmake-mode-autoloads.el" "cmake-mode-20190710.1319/cmake-mode-pkg.el"
-;;;;;;  "dash.el/dash-functional.el" "dictionary-el/dictionary-init.el"
-;;;;;;  "dictionary-el/lpath.el" "elfeed/elfeed-pkg.el" "emacs-async/async-pkg.el"
-;;;;;;  "emms/emms-maint.el" "emms/emms-stream-info.el" "forge/forge-pkg.el"
-;;;;;;  "ghub/ghub-pkg.el" "mine/battery.el" "queue/queue-autoloads.el"
+;;;;;;  "cannon/cannon-autoloads.el" "cmake-mode-20190710.1319/cmake-mode-autoloads.el"
+;;;;;;  "cmake-mode-20190710.1319/cmake-mode-pkg.el" "dash.el/dash-functional.el"
+;;;;;;  "dictionary-el/dictionary-init.el" "dictionary-el/lpath.el"
+;;;;;;  "elfeed/elfeed-pkg.el" "emacs-async/async-pkg.el" "emms/emms-maint.el"
+;;;;;;  "emms/emms-stream-info.el" "forge/forge-pkg.el" "ghub/ghub-pkg.el"
+;;;;;;  "lex/verb-autoloads.el" "mine/battery.el" "mine/rss.el" "queue/queue-autoloads.el"
 ;;;;;;  "queue/queue-pkg.el" "xelb/xelb.el") (0 0 0 0))
 
 ;;;***

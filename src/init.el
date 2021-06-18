@@ -2173,6 +2173,7 @@
                         '(("wikipedia\\.org" . eww-browse-url)
                           ("thefreedictionary\\.org" . eww-browse-url)
                           ("." . browse-url-default-browser)
+                          ;; not working. why?
                           ("^https?://www.youtube\\.com" . play-url)
                           ("*.mp3" . emms-play-url)))
 

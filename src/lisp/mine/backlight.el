@@ -6,6 +6,7 @@
 (defvar vlm-brightness-bin "intel_backlight"
   "The brighness program.")
 
+;;;###autoload
 (defun set-lcd-brightness (&optional brightness)
   "Set BRIGHTNESS % value."
   (interactive "P")
