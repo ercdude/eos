@@ -221,7 +221,7 @@ will leave *emacs* process buffers hanging around):
     (async-start
      (lambda ()
        (delete-file \"a remote file on a slow link\" nil))
-     'ignore)
+     \\='ignore)
 
 Note: Even when FINISH-FUNC is present, a future is still
 returned except that it yields no value (since the value is
@@ -280,7 +280,7 @@ Same as `byte-compile-file' but asynchronous.
 
 \(fn FILE)" t nil)
 
-(register-definition-prefixes "async-bytecomp" '("async-byte"))
+(register-definition-prefixes "async-bytecomp" '("async-"))
 
 ;;;***
 
@@ -639,16 +639,14 @@ Queries for any of the four available help topics and prints out the appropriate
 (autoload 'dash-fontify-mode "dash" "\
 Toggle fontification of Dash special variables.
 
-If called interactively, toggle `Dash-Fontify mode'.  If the prefix
-argument is positive, enable the mode, and if it is zero or negative,
-disable the mode.
+If called interactively, toggle `Dash-Fontify mode'.  If the prefix argument is
+positive, enable the mode, and if it is zero or negative, disable the mode.
 
-If called from Lisp, toggle the mode if ARG is `toggle'.  Enable the
-mode if ARG is nil, omitted, or is a positive number.  Disable the
-mode if ARG is a negative number.
+If called from Lisp, toggle the mode if ARG is `toggle'.  Enable the mode if ARG
+is nil, omitted, or is a positive number.  Disable the mode if ARG is a negative
+number.
 
-The mode's hook is called both when the mode is enabled and when it is
-disabled.
+The mode's hook is called both when the mode is enabled and when it is disabled.
 
 Dash-Fontify mode is a buffer-local minor mode intended for Emacs
 Lisp buffers.  Enabling it causes the special variables bound in
@@ -1618,127 +1616,6 @@ be used:
 
 ;;;***
 
-;;;### (autoloads nil "elfeed" "elfeed/elfeed.el" (0 0 0 0))
-;;; Generated autoloads from elfeed/elfeed.el
-
-(autoload 'elfeed-update "elfeed" "\
-Update all the feeds in `elfeed-feeds'." t nil)
-
-(autoload 'elfeed "elfeed" "\
-Enter elfeed." t nil)
-
-(autoload 'elfeed-load-opml "elfeed" "\
-Load feeds from an OPML file into `elfeed-feeds'.
-When called interactively, the changes to `elfeed-feeds' are
-saved to your customization file.
-
-\(fn FILE)" t nil)
-
-(autoload 'elfeed-export-opml "elfeed" "\
-Export the current feed listing to OPML-formatted FILE.
-
-\(fn FILE)" t nil)
-
-(register-definition-prefixes "elfeed" '("elfeed-"))
-
-;;;***
-
-;;;### (autoloads nil "elfeed-csv" "elfeed/elfeed-csv.el" (0 0 0
-;;;;;;  0))
-;;; Generated autoloads from elfeed/elfeed-csv.el
-
-(register-definition-prefixes "elfeed-csv" '("elfeed-csv-"))
-
-;;;***
-
-;;;### (autoloads nil "elfeed-curl" "elfeed/elfeed-curl.el" (0 0
-;;;;;;  0 0))
-;;; Generated autoloads from elfeed/elfeed-curl.el
-
-(register-definition-prefixes "elfeed-curl" '("elfeed-curl-"))
-
-;;;***
-
-;;;### (autoloads nil "elfeed-db" "elfeed/elfeed-db.el" (0 0 0 0))
-;;; Generated autoloads from elfeed/elfeed-db.el
-
-(register-definition-prefixes "elfeed-db" '("elfeed-" "with-elfeed-db-visit"))
-
-;;;***
-
-;;;### (autoloads nil "elfeed-lib" "elfeed/elfeed-lib.el" (0 0 0
-;;;;;;  0))
-;;; Generated autoloads from elfeed/elfeed-lib.el
-
-(register-definition-prefixes "elfeed-lib" '("elfeed-"))
-
-;;;***
-
-;;;### (autoloads nil "elfeed-link" "elfeed/elfeed-link.el" (0 0
-;;;;;;  0 0))
-;;; Generated autoloads from elfeed/elfeed-link.el
-
-(autoload 'elfeed-link-store-link "elfeed-link" "\
-Store a link to an elfeed search or entry buffer.
-
-When storing a link to an entry, automatically extract all the
-entry metadata.  These can be used in the capture templates as
-%:elfeed-entry-<prop>.  See `elfeed-entry--create' for the list
-of available props." nil nil)
-
-(autoload 'elfeed-link-open "elfeed-link" "\
-Jump to an elfeed entry or search.
-
-Depending on what FILTER-OR-ID looks like, we jump to either
-search buffer or show a concrete entry.
-
-\(fn FILTER-OR-ID)" nil nil)
-
-(eval-after-load 'org `(funcall ',(lambda nil (if (version< (org-version) "9.0") (with-no-warnings (org-add-link-type "elfeed" #'elfeed-link-open) (add-hook 'org-store-link-functions #'elfeed-link-store-link)) (with-no-warnings (org-link-set-parameters "elfeed" :follow #'elfeed-link-open :store #'elfeed-link-store-link))))))
-
-;;;***
-
-;;;### (autoloads nil "elfeed-log" "elfeed/elfeed-log.el" (0 0 0
-;;;;;;  0))
-;;; Generated autoloads from elfeed/elfeed-log.el
-
-(register-definition-prefixes "elfeed-log" '("elfeed-log"))
-
-;;;***
-
-;;;### (autoloads nil "elfeed-search" "elfeed/elfeed-search.el" (0
-;;;;;;  0 0 0))
-;;; Generated autoloads from elfeed/elfeed-search.el
-
-(autoload 'elfeed-search-bookmark-handler "elfeed-search" "\
-Jump to an elfeed-search bookmarked location.
-
-\(fn RECORD)" nil nil)
-
-(autoload 'elfeed-search-desktop-restore "elfeed-search" "\
-Restore the state of an elfeed-search buffer on desktop restore.
-
-\(fn FILE-NAME BUFFER-NAME SEARCH-FILTER)" nil nil)
-
-(add-to-list 'desktop-buffer-mode-handlers '(elfeed-search-mode . elfeed-search-desktop-restore))
-
-(register-definition-prefixes "elfeed-search" '("elfeed-s"))
-
-;;;***
-
-;;;### (autoloads nil "elfeed-show" "elfeed/elfeed-show.el" (0 0
-;;;;;;  0 0))
-;;; Generated autoloads from elfeed/elfeed-show.el
-
-(autoload 'elfeed-show-bookmark-handler "elfeed-show" "\
-Show the bookmarked entry saved in the `RECORD'.
-
-\(fn RECORD)" nil nil)
-
-(register-definition-prefixes "elfeed-show" '("elfeed-"))
-
-;;;***
-
 ;;;### (autoloads nil "emacsql" "emacsql/emacsql.el" (0 0 0 0))
 ;;; Generated autoloads from emacsql/emacsql.el
 
@@ -1941,6 +1818,13 @@ Toggle caching of Emms track data." t nil)
 
 ;;;***
 
+;;;### (autoloads nil "emms-jack" "emms/emms-jack.el" (0 0 0 0))
+;;; Generated autoloads from emms/emms-jack.el
+
+(register-definition-prefixes "emms-jack" '("emms-jack-"))
+
+;;;***
+
 ;;;### (autoloads nil "emms-last-played" "emms/emms-last-played.el"
 ;;;;;;  (0 0 0 0))
 ;;; Generated autoloads from emms/emms-last-played.el
@@ -2008,6 +1892,21 @@ Toggle displaying emms lyrics." t nil)
 ;;;### (autoloads nil "emms-mode-line" "emms/emms-mode-line.el" (0
 ;;;;;;  0 0 0))
 ;;; Generated autoloads from emms/emms-mode-line.el
+
+(defvar emms-mode-line-mode nil "\
+Non-nil if Emms-Mode-Line mode is enabled.
+See the `emms-mode-line-mode' command
+for a description of this minor mode.
+Setting this variable directly does not take effect;
+either customize it (see the info node `Easy Customization')
+or call the function `emms-mode-line-mode'.")
+
+(custom-autoload 'emms-mode-line-mode "emms-mode-line" nil)
+
+(autoload 'emms-mode-line-mode "emms-mode-line" "\
+Turn on `emms-mode-line' if ARG is positive, off otherwise.
+
+\(fn &optional ARG)" t nil)
 
 (autoload 'emms-mode-line-enable "emms-mode-line" "\
 Turn on `emms-mode-line'." t nil)
@@ -2103,7 +2002,7 @@ rather than EMMS.
 ;;;;;;  (0 0 0 0))
 ;;; Generated autoloads from emms/emms-player-vlc.el
 
-(register-definition-prefixes "emms-player-vlc" '("emms-player-vlc-" "vlc"))
+(register-definition-prefixes "emms-player-vlc" '("emms-" "vlc"))
 
 ;;;***
 
@@ -2119,11 +2018,41 @@ rather than EMMS.
 ;;;;;;  (0 0 0 0))
 ;;; Generated autoloads from emms/emms-playing-time.el
 
+(defvar emms-playing-time-display-mode nil "\
+Non-nil if Emms-Playing-Time-Display mode is enabled.
+See the `emms-playing-time-display-mode' command
+for a description of this minor mode.
+Setting this variable directly does not take effect;
+either customize it (see the info node `Easy Customization')
+or call the function `emms-playing-time-display-mode'.")
+
+(custom-autoload 'emms-playing-time-display-mode "emms-playing-time" nil)
+
+(autoload 'emms-playing-time-display-mode "emms-playing-time" "\
+Minor mode to display playing time on mode line.
+
+If called interactively, toggle `Emms-Playing-Time-Display mode'.
+If the prefix argument is positive, enable the mode, and if it is
+zero or negative, disable the mode.
+
+If called from Lisp, toggle the mode if ARG is `toggle'.  Enable
+the mode if ARG is nil, omitted, or is a positive number.
+Disable the mode if ARG is a negative number.
+
+The mode's hook is called both when the mode is enabled and when
+it is disabled.
+
+\(fn &optional ARG)" t nil)
+
 (autoload 'emms-playing-time-enable-display "emms-playing-time" "\
 Display playing time on mode line." t nil)
 
+(make-obsolete 'emms-playing-time-enable-display 'emms-playing-time-display-mode '"Apr 2021")
+
 (autoload 'emms-playing-time-disable-display "emms-playing-time" "\
 Remove playing time from mode line." t nil)
+
+(make-obsolete 'emms-playing-time-disable-display 'emms-playing-time-display-mode '"Apr 2021")
 
 (register-definition-prefixes "emms-playing-time" '("emms-playing-time"))
 
@@ -3065,9 +2994,6 @@ If SWITCHES are supplied, they are passed to PROGRAM.  With prefix argument
 ;;;### (autoloads nil "iclj-eldoc" "iclj/iclj-eldoc.el" (0 0 0 0))
 ;;; Generated autoloads from iclj/iclj-eldoc.el
 
-(autoload 'iclj-eldoc-disable "iclj-eldoc" "\
-Disable eldoc operation." t nil)
-
 (register-definition-prefixes "iclj-eldoc" '("iclj-eldoc-"))
 
 ;;;***
@@ -3251,13 +3177,6 @@ Commands:
 ;;; Generated autoloads from lua-mode/init-tryout.el
 
 (register-definition-prefixes "init-tryout" '("add-trace-for"))
-
-;;;***
-
-;;;### (autoloads nil "jack" "emms/jack.el" (0 0 0 0))
-;;; Generated autoloads from emms/jack.el
-
-(register-definition-prefixes "jack" '("jack-"))
 
 ;;;***
 
@@ -3904,9 +3823,8 @@ or call the function `magit-auto-revert-mode'.")
 
 (autoload 'magit-auto-revert-mode "lisp/magit-autorevert" "\
 Toggle Auto-Revert mode in all buffers.
-With prefix ARG, enable Magit-Auto-Revert mode if ARG is positive;
-otherwise, disable it.  If called from Lisp, enable the mode if ARG is
-omitted or nil.
+With prefix ARG, enable Magit-Auto-Revert mode if ARG is positive; otherwise,
+disable it.  If called from Lisp, enable the mode if ARG is omitted or nil.
 
 Auto-Revert mode is enabled in all buffers where
 `magit-turn-on-auto-revert-mode-if-desired' would do it.
@@ -4281,6 +4199,9 @@ Create a squash commit, without editing the squash message.
 With a prefix argument the target COMMIT has to be confirmed.
 Otherwise the commit at point may be used without confirmation
 depending on the value of option `magit-commit-squash-confirm'.
+
+If you want to immediately add a message to the squash commit,
+then use `magit-commit-augment' instead of this command.
 
 \(fn &optional COMMIT ARGS)" t nil)
 
@@ -6147,9 +6068,8 @@ or call the function `magit-wip-after-save-mode'.")
 
 (autoload 'magit-wip-after-save-mode "lisp/magit-wip" "\
 Toggle Magit-Wip-After-Save-Local mode in all buffers.
-With prefix ARG, enable Magit-Wip-After-Save mode if ARG is
-positive; otherwise, disable it.  If called from Lisp, enable the mode if ARG
-is omitted or nil.
+With prefix ARG, enable Magit-Wip-After-Save mode if ARG is positive;
+otherwise, disable it.  If called from Lisp, enable the mode if ARG is omitted or nil.
 
 Magit-Wip-After-Save-Local mode is enabled in all buffers where
 `magit-wip-after-save-local-mode-turn-on' would do it.
@@ -6867,6 +6787,9 @@ Remove known projects that don't exist anymore." t nil)
 (autoload 'projectile-clear-known-projects "projectile" "\
 Clear both `projectile-known-projects' and `projectile-known-projects-file'." t nil)
 
+(autoload 'projectile-reset-known-projects "projectile" "\
+Clear known projects and rediscover." t nil)
+
 (autoload 'projectile-remove-known-project "projectile" "\
 Remove PROJECT from the list of known projects.
 
@@ -7299,7 +7222,7 @@ or call the function `wall-mode'.")
 (custom-autoload 'wall-mode "wall" nil)
 
 (autoload 'wall-mode "wall" "\
-Define a new minor mode `wall-mode'.
+Define wallpaper manager minor mode.
 
 If called interactively, toggle `Wall mode'.  If the prefix
 argument is positive, enable the mode, and if it is zero or
@@ -7741,13 +7664,6 @@ else like the former.
 
 ;;;***
 
-;;;### (autoloads nil "xml-query" "elfeed/xml-query.el" (0 0 0 0))
-;;; Generated autoloads from elfeed/xml-query.el
-
-(register-definition-prefixes "xml-query" '("xml-query"))
-
-;;;***
-
 ;;;### (autoloads nil "yaml-mode" "yaml-mode/yaml-mode.el" (0 0 0
 ;;;;;;  0))
 ;;; Generated autoloads from yaml-mode/yaml-mode.el
@@ -7837,9 +7753,9 @@ See `yas-minor-mode' for more information on Yas minor mode.
 ;;;;;;  "cannon/cannon-autoloads.el" "cmake-mode-20190710.1319/cmake-mode-autoloads.el"
 ;;;;;;  "cmake-mode-20190710.1319/cmake-mode-pkg.el" "dash.el/dash-functional.el"
 ;;;;;;  "dictionary-el/dictionary-init.el" "dictionary-el/lpath.el"
-;;;;;;  "elfeed/elfeed-pkg.el" "emacs-async/async-pkg.el" "emms/emms-maint.el"
-;;;;;;  "emms/emms-stream-info.el" "forge/forge-pkg.el" "ghub/ghub-pkg.el"
-;;;;;;  "lex/verb-autoloads.el" "mine/battery.el" "mine/rss.el" "queue/queue-autoloads.el"
+;;;;;;  "emms/emms-maint.el" "emms/emms-stream-info.el" "forge/forge-pkg.el"
+;;;;;;  "ghub/ghub-pkg.el" "iclj/iclj-autoloads.el" "lex/verb-autoloads.el"
+;;;;;;  "mine/battery.el" "mine/rss.el" "queue/queue-autoloads.el"
 ;;;;;;  "queue/queue-pkg.el" "xelb/xelb.el") (0 0 0 0))
 
 ;;;***

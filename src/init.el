@@ -153,7 +153,7 @@
 ;; (require 'comp nil t)
 
 ;; non-nil means unconditionally (re-)compile all files
-(customize-set-variable 'native-comp-always-compile t)
+(customize-set-variable 'native-comp-always-compile nil)
 
 ;; default number of subprocesses used for async native compilation
 ;; value of zero means to use half the number of the CPU's execution units
@@ -1912,6 +1912,10 @@
 ;; default directory for saving enclosures
 (customize-set-variable 'elfeed-enclosure-default-dir
                         (expand-file-name "cache/elfeed" user-emacs-directory))
+
+;; directory where elfeed will store its database
+(customize-set-variable 'rmh-elfeed-org-files
+                        (expand-file-name "rss/elfeed.org" user-emacs-directory))
 
 ;; (require 'nnimap nil t)
 
